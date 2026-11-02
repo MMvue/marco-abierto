@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Buscar apartamentos · Marco Abierto</title>
+  <meta name="description" content="Busca apartamentos en arriendo y venta en Medellín y el Valle de Aburrá, todos con recorrido 3D.">
+  <meta name="theme-color" content="#0a2540">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body data-pagina="buscar">
+  <div data-barra></div>
+
+  <main>
+    <section class="busqueda-cab campo-navy">
+      <div class="contenedor">
+        <h1 id="titulo-busqueda">Apartamentos con recorrido 3D</h1>
+        <p>Todos tienen recorrido 3D y fotos. Filtra y abre el que te guste.</p>
+
+        <!-- Buscador: barrio, zona o código -->
+        <div class="buscador-q" id="buscador-q">
+          <label class="sr-only" for="q">Buscar por barrio, zona o código</label>
+          <svg class="icono buscador-q__lupa" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-ubicacion"/></svg>
+          <input class="entrada" id="q" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sugerencias"
+            placeholder="Barrio, zona o código del inmueble" autocomplete="off" enterkeyhint="search">
+          <ul class="buscador-q__lista" id="sugerencias" role="listbox" aria-label="Sugerencias" hidden></ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="contenedor busqueda">
+      <div class="hoja-fondo" id="hoja-fondo"></div>
+      <aside class="hoja" id="hoja-filtros" aria-label="Filtros de búsqueda">
+        <div class="hoja__asa" aria-hidden="true"></div>
+        <div class="hoja__cab">
+          <h2>Filtros</h2>
+          <button class="boton boton--suave boton--icono" type="button" id="cerrar-filtros" aria-label="Cerrar filtros"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cerrar"/></svg></button>
+        </div>
+        <form class="hoja__cuerpo filtros" id="filtros">
+          <details class="filtro-grupo" open>
+            <summary><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-ubicacion"/></svg>Ubicación y tipo<span class="filtro-cuenta" data-cuenta="ubicacion"></span><svg class="icono filtro-grupo__flecha" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-abajo"/></svg></summary>
+            <div class="filtro-grupo__cuerpo">
+              <fieldset>
+                <legend>Tipo de negocio</legend>
+                <div class="segmento">
+                  <input type="radio" id="f-todos" name="operacion" value="" checked><label for="f-todos">Todos</label>
+                  <input type="radio" id="f-arriendo" name="operacion" value="arriendo"><label for="f-arriendo"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-llave"/></svg>Arriendo</label>
+                  <input type="radio" id="f-venta" name="operacion" value="venta"><label for="f-venta"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-casa"/></svg>Venta</label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>Tipo de inmueble</legend>
+                <div class="chips">
+                  <label class="chip"><input type="checkbox" name="tipo" value="apartamento"><span><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-edificio"/></svg>Apartamento</span></label>
+                  <label class="chip"><input type="checkbox" name="tipo" value="apartaestudio"><span><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cama"/></svg>Apartaestudio</span></label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>Zona, barrio o municipio</legend>
+                <div class="buscador-q buscador-zona" id="buscador-zona">
+                  <label class="sr-only" for="zona-q">Buscar zona, barrio o municipio</label>
+                  <svg class="icono buscador-q__lupa" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-ubicacion"/></svg>
+                  <input class="entrada" id="zona-q" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="zona-sug"
+                    placeholder="Ej.: Poblado, Envigado, Laureles" autocomplete="off" enterkeyhint="done">
+                  <ul class="buscador-q__lista" id="zona-sug" role="listbox" aria-label="Zonas sugeridas" hidden></ul>
+                </div>
+                <div class="zonas-elegidas" id="zonas-elegidas" aria-live="polite"></div>
+              </fieldset>
+            </div>
+          </details>
+
+          <details class="filtro-grupo" open>
+            <summary><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-casa"/></svg>Características<span class="filtro-cuenta" data-cuenta="caracteristicas"></span><svg class="icono filtro-grupo__flecha" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-abajo"/></svg></summary>
+            <div class="filtro-grupo__cuerpo">
+              <fieldset>
+                <legend><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cama"/></svg>Habitaciones</legend>
+                <div class="chips chips--numeros" data-numeros="hab" data-max="5"></div>
+              </fieldset>
+              <fieldset>
+                <legend><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-ducha"/></svg>Baños</legend>
+                <div class="chips chips--numeros" data-numeros="banos" data-max="4"></div>
+              </fieldset>
+              <fieldset>
+                <legend><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-carro"/></svg>Parqueaderos</legend>
+                <div class="chips chips--numeros" data-numeros="parq" data-max="3"></div>
+              </fieldset>
+              <fieldset>
+                <legend><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-edificio"/></svg>Estrato</legend>
+                <div class="chips chips--numeros">
+                  <label class="chip"><input type="checkbox" name="estrato" value="1"><span>1</span></label>
+                  <label class="chip"><input type="checkbox" name="estrato" value="2"><span>2</span></label>
+                  <label class="chip"><input type="checkbox" name="estrato" value="3"><span>3</span></label>
+                  <label class="chip"><input type="checkbox" name="estrato" value="4"><span>4</span></label>
+                  <label class="chip"><input type="checkbox" name="estrato" value="5"><span>5</span></label>
+                  <label class="chip"><input type="checkbox" name="estrato" value="6"><span>6</span></label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-area"/></svg>Área</legend>
+                <div class="rango">
+                  <label class="campo"><span>Desde (m²)</span><input class="entrada" name="amin" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+                  <label class="campo"><span>Hasta (m²)</span><input class="entrada" name="amax" type="number" inputmode="numeric" min="0" placeholder="Sin límite"></label>
+                </div>
+              </fieldset>
+            </div>
+          </details>
+
+          <details class="filtro-grupo" open>
+            <summary><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-pesos"/></svg>Presupuesto<span class="filtro-cuenta" data-cuenta="presupuesto"></span><svg class="icono filtro-grupo__flecha" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-abajo"/></svg></summary>
+            <div class="filtro-grupo__cuerpo">
+              <div class="rango">
+                <label class="campo"><span id="lbl-desde">Desde</span><input class="entrada" name="min" inputmode="numeric" autocomplete="off" placeholder="$ 0"></label>
+                <label class="campo"><span>Hasta</span><input class="entrada" name="max" inputmode="numeric" autocomplete="off" placeholder="Sin límite"></label>
+              </div>
+            </div>
+          </details>
+          <p class="filtros__nota">Los inmuebles sin precio, área o estrato confirmados aparecen con cualquier valor de esos filtros.</p>
+        </form>
+        <div class="hoja__pie">
+          <button class="boton boton--suave" type="button" id="limpiar">Limpiar</button>
+          <button class="boton boton--navy" type="button" id="ver-resultados">Ver inmuebles</button>
+        </div>
+      </aside>
+
+      <section class="resultados-zona" aria-labelledby="titulo-resultados">
+        <div class="resultados-barra">
+          <h2 id="titulo-resultados" class="conteo" aria-live="polite"></h2>
+          <div class="resultados-barra__acciones">
+            <button class="boton boton--navy abrir-filtros" type="button" aria-controls="hoja-filtros" aria-expanded="false" id="abrir-filtros">
+              <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-filtro"/></svg><span>Filtros</span>
+            </button>
+            <label class="campo ordenar"><span class="sr-only">Ordenar</span>
+              <select class="entrada" id="orden">
+                <option value="recientes">Más recientes</option>
+                <option value="menor">Menor precio</option>
+                <option value="mayor">Mayor precio</option>
+                <option value="hab">Más habitaciones</option>
+                <option value="area">Más área</option>
+              </select>
+            </label>
+            <div class="segmento vista-toggle" role="radiogroup" aria-label="Ver resultados como">
+              <input type="radio" id="v-lista" name="vista" value="lista" checked><label for="v-lista"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-menu"/></svg><span class="vt-txt">Lista</span></label>
+              <input type="radio" id="v-mapa" name="vista" value="mapa"><label for="v-mapa"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-ubicacion"/></svg><span class="vt-txt">Mapa</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="filtros-activos" id="activos" aria-label="Filtros activos"></div>
+        <div class="resultados" id="resultados"></div>
+        <div class="mapa-caja" id="mapa-caja" hidden>
+          <div id="mapa" class="mapa" role="region" aria-label="Mapa de resultados"></div>
+          <p class="filtros__nota">Ubicaciones aproximadas: el mapa nunca muestra la dirección exacta.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div data-pie></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/propiedades.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/mapa.js"></script>
+  <script>
+    (async () => {
+      const P = await DATOS.inmueblesPublicos();
+
+      const form = document.getElementById("filtros");
+      const lista = document.getElementById("resultados");
+      const conteo = document.getElementById("titulo-resultados");
+      const titulo = document.getElementById("titulo-busqueda");
+      const orden = document.getElementById("orden");
+      const verBtn = document.getElementById("ver-resultados");
+      const abrirBtn = document.getElementById("abrir-filtros");
+      const activos = document.getElementById("activos");
+      const q = document.getElementById("q");
+      const esc = MA.esc;
+      let texto = "";      // búsqueda libre
+      let lugares = [];    // zonas, barrios o municipios elegidos: { tipo, valor }
+
+      // Botones de número: 1 · 2 · 3 … y el último con "+" (5+ habitaciones, 4+ baños, 3+ parqueaderos)
+      const NOMBRES = { hab: ["habitación", "habitaciones"], banos: ["baño", "baños"], parq: ["parqueadero", "parqueaderos"] };
+      document.querySelectorAll("[data-numeros]").forEach((g) => {
+        const max = Number(g.dataset.max);
+        g.innerHTML = Array.from({ length: max }, (_, i) => i + 1).map((n) =>
+          `<label class="chip"><input type="checkbox" name="${g.dataset.numeros}" value="${n}"><span>${n}${n === max ? "+" : ""}</span></label>`).join("");
+      });
+      const MAXIMO = { hab: 5, banos: 4, parq: 3 };
+
+      // Sin tildes ni mayúsculas, para que "itagui" encuentre "Itagüí"
+      const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+      const codigo = (p) => String(p.id).slice(0, 8).toUpperCase();
+      const numero = (v) => Number(String(v).replace(/\D/g, "")) || 0;
+      const pesosCortos = (n) => (n >= 1e9 ? `$ ${(n / 1e9).toLocaleString("es-CO", { maximumFractionDigits: 1 })} mil M` : n >= 1e6 ? `$ ${(n / 1e6).toLocaleString("es-CO", { maximumFractionDigits: 1 })} M` : "$ " + n.toLocaleString("es-CO"));
+
+      form.querySelectorAll('[name="min"], [name="max"]').forEach((inp) => {
+        inp.addEventListener("input", () => {
+          const n = numero(inp.value);
+          inp.value = n ? "$ " + n.toLocaleString("es-CO") : "";
+        });
+      });
+
+      /* ---------- Leer la URL (viene del inicio, de una zona o de un enlace compartido) ---------- */
+      const params = new URLSearchParams(location.search);
+      const marcar = (name, value) => {
+        const el = form.querySelector(`[name="${name}"][value="${CSS.escape(String(value))}"]`);
+        if (el) el.checked = true;
+      };
+      if (params.has("operacion")) marcar("operacion", params.get("operacion"));
+      ["tipo", "estrato", "hab", "banos", "parq"].forEach((k) => params.getAll(k).forEach((v) => marcar(k, v)));
+      ["zona", "barrio", "municipio"].forEach((tipo) => params.getAll(tipo).forEach((valor) => lugares.push({ tipo, valor })));
+      ["amin", "amax"].forEach((k) => { if (params.get(k)) form[k].value = numero(params.get(k)); });
+      ["min", "max"].forEach((k) => { if (params.get(k)) form[k].value = "$ " + numero(params.get(k)).toLocaleString("es-CO"); });
+      if (params.get("orden")) orden.value = params.get("orden");
+      texto = params.get("q") || "";
+      q.value = texto;
+      if (params.get("vista") === "mapa") document.getElementById("v-mapa").checked = true;
+
+      /* ---------- Estado de los filtros ---------- */
+      const estado = () => {
+        const d = new FormData(form);
+        return {
+          op: d.get("operacion"), tipos: d.getAll("tipo"), lugares: [...lugares],
+          hab: d.getAll("hab").map(Number), banos: d.getAll("banos").map(Number), parq: d.getAll("parq").map(Number),
+          estratos: d.getAll("estrato").map(Number), amin: Number(d.get("amin")) || 0, amax: Number(d.get("amax")) || 0,
+          min: numero(d.get("min")), max: numero(d.get("max")), texto
+        };
+      };
+
+      const cumple = (p, s) => {
+        const parq = Number(p.parqueaderos) || (p.parqueadero ? 1 : 0);
+        const enRango = (v, a, b) => v == null || ((!a || v >= a) && (!b || v <= b));
+        // Número exacto; el último botón ("5+") incluye todo lo que sea igual o mayor
+        const enLista = (v, lista, max) => !lista.length || lista.some((n) => (n === max ? v >= max : v === n));
+        const enLugar = (l) => (l.tipo === "barrio" ? p.barrio === l.valor : l.tipo === "municipio" ? p.municipio === l.valor : p.zona === l.valor);
+        return (!s.op || p.operacion === s.op) &&
+          (!s.tipos.length || s.tipos.includes(p.tipo || "apartamento")) &&
+          (!s.lugares.length || s.lugares.some(enLugar)) &&
+          enLista(p.habitaciones, s.hab, MAXIMO.hab) && enLista(p.banos, s.banos, MAXIMO.banos) && enLista(parq, s.parq, MAXIMO.parq) &&
+          (!s.estratos.length || p.estrato == null || s.estratos.includes(Number(p.estrato))) &&
+          enRango(p.area, s.amin, s.amax) && enRango(p.precio, s.min, s.max) &&
+          (!s.texto || norm([p.titulo, p.zona, p.barrio, p.municipio, p.metro, p.descripcion, codigo(p)].join(" ")).includes(norm(s.texto)));
+      };
+
+      /* ---------- Etiquetas de filtros activos (se quitan con la x) ---------- */
+      const ETIQUETAS = { arriendo: "Arriendo", venta: "Venta", apartamento: "Apartamento", apartaestudio: "Apartaestudio" };
+      const etiquetas = (s) => {
+        const e = [];
+        const desmarcar = (name, value) => () => { const el = form.querySelector(`[name="${name}"][value="${CSS.escape(String(value))}"]`); if (el) el.checked = false; };
+        const radioTodos = (name) => () => { form.querySelector(`[name="${name}"][value=""]`).checked = true; };
+        if (s.op) e.push([ETIQUETAS[s.op], radioTodos("operacion"), "ubicacion"]);
+        s.tipos.forEach((t) => e.push([ETIQUETAS[t], desmarcar("tipo", t), "ubicacion"]));
+        s.lugares.forEach((l) => e.push([l.valor, () => { lugares = lugares.filter((x) => !(x.tipo === l.tipo && x.valor === l.valor)); }, "ubicacion"]));
+        ["hab", "banos", "parq"].forEach((k) => s[k].forEach((n) =>
+          e.push([`${n}${n === MAXIMO[k] ? "+" : ""} ${NOMBRES[k][n === 1 ? 0 : 1]}`, desmarcar(k, n), "caracteristicas"])));
+        s.estratos.forEach((n) => e.push([`Estrato ${n}`, desmarcar("estrato", n), "caracteristicas"]));
+        if (s.amin || s.amax) e.push([s.amin && s.amax ? `${s.amin} a ${s.amax} m²` : s.amin ? `Desde ${s.amin} m²` : `Hasta ${s.amax} m²`, () => { form.amin.value = ""; form.amax.value = ""; }, "caracteristicas"]);
+        if (s.min || s.max) e.push([s.min && s.max ? `${pesosCortos(s.min)} a ${pesosCortos(s.max)}` : s.min ? `Desde ${pesosCortos(s.min)}` : `Hasta ${pesosCortos(s.max)}`, () => { form.min.value = ""; form.max.value = ""; }, "presupuesto"]);
+        if (s.texto) e.push([`«${s.texto}»`, () => { texto = ""; q.value = ""; }, "texto"]);
+        return e;
+      };
+      let quitar = [];
+      activos.addEventListener("click", (ev) => {
+        const b = ev.target.closest("[data-quitar]");
+        if (b) { quitar[Number(b.dataset.quitar)](); filtrar(); return; }
+        if (ev.target.closest("[data-limpiar]")) limpiar();
+      });
+
+      /* ---------- Filtrar y pintar ---------- */
+      let resultados = [];
+      function filtrar() {
+        const s = estado();
+        let r = P.filter((p) => cumple(p, s));
+        const o = orden.value;
+        if (o === "hab") r = [...r].sort((a, b) => b.habitaciones - a.habitaciones);
+        if (o === "area") r = [...r].sort((a, b) => (b.area || 0) - (a.area || 0));
+        if (o === "menor" || o === "mayor") r = [...r].sort((a, b) => {
+          if (a.precio == null) return 1;
+          if (b.precio == null) return -1;
+          return o === "menor" ? a.precio - b.precio : b.precio - a.precio;
+        });
+        resultados = r;
+
+        document.getElementById("lbl-desde").textContent = s.op === "arriendo" ? "Canon desde" : s.op === "venta" ? "Precio desde" : "Desde";
+        titulo.textContent = s.op === "arriendo" ? "Apartamentos en arriendo" : s.op === "venta" ? "Apartamentos en venta" : "Apartamentos con recorrido 3D";
+        const n = `${r.length} ${r.length === 1 ? "inmueble" : "inmuebles"}`;
+        conteo.textContent = n + (s.lugares.length === 1 ? " en " + s.lugares[0].valor : "");
+        pintarLugares();
+        verBtn.textContent = `Ver ${n}`;
+
+        const e = etiquetas(s);
+        quitar = e.map((x) => x[1]);
+        activos.innerHTML = e.length
+          ? e.map(([t], i) => `<button class="filtro-activo" type="button" data-quitar="${i}" aria-label="Quitar filtro ${esc(t)}">${esc(t)}${MA.icono("cerrar")}</button>`).join("") +
+            '<button class="filtro-activo filtro-activo--limpiar" type="button" data-limpiar>Limpiar todo</button>'
+          : "";
+        const porGrupo = (g) => e.filter((x) => x[2] === g).length;
+        document.querySelectorAll("[data-cuenta]").forEach((c) => { const k = porGrupo(c.dataset.cuenta); c.textContent = k || ""; c.hidden = !k; });
+        const total = e.length;
+        abrirBtn.querySelector("span").textContent = total ? `Filtros (${total})` : "Filtros";
+
+        // Si buscaron un barrio sin resultados, se ofrece ver toda su zona
+        const barrioVacio = !r.length && s.lugares.find((l) => l.tipo === "barrio");
+        const zonaDelBarrio = barrioVacio && (window.BARRIOS.find((b) => b.nombre === barrioVacio.valor) || {}).zona;
+        lista.innerHTML = r.length ? r.map(MA.tarjetaHTML).join("") :
+          `<div class="vacio">${MA.icono("casa")}<h3 style="font-size:1.4rem">${barrioVacio ? `Aún no hay inmuebles en ${esc(barrioVacio.valor)}` : "No hay inmuebles con esos filtros"}</h3>
+            <p>${zonaDelBarrio ? `Mira lo que tenemos en ${esc(zonaDelBarrio)}, la zona de ese barrio.` : "Prueba con otra zona o quita algún filtro."}</p>
+            ${zonaDelBarrio ? `<button class="boton boton--navy" type="button" data-ver-zona="${esc(zonaDelBarrio)}" data-quitar-barrio="${esc(barrioVacio.valor)}">Ver ${esc(zonaDelBarrio)}</button>` : '<button class="boton boton--navy" type="button" data-limpiar-todo>Quitar filtros</button>'}</div>`;
+        MA.activarTarjetas(lista);
+        if (vistaMapa()) MAPA.pintar(r);
+
+        // La búsqueda queda en la URL para poder compartirla
+        const u = new URLSearchParams();
+        if (s.op) u.set("operacion", s.op);
+        s.tipos.forEach((t) => u.append("tipo", t));
+        s.lugares.forEach((l) => u.append(l.tipo, l.valor));
+        ["hab", "banos", "parq"].forEach((k) => s[k].forEach((n) => u.append(k, n)));
+        s.estratos.forEach((n) => u.append("estrato", n));
+        if (s.amin) u.set("amin", s.amin);
+        if (s.amax) u.set("amax", s.amax);
+        if (s.min) u.set("min", s.min);
+        if (s.max) u.set("max", s.max);
+        if (s.texto) u.set("q", s.texto);
+        if (o !== "recientes") u.set("orden", o);
+        if (vistaMapa()) u.set("vista", "mapa");
+        history.replaceState(null, "", u.toString() ? "?" + u : location.pathname);
+      }
+
+      const limpiar = () => { form.reset(); texto = ""; lugares = []; q.value = ""; filtrar(); };
+      // El buscador de zona no filtra mientras se escribe: filtra al elegir una sugerencia
+      form.addEventListener("input", (e) => { if (e.target.id !== "zona-q") filtrar(); });
+      form.addEventListener("submit", (e) => e.preventDefault());
+      orden.addEventListener("change", filtrar);
+      document.getElementById("limpiar").addEventListener("click", limpiar);
+      lista.addEventListener("click", (e) => {
+        if (e.target.closest("[data-limpiar-todo]")) limpiar();
+        const vz = e.target.closest("[data-ver-zona]");
+        if (vz) {
+          lugares = lugares.filter((l) => !(l.tipo === "barrio" && l.valor === vz.dataset.quitarBarrio));
+          agregarLugar({ tipo: "zona", valor: vz.dataset.verZona });
+        }
+      });
+
+      /* ---------- Lista o mapa ---------- */
+      const vistaMapa = () => document.getElementById("v-mapa").checked;
+      const cambiarVista = async () => {
+        const mapa = vistaMapa();
+        document.getElementById("mapa-caja").hidden = !mapa;
+        lista.hidden = mapa;
+        if (mapa) { await MAPA.iniciar(document.getElementById("mapa")); MAPA.pintar(resultados); }
+        filtrar();
+      };
+      document.querySelectorAll('[name="vista"]').forEach((r) => r.addEventListener("change", cambiarVista));
+
+      /* ---------- Lugares: zonas, barrios y municipios (lista y sugerencias en js/app.js) ---------- */
+      const buscarLugares = MA.buscarLugares;
+      const autocompletar = MA.autocompletar;
+
+      function agregarLugar(l) {
+        if (!lugares.some((x) => x.tipo === l.tipo && x.valor === l.valor)) lugares.push({ tipo: l.tipo, valor: l.valor });
+        filtrar();
+      }
+      // Etiquetas de los lugares elegidos, debajo del buscador de zona
+      function pintarLugares() {
+        document.getElementById("zonas-elegidas").innerHTML = lugares.map((l, i) =>
+          `<button class="filtro-activo" type="button" data-quitar-lugar="${i}" aria-label="Quitar ${esc(l.valor)}">${esc(l.valor)}${MA.icono("cerrar")}</button>`).join("");
+      }
+      document.getElementById("zonas-elegidas").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-quitar-lugar]");
+        if (!b) return;
+        lugares.splice(Number(b.dataset.quitarLugar), 1);
+        filtrar();
+        document.getElementById("zona-q").focus();
+      });
+
+      // Buscador de zona dentro de los filtros
+      const zonaQ = document.getElementById("zona-q");
+      autocompletar(zonaQ, document.getElementById("zona-sug"), document.getElementById("buscador-zona"),
+        (t) => buscarLugares(t),
+        (o) => { zonaQ.value = ""; agregarLugar(o); zonaQ.focus(); });
+
+      // Buscador de arriba: lugares, inmuebles por nombre o código, o texto libre
+      autocompletar(q, document.getElementById("sugerencias"), document.getElementById("buscador-q"),
+        (t, crudo) => {
+          const inmuebles = P.filter((p) => norm(p.titulo + " " + codigo(p)).includes(t)).slice(0, 3)
+            .map((p) => ({ tipo: "inmueble", texto: p.titulo, detalle: "Código " + codigo(p), icono: "casa", valor: p.id }));
+          return [...buscarLugares(t, 5), ...inmuebles,
+            { tipo: "texto", texto: `Buscar «${crudo}»`, detalle: "En todo", icono: "filtro", valor: crudo }];
+        },
+        (o) => {
+          if (o.tipo === "inmueble") { location.href = `inmueble.html?id=${encodeURIComponent(o.valor)}`; return; }
+          if (["zona", "barrio", "municipio"].includes(o.tipo)) { q.value = ""; agregarLugar(o); return; }
+          if (o.tipo === "texto") texto = o.valor;
+          filtrar();
+        });
+      q.addEventListener("input", () => { if (!q.value.trim() && texto) { texto = ""; filtrar(); } });
+
+      /* ---------- Hoja inferior en celular: se abre con el botón y se cierra arrastrando hacia abajo ---------- */
+      const hoja = document.getElementById("hoja-filtros");
+      const fondo = document.getElementById("hoja-fondo");
+      const esHoja = matchMedia("(max-width: 959px)");
+      const abrir = (si) => {
+        hoja.classList.toggle("is-abierta", si);
+        fondo.classList.toggle("is-abierta", si);
+        document.body.classList.toggle("sin-scroll", si);
+        abrirBtn.setAttribute("aria-expanded", String(si));
+        hoja.style.transform = "";
+        hoja.inert = esHoja.matches && !si;
+        if (si) hoja.querySelector("summary").focus({ preventScroll: true });
+        else abrirBtn.focus({ preventScroll: true });
+      };
+      const ajustarInert = () => { hoja.inert = esHoja.matches && !hoja.classList.contains("is-abierta"); };
+      esHoja.addEventListener("change", ajustarInert);
+      ajustarInert();
+      abrirBtn.addEventListener("click", () => abrir(true));
+      document.getElementById("cerrar-filtros").addEventListener("click", () => abrir(false));
+      verBtn.addEventListener("click", () => abrir(false));
+      fondo.addEventListener("click", () => abrir(false));
+      hoja.addEventListener("keydown", (e) => { if (e.key === "Escape" && esHoja.matches) abrir(false); });
+
+      let y0 = null, t0 = 0, dy = 0;
+      hoja.querySelectorAll(".hoja__asa, .hoja__cab").forEach((asa) => {
+        asa.addEventListener("pointerdown", (e) => {
+          if (!esHoja.matches || e.target.closest("button")) return;
+          y0 = e.clientY; t0 = performance.now(); dy = 0;
+          hoja.classList.add("is-arrastrando");
+          asa.setPointerCapture(e.pointerId);
+        });
+        asa.addEventListener("pointermove", (e) => {
+          if (y0 === null) return;
+          dy = e.clientY - y0;
+          hoja.style.transform = `translateY(${dy < 0 ? dy * 0.15 : dy}px)`;
+        });
+        const soltar = () => {
+          if (y0 === null) return;
+          const v = dy / Math.max(1, performance.now() - t0);
+          y0 = null;
+          hoja.classList.remove("is-arrastrando");
+          if (dy > 120 || v > 0.6) abrir(false);
+          else hoja.style.transform = "";
+        };
+        asa.addEventListener("pointerup", soltar);
+        asa.addEventListener("pointercancel", soltar);
+      });
+
+      MA.iniciar();
+      if (vistaMapa()) cambiarVista(); else filtrar();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Marco Abierto · Apartamentos en Medellín con recorrido 3D</title>
+  <meta name="description" content="Arriendo y venta de apartamentos en Medellín y el Valle de Aburrá. Cada inmueble con recorrido 3D y fotos.">
+  <meta name="theme-color" content="#0a2540">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body data-pagina="inicio">
+  <div data-barra></div>
+
+  <main>
+    <!-- Hero: el recorrido 3D es lo primero que se ve -->
+    <section class="hero campo-navy">
+      <div class="contenedor hero__grid">
+        <div class="hero__texto">
+          <div>
+            <h1 class="hero__titulo lineas">
+              <span class="linea"><span data-linea style="--i:0">Entra antes</span></span>
+              <span class="linea"><span data-linea style="--i:1">de visitar.</span></span>
+            </h1>
+            <p class="hero__bajada" data-carga style="--d:380ms">Cada apartamento que publicamos en Medellín y el Valle de Aburrá tiene recorrido 3D. Recórrelo desde el celular y agenda solo las visitas que valen la pena.</p>
+          </div>
+          <!-- Buscador compacto: los mismos filtros de la página de búsqueda, en corto -->
+          <form class="buscador" id="buscador-hero" action="buscar.html" data-carga style="--d:480ms" aria-label="Buscar inmuebles">
+            <div class="segmento" role="radiogroup" aria-label="Tipo de negocio">
+              <input type="radio" id="h-arriendo" name="operacion" value="arriendo" checked><label for="h-arriendo"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-llave"/></svg>Arriendo</label>
+              <input type="radio" id="h-venta" name="operacion" value="venta"><label for="h-venta"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-casa"/></svg>Venta</label>
+            </div>
+            <div class="buscador-q buscador__donde" id="h-donde">
+              <label class="sr-only" for="h-q">¿Dónde buscas?</label>
+              <svg class="icono buscador-q__lupa" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-ubicacion"/></svg>
+              <input class="entrada" id="h-q" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="h-sug"
+                placeholder="¿Dónde? Barrio, zona o municipio" autocomplete="off" enterkeyhint="search">
+              <ul class="buscador-q__lista" id="h-sug" role="listbox" aria-label="Lugares sugeridos" hidden></ul>
+            </div>
+            <div class="buscador__fila">
+              <div class="buscador__grupo" role="group" aria-labelledby="h-hab-t">
+                <span class="buscador__rotulo" id="h-hab-t"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cama"/></svg>Habitaciones</span>
+                <div class="chips">
+                  <label class="chip"><input type="checkbox" name="hab" value="1"><span>1</span></label>
+                  <label class="chip"><input type="checkbox" name="hab" value="2"><span>2</span></label>
+                  <label class="chip"><input type="checkbox" name="hab" value="3"><span>3</span></label>
+                  <label class="chip"><input type="checkbox" name="hab" value="4"><span>4</span></label>
+                  <label class="chip"><input type="checkbox" name="hab" value="5"><span>5+</span></label>
+                </div>
+              </div>
+              <div class="buscador__grupo">
+                <label class="buscador__rotulo" for="h-max"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-pesos"/></svg>Presupuesto máximo</label>
+                <input class="entrada" name="max" id="h-max" inputmode="numeric" autocomplete="off" enterkeyhint="search" placeholder="Sin límite" aria-describedby="h-max-ayuda">
+                <small class="buscador__ayuda" id="h-max-ayuda" aria-live="polite"></small>
+              </div>
+            </div>
+            <button class="boton boton--navy buscador__ir" type="submit"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-casa"/></svg>Ver apartamentos</button>
+          </form>
+        </div>
+        <div class="hero__visor visor-marco" id="hero-visor"></div>
+      </div>
+    </section>
+
+    <!-- Recién publicados -->
+    <section class="seccion" aria-labelledby="t-recientes">
+      <div class="contenedor">
+        <div class="cabeza">
+          <h2 id="t-recientes" data-aparece>Recorridos recién publicados</h2>
+          <p data-aparece style="--i:1">Pasa el dedo por las tarjetas y abre el que te guste: recorrido 3D y fotos en un mismo lugar.</p>
+        </div>
+        <div class="fila" id="recientes"></div>
+        <p style="margin-top:32px"><a class="boton boton--navy" href="buscar.html">Ver todos los inmuebles <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-flecha"/></svg></a></p>
+      </div>
+    </section>
+
+    <!-- El apartamento se arma mientras bajas: piso, paredes, muebles -->
+    <section class="arma campo-navy" id="arma" aria-labelledby="t-arma">
+      <div class="arma__escena">
+        <div class="contenedor arma__grid">
+          <div class="arma__texto">
+            <h2 id="t-arma">Recórrelo sin salir de casa</h2>
+            <ol class="arma__pasos" id="arma-pasos">
+              <li class="arma__paso is-activo">
+                <span class="arma__ico"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cubo"/></svg></span>
+                <div><h3>Recorre cada espacio</h3><p>El recorrido 3D te lleva cuarto por cuarto, con la luz y el tamaño real.</p></div>
+              </li>
+              <li class="arma__paso">
+                <span class="arma__ico"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-calendario"/></svg></span>
+                <div><h3>Agenda solo lo que te gustó</h3><p>Cuando vayas, ya sabes lo que vas a encontrar.</p>
+                  <a class="boton arma__boton" href="buscar.html">Ver apartamentos</a></div>
+              </li>
+            </ol>
+          </div>
+          <figure class="arma__modelo" id="arma-modelo" aria-label="Un apartamento ilustrativo que se arma en 3D: piso, paredes y muebles"></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- Propietarios: segundo diferenciador -->
+    <section class="seccion campo-celeste" aria-labelledby="t-prop">
+      <div class="contenedor prop">
+        <div class="prop__texto">
+          <h2 id="t-prop" data-aparece>Tu inmueble, siempre a la vista</h2>
+          <p data-aparece style="--i:1">En tu panel ves en tiempo real qué pasa con tu apartamento. Nunca vas a tener que preguntar: si algo cambia, te avisamos primero.</p>
+          <ul class="prop__lista" data-aparece style="--i:2">
+            <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg>Estado del inmueble actualizado en cada paso</li>
+            <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg>Aviso con cada visita, cada interesado y cada oferta</li>
+            <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg>Próximo paso con fecha y responsable</li>
+            <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg>Recorrido 3D al publicar <span class="marcador">confirmar si tiene costo</span></li>
+          </ul>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;--i:3" data-aparece>
+            <a class="boton boton--navy" href="propietarios.html#publicar">Publicar mi inmueble</a>
+            <a class="boton boton--claro" href="panel.html">Ver cómo es el panel</a>
+          </div>
+        </div>
+        <div class="mini-panel" data-ui data-aparece style="--i:2" aria-label="Fragmento del panel del propietario">
+          <div class="mini-panel__cab">
+            <span class="en-vivo">Actualizado hace un momento</span>
+          </div>
+          <div>
+            <p style="color:var(--tinta-2);font-size:.9rem">Estado de tu apartamento</p>
+            <p class="mini-panel__estado" style="font-weight:800">Recibiendo visitas</p>
+          </div>
+          <div class="linea-tiempo">
+            <div class="evento"><span class="evento__ico"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-calendario"/></svg></span>
+              <div><h3>Visita agendada para mañana</h3><p>Interesado en arriendo, 10:00 a. m.</p><span class="evento__aviso"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg>Te avisamos por WhatsApp</span></div></div>
+            <div class="evento"><span class="evento__ico"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cubo"/></svg></span>
+              <div><h3>Recorrido 3D publicado</h3><p>Ya aparece en la búsqueda de Laureles.</p><span class="evento__aviso"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg>Te avisamos por WhatsApp</span></div></div>
+            <div class="evento"><span class="evento__ico"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-documento"/></svg></span>
+              <div><h3>Contrato de corretaje firmado</h3><p>Disponible en tus documentos.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Zonas: mapa ilustrado del Valle de Aburrá -->
+    <section class="seccion zonas-mapa" aria-labelledby="t-zonas">
+      <div class="contenedor zonas-mapa__grid">
+        <div class="zonas-mapa__intro">
+          <h2 id="t-zonas" data-aparece>Elige tu zona en el mapa</h2>
+          <p data-aparece style="--i:1">De Bello a Caldas, a lo largo del río y del metro. Toca una zona para ver lo que hay publicado.</p>
+          <div class="zona-detalle" id="zona-detalle" aria-live="polite" data-aparece style="--i:2"></div>
+          <ul class="zonas-mapa__lista" id="zonas" aria-label="Zonas"></ul>
+        </div>
+        <figure class="zonas-mapa__mapa" id="mapa-valle" data-aparece style="--i:1"></figure>
+      </div>
+    </section>
+
+    <!-- Socios referidores -->
+    <section class="seccion campo-navy" aria-labelledby="t-socios">
+      <div class="contenedor socios">
+        <div>
+          <h2 id="t-socios" data-aparece>Refiere un inmueble y gana</h2>
+          <p data-aparece style="--i:1">¿Conoces a alguien que quiere arrendar o vender su apartamento? Preséntanoslo. Cuando el negocio se cierre, recibes tu comisión.</p>
+          <p style="margin-top:14px;--i:2" data-aparece><span class="marcador">Porcentaje de comisión y condiciones</span></p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;--i:2" data-aparece>
+          <a class="boton" href="propietarios.html#socios"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-socio"/></svg>Quiero ser socio referidor</a>
+          <a class="boton boton--claro" href="socio.html">Ver cómo es el panel</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-pie></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/propiedades.js"></script>
+  <script src="js/app.js"></script>
+  <!-- Escenas 3D: si el navegador no puede, se quedan las versiones planas -->
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+  <script type="module">
+    import { casa, valle } from "./js/escenas3d.js";
+    casa(document.getElementById("arma-modelo"));
+    valle(document.getElementById("mapa-valle"));
+  </script>
+  <script>
+    (async () => {
+      const P = await DATOS.inmueblesPublicos();
+      const ejemplos = window.PROPIEDADES;
+      // El hero muestra el inmueble más reciente con recorrido 3D (o el primero si ninguno lo tiene)
+      document.getElementById("hero-visor").innerHTML = MA.visorHTML(P.find((p) => p.tour) || P[0] || ejemplos[0]);
+      // El vidrio del marco: se corre al cargar y deja ver el apartamento
+      document.querySelector("#hero-visor .visor__escena").insertAdjacentHTML("beforeend", '<div class="marco__vidrio" aria-hidden="true"></div>');
+      document.getElementById("recientes").innerHTML = P.slice(0, 6).map(MA.tarjetaHTML).join("");
+      /* ---------- Escena: el apartamento se arma mientras bajas ---------- */
+      (() => {
+        const seccion = document.getElementById("arma");
+        const caja = document.getElementById("arma-modelo");
+        // insertAdjacentHTML (no innerHTML) para no borrar el lienzo 3D si ya se montó
+        caja.insertAdjacentHTML("afterbegin", MA.modeloSVG(ejemplos.find((p) => p.habitaciones >= 3) || ejemplos[0]));
+        const svg = caja.querySelector("[data-modelo]");
+        const capas = [...svg.querySelectorAll("[data-capa]")];
+        const muebles = svg.querySelector("[data-muebles]");
+        const pasos = [...document.querySelectorAll(".arma__paso")];
+        const acotar = (x) => Math.max(0, Math.min(1, x));
+        // 0–20 %: aparece el piso · 20–65 %: suben las paredes · 62–82 %: llegan los muebles · el modelo gira todo el tiempo
+        const pintar = (p) => {
+          capas[0].style.opacity = 0.15 + 0.85 * acotar(p / 0.2);
+          const nivel = acotar((p - 0.2) / 0.45) * (capas.length - 1);
+          capas.slice(1).forEach((g, i) => { g.style.opacity = i < nivel ? 1 : 0; });
+          muebles.style.opacity = acotar((p - 0.62) / 0.2);
+          MA.girarModelo(svg, 12 + p * 58);
+          const paso = p < 0.5 ? 0 : 1;
+          pasos.forEach((li, k) => li.classList.toggle("is-activo", k === paso));
+          // La casa en 3D (js/escenas3d.js) escucha este avance
+          window.__armaProgreso = p;
+          window.dispatchEvent(new CustomEvent("arma:progreso", { detail: p }));
+        };
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          seccion.classList.add("is-quieta");
+          pintar(1);
+          return;
+        }
+        seccion.classList.add("is-escena");
+        let pendiente = false;
+        const medir = () => {
+          pendiente = false;
+          const r = seccion.getBoundingClientRect();
+          pintar(acotar(-r.top / Math.max(1, r.height - innerHeight)));
+        };
+        addEventListener("scroll", () => { if (!pendiente) { pendiente = true; requestAnimationFrame(medir); } }, { passive: true });
+        addEventListener("resize", medir);
+        medir();
+      })();
+
+      /* ---------- Buscador compacto de la portada ---------- */
+      const fb = document.getElementById("buscador-hero");
+      const hq = document.getElementById("h-q");
+      const hmax = document.getElementById("h-max");
+      let lugarElegido = null;
+      // Presupuesto escrito: se le ponen los puntos de miles mientras se escribe y abajo se lee en palabras (vacío = sin límite)
+      const ayudaMax = document.getElementById("h-max-ayuda");
+      const numero = (v) => Number(String(v).replace(/\D/g, "")) || 0;
+      const enPalabras = (n) => {
+        const f = (x) => x.toLocaleString("es-CO", { maximumFractionDigits: 1 });
+        return n >= 1e9 ? `$ ${f(n / 1e9)} mil millones` : n >= 1e6 ? `$ ${f(n / 1e6)} ${n >= 2e6 ? "millones" : "millón"}` : "$ " + n.toLocaleString("es-CO");
+      };
+      const pintarPresupuesto = () => {
+        const n = numero(hmax.value), arriendo = fb.operacion.value === "arriendo";
+        ayudaMax.textContent = n ? `Hasta ${enPalabras(n)}${arriendo ? " al mes" : ""}` : "";
+      };
+      hmax.addEventListener("input", () => {
+        const n = numero(hmax.value);
+        hmax.value = n ? "$ " + n.toLocaleString("es-CO") : "";
+        pintarPresupuesto();
+      });
+      fb.querySelectorAll('[name="operacion"]').forEach((r) => r.addEventListener("change", pintarPresupuesto));
+      pintarPresupuesto();
+
+      MA.autocompletar(hq, document.getElementById("h-sug"), document.getElementById("h-donde"),
+        (t) => MA.buscarLugares(t, 6),
+        (o) => { lugarElegido = o; hq.value = o.valor; });
+      hq.addEventListener("input", () => { lugarElegido = null; });
+
+      fb.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const u = new URLSearchParams();
+        u.set("operacion", fb.operacion.value);
+        const texto = hq.value.trim();
+        if (lugarElegido) u.set(lugarElegido.tipo, lugarElegido.valor);
+        else if (texto) {
+          // Si escribió sin elegir, se toma la primera coincidencia; si no hay, se busca como texto
+          const m = MA.buscarLugares(MA.norm(texto), 1)[0];
+          if (m) u.set(m.tipo, m.valor); else u.set("q", texto);
+        }
+        fb.querySelectorAll('[name="hab"]:checked').forEach((c) => u.append("hab", c.value));
+        if (numero(hmax.value)) u.set("max", numero(hmax.value));
+        location.href = "buscar.html?" + u;
+      });
+
+      /* ---------- Mapa ilustrado del Valle de Aburrá ----------
+         Las zonas se ubican con sus coordenadas reales (centro aproximado);
+         el río y la línea A del metro son trazos simplificados. */
+      (() => {
+        // Ilustrativo: el ancho se estira un poco para que quepan los nombres
+        const W = 460, H = 570;
+        const x = (lng) => 30 + (lng + 75.66) * 2300;
+        const y = (lat) => 20 + (6.36 - lat) * 1900;
+        const pt = ([lat, lng]) => `${x(lng).toFixed(1)},${y(lat).toFixed(1)}`;
+        // Curva suave que pasa por los puntos
+        const curva = (pts) => {
+          const P2 = pts.map(([la, ln]) => [x(ln), y(la)]);
+          let d = `M${P2[0][0].toFixed(1)},${P2[0][1].toFixed(1)}`;
+          for (let i = 1; i < P2.length; i++) {
+            const [x0, y0] = P2[i - 1], [x1, y1] = P2[i];
+            d += ` Q${x0.toFixed(1)},${y0.toFixed(1)} ${((x0 + x1) / 2).toFixed(1)},${((y0 + y1) / 2).toFixed(1)}`;
+          }
+          const u = P2[P2.length - 1];
+          return d + ` L${u[0].toFixed(1)},${u[1].toFixed(1)}`;
+        };
+        const RIO = [[6.355, -75.548], [6.33, -75.556], [6.29, -75.565], [6.25, -75.572], [6.215, -75.578], [6.185, -75.592], [6.17, -75.603], [6.155, -75.614], [6.14, -75.628], [6.11, -75.636], [6.085, -75.638]];
+        const METRO = [[6.338, -75.543], [6.30, -75.561], [6.25, -75.568], [6.212, -75.576], [6.175, -75.599], [6.164, -75.607], [6.153, -75.612], [6.152, -75.626]];
+        // El valle: una franja alrededor del río, más ancha en el centro de Medellín
+        const ancho = [34, 48, 72, 104, 96, 82, 78, 70, 52, 40, 32];
+        const pts = RIO.map(([la, ln]) => [x(ln), y(la)]);
+        const borde = (lado) => pts.map(([px, py], i) => [px + lado * ancho[i], py]);
+        const izq = borde(-1), der = borde(1).reverse();
+        const suave = (arr) => arr.map(([px, py], i) => `${i ? "L" : "M"}${px.toFixed(1)},${py.toFixed(1)}`).join(" ");
+        const valle = `${suave(izq)} ${suave(der).replace("M", "L")} Z`;
+
+        const cuenta = {};
+        P.forEach((p) => { cuenta[p.zona] = (cuenta[p.zona] || 0) + 1; });
+        // Lado del nombre de cada zona, para que no se monten unos sobre otros
+        const LADO = { "La América": "izq", "Robledo": "izq", "Belén": "izq", "Guayabal": "izq", "Itagüí": "izq", "Laureles": "abajo", "La Estrella": "abajo", "Copacabana": "abajo", "Centro": "arriba" };
+
+        const zonas = window.ZONAS.map((z) => {
+          const n = cuenta[z.nombre] || 0;
+          const cx = x(z.lng), cy = y(z.lat), r = 7 + Math.min(n, 6) * 1.6;
+          const lado = LADO[z.nombre] || "der";
+          const tx = lado === "izq" ? cx - r - 6 : lado === "abajo" || lado === "arriba" ? cx : cx + r + 6;
+          const ty = lado === "abajo" ? cy + r + 14 : lado === "arriba" ? cy - r - 7 : cy + 4;
+          const anchor = lado === "izq" ? "end" : lado === "abajo" || lado === "arriba" ? "middle" : "start";
+          return `<a class="zm-zona${n ? "" : " is-vacia"}" href="buscar.html?zona=${encodeURIComponent(z.nombre)}" data-zona="${MA.esc(z.nombre)}"
+              aria-label="${MA.esc(z.nombre)}: ${n} ${n === 1 ? "inmueble" : "inmuebles"}">
+            <circle class="zm-zona__halo" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r + 9).toFixed(1)}"/>
+            <circle class="zm-zona__punto" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}"/>
+            ${n ? `<text class="zm-zona__num" x="${cx.toFixed(1)}" y="${(cy + 4).toFixed(1)}" text-anchor="middle">${n}</text>` : ""}
+            <text class="zm-zona__nombre" x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="${anchor}">${MA.esc(z.nombre)}</text>
+          </a>`;
+        }).join("");
+
+        document.getElementById("mapa-valle").innerHTML = `
+          <svg viewBox="0 0 ${W} ${H}" role="group" aria-label="Mapa ilustrado del Valle de Aburrá con las zonas donde publicamos">
+            <path class="zm-montana zm-montana--2" d="${valle}" transform="translate(-14 0) scale(1.07 1)" transform-origin="200 300"/>
+            <path class="zm-montana" d="${valle}" transform="scale(1.03 1)" transform-origin="200 300"/>
+            <path class="zm-valle" d="${valle}"/>
+            <path class="zm-rio" d="${curva(RIO)}"/>
+            <path class="zm-metro" d="${curva(METRO)}"/>
+            <text class="zm-rotulo" x="${x(-75.566) - 10}" y="${y(6.30)}" text-anchor="end">Río Medellín</text>
+            <text class="zm-rotulo zm-rotulo--metro" x="${x(-75.561) + 12}" y="${y(6.285)}">Metro · Línea A</text>
+            <text class="zm-norte" x="${W - 30}" y="${H - 66}" text-anchor="middle">N</text>
+            <path class="zm-norte-flecha" d="M${W - 30} ${H - 60} l-6 14 l6 -4 l6 4 z"/>
+            ${zonas}
+          </svg>
+          <figcaption>Mapa ilustrativo. Las zonas están en su ubicación aproximada.</figcaption>`;
+
+        // Detalle de la zona elegida y lista de zonas para tocar
+        const detalle = document.getElementById("zona-detalle");
+        const destacadas = window.ZONAS.filter((z) => z.destacada || cuenta[z.nombre]);
+        document.getElementById("zonas").innerHTML = destacadas.map((z) =>
+          `<li><a class="zm-chip" href="buscar.html?zona=${encodeURIComponent(z.nombre)}" data-zona="${MA.esc(z.nombre)}">${MA.esc(z.nombre)}<small>${cuenta[z.nombre] || 0}</small></a></li>`).join("");
+        let elegida = null;
+        const elegir = (nombre) => {
+          elegida = nombre;
+          window.dispatchEvent(new CustomEvent("valle:elegida", { detail: nombre }));
+          const z = window.ZONAS.find((x) => x.nombre === nombre);
+          const n = cuenta[nombre] || 0;
+          document.querySelectorAll("[data-zona]").forEach((el) => el.classList.toggle("is-elegida", el.dataset.zona === nombre));
+          detalle.innerHTML = `
+            <p class="zona-detalle__nombre">${MA.esc(z.nombre)}</p>
+            <p class="zona-detalle__datos">${MA.icono("ubicacion")}${MA.esc(z.municipio)}${z.metro ? ` · ${MA.icono("metro")}${MA.esc(z.metro)}` : ""}</p>
+            <a class="boton boton--navy" href="buscar.html?zona=${encodeURIComponent(z.nombre)}">${n ? `Ver ${n} ${n === 1 ? "inmueble" : "inmuebles"}` : "Ver zona"}</a>`;
+        };
+        document.querySelectorAll(".zonas-mapa [data-zona]").forEach((el) => {
+          el.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") elegir(el.dataset.zona); });
+          el.addEventListener("focus", () => elegir(el.dataset.zona));
+          el.addEventListener("click", (e) => {
+            const mapa = document.getElementById("mapa-valle");
+            // Con el valle en 3D, tocar una zona hace volar la cámara hasta ella
+            if (mapa.classList.contains("con-3d")) {
+              e.preventDefault();
+              elegir(el.dataset.zona);
+              window.dispatchEvent(new CustomEvent("valle:volar", { detail: el.dataset.zona }));
+              const r = mapa.getBoundingClientRect();
+              if (r.top < 0 || r.bottom > innerHeight) mapa.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+              return;
+            }
+            // En celular, el primer toque elige la zona y muestra su detalle; el segundo entra
+            if (elegida !== el.dataset.zona) { e.preventDefault(); elegir(el.dataset.zona); }
+          });
+        });
+        const inicial = Object.keys(cuenta).sort((a, b) => cuenta[b] - cuenta[a])[0] || "El Poblado";
+        elegir(inicial);
+        // El valle en 3D (js/escenas3d.js) usa estas funciones y conteos
+        window.VALLE = { cuenta, elegir, get elegida() { return elegida; } };
+        window.dispatchEvent(new Event("valle:listo"));
+      })();
+
+      MA.iniciar();
+      MA.activarTarjetas();
+    })();
+  </script>
+</body>
+</html>

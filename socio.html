@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Panel del socio referidor · Marco Abierto</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0a2540">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body data-pagina="socio">
+  <div data-barra></div>
+
+  <div class="aviso-demo" role="note">
+    <div class="contenedor">Así verá el socio referidor sus casos.</div>
+  </div>
+
+  <main class="contenedor panel" data-ui>
+    <header class="panel__cab socio-cab">
+      <div>
+        <span class="en-vivo" id="actualizado">Actualizado hace un momento</span>
+        <h1>Tus referidos</h1>
+        <p class="panel__meta"><span><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-socio"/></svg>Socio referidor desde <span class="marcador">fecha</span></span></p>
+      </div>
+      <button class="boton boton--navy" type="button" data-abrir-referir><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mas"/></svg>Referir un propietario</button>
+    </header>
+
+    <section class="caja estado-actual" aria-labelledby="t-resumen">
+      <h2 id="t-resumen" style="color:rgba(255,255,255,.8);font-weight:600">Tu resumen</h2>
+      <div class="socio-cifras">
+        <div><strong id="c-activos"></strong><span>referidos en proceso</span></div>
+        <div><strong id="c-cerrados"></strong><span>negocios cerrados</span></div>
+        <div><strong><span class="marcador">valor</span></strong><span>comisión por cobrar</span></div>
+      </div>
+      <p style="font-size:.85rem;color:rgba(255,255,255,.75)">Cifras ficticias. El valor de la comisión depende del porcentaje que se defina.</p>
+    </section>
+
+    <div class="tablero socio-tablero">
+      <section class="caja" aria-labelledby="t-casos">
+        <div class="socio-casos-cab">
+          <h2 id="t-casos">Cada referido, paso a paso</h2>
+          <div class="chips" role="group" aria-label="Filtrar referidos">
+            <label class="chip"><input type="radio" name="filtro" value="todos" checked><span>Todos</span></label>
+            <label class="chip"><input type="radio" name="filtro" value="proceso"><span>En proceso</span></label>
+            <label class="chip"><input type="radio" name="filtro" value="cerrado"><span>Cerrados</span></label>
+          </div>
+        </div>
+        <ul class="referidos" id="referidos"></ul>
+      </section>
+
+      <div style="display:grid;gap:16px;align-content:start">
+        <section class="caja proximo" aria-labelledby="t-novedad">
+          <h2 id="t-novedad">Última novedad</h2>
+          <strong id="novedad-titulo"></strong>
+          <p id="novedad-texto"></p>
+          <p class="evento__aviso" style="color:var(--navy)"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg>Te avisamos por WhatsApp</p>
+        </section>
+
+        <section class="caja" aria-labelledby="t-comisiones">
+          <h2 id="t-comisiones">Comisiones</h2>
+          <ul class="docs" id="comisiones"></ul>
+          <p style="font-size:.85rem;color:var(--tinta-2)"><span class="marcador">Porcentaje, momento en que se causa y forma de pago</span></p>
+        </section>
+
+        <section class="caja" aria-labelledby="t-como">
+          <h2 id="t-como">Cómo se gana la comisión</h2>
+          <ol class="socio-pasos">
+            <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-persona"/></svg><span>Nos presentas al propietario, con su permiso.</span></li>
+            <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cubo"/></svg><span>Publicamos su inmueble con recorrido 3D.</span></li>
+            <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-llave"/></svg><span>Se cierra el arriendo o la venta.</span></li>
+            <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg><span>Te pagamos la comisión y la ves aquí.</span></li>
+          </ol>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Referir un propietario -->
+  <dialog class="hoja-dialogo" id="referir" aria-labelledby="t-referir">
+    <form class="formulario" data-referir data-exito="Listo, recibimos tu referido. Lo llamamos pronto." novalidate>
+      <div class="hoja-dialogo__cab">
+        <h2 id="t-referir">Referir un propietario</h2>
+        <button class="boton boton--suave boton--icono" type="button" data-cerrar-referir aria-label="Cerrar"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cerrar"/></svg></button>
+      </div>
+      <div class="formulario__fila">
+        <label class="campo"><span>Nombre del propietario</span><input class="entrada" name="propietario_nombre" autocomplete="off" required></label>
+        <label class="campo"><span>Celular del propietario</span><input class="entrada" name="propietario_celular" type="tel" inputmode="tel" autocomplete="off" required></label>
+      </div>
+      <div class="formulario__fila">
+        <label class="campo"><span>¿Qué quiere hacer?</span>
+          <select class="entrada" name="operacion" required>
+            <option value="arriendo">Arrendar</option>
+            <option value="venta">Vender</option>
+            <option value="ambos">Todavía no sabe</option>
+          </select>
+        </label>
+        <label class="campo"><span>Zona del inmueble</span><select class="entrada" name="zona" id="zona-ref" required></select></label>
+      </div>
+      <label class="campo"><span>Algo que debamos saber <small style="font-weight:400">(opcional)</small></span><textarea class="entrada" name="nota" placeholder="Por ejemplo: mejor hora para llamarlo"></textarea></label>
+      <label class="consentimiento">
+        <input type="checkbox" name="permiso_confirmado" required>
+        <span>Confirmo que el propietario sabe que lo estoy refiriendo y me autorizó a compartir su nombre y celular con Marco Abierto.</span>
+      </label>
+      <p style="font-size:.88rem;color:var(--tinta-2)">Cuando lo llamemos, le pediremos su propia autorización para tratar sus datos, según la <a class="enlace" href="privacidad.html#politica" target="_blank">Política de tratamiento de datos</a>.</p>
+      <button class="boton boton--navy" type="submit">Enviar referido</button>
+      <p class="form-estado" role="status"></p>
+    </form>
+  </dialog>
+
+  <div data-pie></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/propiedades.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    (() => {
+      // Datos ficticios: cuando exista el sistema real, esto vendrá de la base de datos
+      const I = MA.icono;
+      const ETAPAS = ["Recibido", "Contactado", "Publicado", "En negocio", "Cerrado", "Comisión pagada"];
+      const ahora = new Date();
+      const hace = (dias) => { const d = new Date(ahora); d.setDate(d.getDate() - dias); return d; };
+      const fecha = (d) => {
+        const dias = Math.round((new Date(ahora.toDateString()) - new Date(d.toDateString())) / 864e5);
+        if (dias === 0) return "Hoy";
+        if (dias === 1) return "Ayer";
+        return d.toLocaleDateString("es-CO", { day: "numeric", month: "long" });
+      };
+
+      const REFERIDOS = [
+        { nombre: "Marta G.", zona: "Laureles", operacion: "arriendo", etapa: 3, novedad: "Hay una oferta sobre el inmueble. La estamos revisando con el propietario.", f: hace(0) },
+        { nombre: "Jorge R.", zona: "Envigado", operacion: "venta", etapa: 2, novedad: "Recorrido 3D publicado. Ya aparece en la búsqueda.", f: hace(2) },
+        { nombre: "Luz Á.", zona: "Sabaneta", operacion: "arriendo", etapa: 1, novedad: "Hablamos con la propietaria. Visita para grabar el recorrido 3D agendada.", f: hace(3) },
+        { nombre: "Carlos M.", zona: "Bello", operacion: "arriendo", etapa: 0, novedad: "Recibimos tu referido. Lo llamamos en las próximas horas.", f: hace(0) },
+        { nombre: "Ana P.", zona: "El Poblado", operacion: "venta", etapa: 5, novedad: "Venta cerrada y comisión pagada.", f: hace(24) }
+      ];
+
+      const lista = document.getElementById("referidos");
+      const pintar = (filtro) => {
+        const r = REFERIDOS.filter((x) => filtro === "todos" || (filtro === "cerrado" ? x.etapa >= 4 : x.etapa < 4));
+        lista.innerHTML = r.map((x) => `
+          <li class="referido">
+            <div class="referido__cab">
+              <div>
+                <h3>${x.nombre}</h3>
+                <p class="referido__lugar">${I("ubicacion")}${x.zona} · ${MA.OPERACION[x.operacion]}</p>
+              </div>
+              <span class="estado-doc${x.etapa >= 4 ? "" : " pendiente"}">${ETAPAS[x.etapa]}</span>
+            </div>
+            <ol class="mini-etapas" aria-label="Etapa ${x.etapa + 1} de ${ETAPAS.length}: ${ETAPAS[x.etapa]}">
+              ${ETAPAS.map((e, i) => `<li class="${i < x.etapa ? "is-hecha" : i === x.etapa ? "is-actual" : ""}" title="${e}"></li>`).join("")}
+            </ol>
+            <p class="referido__novedad"><strong>${fecha(x.f)}:</strong> ${x.novedad}</p>
+          </li>`).join("");
+      };
+      document.querySelectorAll('[name="filtro"]').forEach((f) => f.addEventListener("change", () => pintar(f.value)));
+      pintar("todos");
+
+      document.getElementById("c-activos").textContent = REFERIDOS.filter((x) => x.etapa < 4).length;
+      document.getElementById("c-cerrados").textContent = REFERIDOS.filter((x) => x.etapa >= 4).length;
+
+      const ultima = [...REFERIDOS].sort((a, b) => b.f - a.f)[0];
+      document.getElementById("novedad-titulo").textContent = `${ultima.nombre}: ${ETAPAS[ultima.etapa].toLowerCase()}`;
+      document.getElementById("novedad-texto").textContent = ultima.novedad;
+
+      const ESTADO_COMISION = { 5: ["Pagada", ""], 4: ["Por pagar", " pendiente"], 3: ["Se causa al cerrar", " pendiente"] };
+      document.getElementById("comisiones").innerHTML = REFERIDOS.filter((x) => x.etapa >= 3).map((x) => {
+        const [txt, cls] = ESTADO_COMISION[Math.min(x.etapa, 5)];
+        return `<li><span style="display:grid"><strong>${x.nombre}</strong><small style="color:var(--tinta-2)">${MA.OPERACION[x.operacion]} en ${x.zona} · <span class="marcador">valor</span></small></span><span class="estado-doc${cls}">${txt}</span></li>`;
+      }).join("");
+
+      /* Referir: hoja inferior en celular, ventana en escritorio */
+      const dialogo = document.getElementById("referir");
+      const form = dialogo.querySelector("form");
+      document.getElementById("zona-ref").innerHTML = '<option value="">Elige una zona</option>' +
+        window.ZONAS.map((z) => `<option>${z.nombre}</option>`).join("") + "<option>Otra</option>";
+      const abrir = () => { form.querySelector(".form-estado").textContent = ""; dialogo.showModal(); document.body.classList.add("sin-scroll"); };
+      const cerrar = () => dialogo.close();
+      dialogo.addEventListener("close", () => document.body.classList.remove("sin-scroll"));
+      document.querySelectorAll("[data-abrir-referir]").forEach((b) => b.addEventListener("click", abrir));
+      dialogo.querySelector("[data-cerrar-referir]").addEventListener("click", cerrar);
+      dialogo.addEventListener("click", (e) => { if (e.target === dialogo) cerrar(); });
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const d = new FormData(form);
+        // Si el socio entró con su cuenta, el referido queda firmado a su nombre
+        const s = await DATOS.sesion();
+        let socioId = s && s.rol === "socio" && DATOS.modo === "supabase" ? s.id : null;
+        const hidden = form.querySelector('[name="socio_id"]');
+        if (socioId && !hidden) form.insertAdjacentHTML("afterbegin", `<input type="hidden" name="socio_id" value="${socioId}">`);
+        if (!(await MA.enviarFormulario(form, "referidos"))) return;
+        REFERIDOS.unshift({ nombre: d.get("propietario_nombre"), zona: d.get("zona"), operacion: d.get("operacion") === "venta" ? "venta" : "arriendo", etapa: 0, novedad: "Recibimos tu referido. Lo llamamos pronto.", f: new Date() });
+        document.querySelector('[name="filtro"][value="todos"]').checked = true;
+        pintar("todos");
+        lista.firstElementChild.classList.add("is-nuevo");
+        document.getElementById("c-activos").textContent = REFERIDOS.filter((x) => x.etapa < 4).length;
+        setTimeout(cerrar, 900);
+      });
+
+      const inicio = Date.now();
+      const act = document.getElementById("actualizado");
+      setInterval(() => {
+        const min = Math.floor((Date.now() - inicio) / 60000);
+        act.textContent = min < 1 ? "Actualizado hace un momento" : `Actualizado hace ${min} min`;
+      }, 15000);
+
+      MA.iniciar();
+    })();
+  </script>
+</body>
+</html>

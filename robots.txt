@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /panel.html
+Disallow: /socio.html
+Disallow: /ingreso.html
+Disallow: /supabase/

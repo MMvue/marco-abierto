@@ -1,0 +1,7 @@
+# Lo que se publica en GitHub es solo la página.
+# Notas de trabajo, base de datos y herramientas locales se quedan en el computador.
+PENDIENTES.md
+PUBLICAR.md
+servidor-local.ps1
+supabase/
+.claude/

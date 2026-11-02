@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Ingresar o crear cuenta · Marco Abierto</title>
+  <meta name="description" content="Entra a tu cuenta de Marco Abierto o crea una: busca apartamentos, sigue tu inmueble en tiempo real o refiere propietarios.">
+  <meta name="theme-color" content="#0a2540">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body data-pagina="ingreso">
+  <div data-barra></div>
+
+  <main class="ingreso">
+    <!-- Lado de la marca: cambia según el tipo de cuenta elegido -->
+    <section class="ingreso__lado campo-navy" aria-labelledby="t-lado">
+      <div class="ingreso__lado-in">
+        <svg class="icono ingreso__ico" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-puerta" id="lado-ico"/></svg>
+        <h2 id="t-lado">Tu cuenta, abierta</h2>
+        <p id="lado-texto">Una sola cuenta para buscar apartamentos, seguir tu inmueble o referir propietarios.</p>
+        <ul class="ingreso__beneficios" id="lado-lista">
+          <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cubo"/></svg>Recorridos 3D guardados en un solo lugar</li>
+          <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-edificio"/></svg>El estado de tu inmueble en tiempo real</li>
+          <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-socio"/></svg>Tus referidos y comisiones al día</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="ingreso__forma" aria-labelledby="t-ingreso">
+      <h1 id="t-ingreso" class="ingreso__titulo">Entra a tu cuenta</h1>
+
+      <div class="segmento ingreso__modo" role="tablist" aria-label="Ingresar o crear cuenta">
+        <button type="button" role="tab" id="tab-ingresar" aria-controls="panel-ingresar" aria-selected="true">Ingresar</button>
+        <button type="button" role="tab" id="tab-registro" aria-controls="panel-registro" aria-selected="false" tabindex="-1">Crear cuenta</button>
+      </div>
+
+      <!-- Ingresar -->
+      <div role="tabpanel" id="panel-ingresar" aria-labelledby="tab-ingresar">
+        <form class="formulario" data-ingreso novalidate>
+          <label class="campo"><span>Correo</span>
+            <input class="entrada" name="correo" type="email" autocomplete="email" autocapitalize="none" autocorrect="off" enterkeyhint="next" required>
+          </label>
+          <div class="campo">
+            <label for="clave-in" style="font-weight:600;font-size:.95rem">Contraseña</label>
+            <div class="clave">
+              <input class="entrada" id="clave-in" name="clave" type="password" autocomplete="current-password" enterkeyhint="go" required>
+              <button class="clave__ver" type="button" aria-label="Mostrar contraseña" aria-controls="clave-in" data-ver-clave><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-ojo"/></svg></button>
+            </div>
+          </div>
+          <a class="enlace" href="#" data-olvido style="justify-self:start;font-weight:600">Olvidé mi contraseña</a>
+          <button class="boton boton--navy" type="submit">Ingresar</button>
+          <p class="form-estado" role="status"></p>
+        </form>
+        <p class="ingreso__nota">¿Eres del equipo de Marco Abierto? Entras aquí mismo con la cuenta de administrador que te asignaron. <a class="enlace" href="admin.html">Ir al panel de administración</a>.</p>
+      </div>
+
+      <!-- Crear cuenta -->
+      <div role="tabpanel" id="panel-registro" aria-labelledby="tab-registro" hidden>
+        <form class="formulario" data-registro novalidate>
+          <fieldset class="roles">
+            <legend>¿Para qué quieres la cuenta?</legend>
+            <label class="rol">
+              <input type="radio" name="rol" value="comprador" required>
+              <span class="rol__ico"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-llave"/></svg></span>
+              <span class="rol__txt"><strong>Busco apartamento</strong><small>Para arrendar o comprar</small></span>
+              <span class="rol__check"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg></span>
+            </label>
+            <label class="rol">
+              <input type="radio" name="rol" value="propietario">
+              <span class="rol__ico"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-casa"/></svg></span>
+              <span class="rol__txt"><strong>Tengo un inmueble</strong><small>Para arrendarlo o venderlo</small></span>
+              <span class="rol__check"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg></span>
+            </label>
+            <label class="rol">
+              <input type="radio" name="rol" value="socio">
+              <span class="rol__ico"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-socio"/></svg></span>
+              <span class="rol__txt"><strong>Refiero propietarios</strong><small>Socio referidor, con comisión</small></span>
+              <span class="rol__check"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg></span>
+            </label>
+          </fieldset>
+
+          <div class="formulario__fila">
+            <label class="campo"><span>Nombre completo</span><input class="entrada" name="nombre" autocomplete="name" enterkeyhint="next" required></label>
+            <label class="campo"><span>Celular</span><input class="entrada" name="celular" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" required></label>
+          </div>
+          <label class="campo"><span>Correo</span><input class="entrada" name="correo" type="email" autocomplete="email" autocapitalize="none" autocorrect="off" enterkeyhint="next" required></label>
+          <div class="campo">
+            <label for="clave-reg" style="font-weight:600;font-size:.95rem">Crea una contraseña</label>
+            <div class="clave">
+              <input class="entrada" id="clave-reg" name="clave" type="password" autocomplete="new-password" minlength="8" aria-describedby="clave-ayuda" enterkeyhint="done" required>
+              <button class="clave__ver" type="button" aria-label="Mostrar contraseña" aria-controls="clave-reg" data-ver-clave><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-ojo"/></svg></button>
+            </div>
+            <small id="clave-ayuda" class="ingreso__ayuda">Mínimo 8 caracteres.</small>
+          </div>
+
+          <label class="consentimiento">
+            <input type="checkbox" name="autorizacion" required>
+            <span>Autorizo a Marco Abierto a tratar mis datos para crear y administrar mi cuenta, según la <a class="enlace" href="privacidad.html#politica" target="_blank">Política de tratamiento de datos</a>. Puedo consultar, actualizar o pedir que borren mis datos cuando quiera.</span>
+          </label>
+          <label class="consentimiento">
+            <input type="checkbox" name="publicidad">
+            <span>Quiero recibir novedades e inmuebles por WhatsApp o correo. <small>(Opcional)</small></span>
+          </label>
+          <button class="boton boton--navy" type="submit" id="btn-registro">Crear cuenta</button>
+          <p class="form-estado" role="status"></p>
+        </form>
+      </div>
+
+      <p class="ingreso__nota" id="nota-modo" hidden><span class="marcador">Modo prueba: las cuentas se guardan solo en este navegador y la contraseña no se verifica. Para entrar como administrador usa admin@prueba.co</span></p>
+      <p class="ingreso__nota">¿Quieres ver cómo se ve por dentro? <a class="enlace" href="panel.html">Mira cómo es el panel</a>.</p>
+    </section>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/propiedades.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    (() => {
+      /* Pestañas Ingresar / Crear cuenta */
+      const tabs = [...document.querySelectorAll('.ingreso__modo [role="tab"]')];
+      const titulo = document.getElementById("t-ingreso");
+      const elegir = (tab, foco) => {
+        tabs.forEach((t) => {
+          const si = t === tab;
+          t.setAttribute("aria-selected", String(si));
+          t.tabIndex = si ? 0 : -1;
+          document.getElementById(t.getAttribute("aria-controls")).hidden = !si;
+        });
+        const registro = tab.id === "tab-registro";
+        titulo.textContent = registro ? "Crea tu cuenta" : "Entra a tu cuenta";
+        const q = new URLSearchParams(location.search);
+        registro ? q.set("modo", "registro") : q.delete("modo");
+        history.replaceState(null, "", q.toString() ? "?" + q : location.pathname);
+        if (foco) tab.focus();
+      };
+      tabs.forEach((t, i) => {
+        t.addEventListener("click", () => elegir(t));
+        t.addEventListener("keydown", (e) => {
+          const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+          if (d) elegir(tabs[(i + d + tabs.length) % tabs.length], true);
+        });
+      });
+
+      /* El lado de la marca explica qué trae cada tipo de cuenta */
+      const ROLES = {
+        comprador: {
+          ico: "llave", titulo: "Busca sin perder tiempo", boton: "Crear cuenta para buscar",
+          texto: "Guarda los apartamentos que te gustan y vuelve a sus recorridos 3D cuando quieras.",
+          lista: [["cubo", "Recorridos 3D guardados en favoritos"], ["calendario", "Tus visitas agendadas, con fecha y dirección"], ["campana", "Aviso cuando aparezca algo en tu zona"]]
+        },
+        propietario: {
+          ico: "casa", titulo: "Tu inmueble, a la vista", boton: "Crear cuenta de propietario",
+          texto: "Ves en tiempo real qué pasa con tu apartamento. Nunca tendrás que preguntar.",
+          lista: [["edificio", "Estado del inmueble en cada etapa"], ["mensaje", "Cada visita y cada oferta, el mismo día"], ["documento", "Contrato y documentos en un solo lugar"]]
+        },
+        socio: {
+          ico: "socio", titulo: "Refiere y sigue cada caso", boton: "Crear cuenta de socio",
+          texto: "Presenta propietarios y mira en qué va cada referido hasta que cobras tu comisión.",
+          lista: [["persona", "Tus referidos y la etapa de cada uno"], ["check", "Comisiones causadas y pagadas"], ["mensaje", "Aviso cuando un referido avanza"]]
+        }
+      };
+      const ladoIco = document.getElementById("lado-ico");
+      const ladoTitulo = document.getElementById("t-lado");
+      const ladoTexto = document.getElementById("lado-texto");
+      const ladoLista = document.getElementById("lado-lista");
+      const btnRegistro = document.getElementById("btn-registro");
+      const lado = document.querySelector(".ingreso__lado-in");
+      const ponerRol = (rol) => {
+        const r = ROLES[rol];
+        if (!r) return;
+        ladoIco.setAttribute("href", "#i-" + r.ico);
+        ladoTitulo.textContent = r.titulo;
+        ladoTexto.textContent = r.texto;
+        ladoLista.innerHTML = r.lista.map(([i, t]) => `<li>${MA.icono(i)}${t}</li>`).join("");
+        btnRegistro.textContent = r.boton;
+        lado.classList.remove("is-cambio");
+        void lado.offsetWidth;
+        lado.classList.add("is-cambio");
+      };
+      document.querySelectorAll('[name="rol"]').forEach((r) => r.addEventListener("change", () => ponerRol(r.value)));
+
+      /* Mostrar / ocultar contraseña */
+      document.querySelectorAll("[data-ver-clave]").forEach((b) => {
+        b.addEventListener("click", () => {
+          const inp = document.getElementById(b.getAttribute("aria-controls"));
+          const ver = inp.type === "password";
+          inp.type = ver ? "text" : "password";
+          b.setAttribute("aria-label", ver ? "Ocultar contraseña" : "Mostrar contraseña");
+          b.classList.toggle("is-on", ver);
+        });
+      });
+
+      /* Envío: valida y llama a la capa de datos (Supabase o modo prueba) */
+      const q0 = new URLSearchParams(location.search);
+      const irA = (s) => {
+        const volver = q0.get("volver");
+        // Solo se vuelve a páginas de este mismo sitio
+        location.href = volver && /^[a-z]+\.html$/.test(volver) ? volver : DATOS.RUTA_POR_ROL[s.rol] || "index.html";
+      };
+      const enviar = (form, accion) => form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const estado = form.querySelector(".form-estado");
+        const boton = form.querySelector('[type="submit"]');
+        estado.classList.remove("is-error");
+        if (!form.checkValidity()) {
+          const malo = form.querySelector("input:invalid");
+          estado.classList.add("is-error");
+          estado.textContent = malo.name === "autorizacion" ? "Para crear la cuenta necesitamos tu autorización de tratamiento de datos."
+            : malo.name === "rol" ? "Elige para qué quieres la cuenta."
+            : malo.name === "clave" && malo.value ? "La contraseña debe tener mínimo 8 caracteres."
+            : "Revisa los campos marcados.";
+          malo.focus();
+          return;
+        }
+        boton.disabled = true;
+        estado.textContent = "Un momento…";
+        try {
+          await accion(new FormData(form), form, estado);
+        } catch (err) {
+          estado.classList.add("is-error");
+          estado.textContent = DATOS.mensajeError(err);
+        } finally {
+          boton.disabled = false;
+        }
+      });
+      enviar(document.querySelector("[data-ingreso]"), async (d) => {
+        irA(await DATOS.ingresar(d.get("correo").trim(), d.get("clave")));
+      });
+      enviar(document.querySelector("[data-registro]"), async (d, form, estado) => {
+        const r = await DATOS.registrar({
+          correo: d.get("correo").trim(), clave: d.get("clave"), nombre: d.get("nombre").trim(), celular: d.get("celular").trim(),
+          rol: d.get("rol"), publicidad: d.get("publicidad") === "on",
+          autorizacion_texto: form.querySelector('[name="autorizacion"]').closest("label").innerText.replace(/\s+/g, " ").trim()
+        });
+        if (r.confirmarCorreo) {
+          estado.textContent = "Te enviamos un correo para confirmar tu cuenta. Ábrelo y luego ingresa aquí.";
+          form.reset();
+        } else {
+          irA(r.sesion);
+        }
+      });
+      document.querySelector("[data-olvido]").addEventListener("click", async (e) => {
+        e.preventDefault();
+        const form = document.querySelector("[data-ingreso]");
+        const estado = form.querySelector(".form-estado");
+        estado.classList.remove("is-error");
+        const correo = form.correo.value.trim();
+        if (!correo || !form.correo.checkValidity()) {
+          estado.classList.add("is-error");
+          estado.textContent = "Escribe tu correo arriba y vuelve a tocar «Olvidé mi contraseña».";
+          form.correo.focus();
+          return;
+        }
+        try {
+          await DATOS.recuperarClave(correo);
+          estado.textContent = DATOS.modo === "prueba"
+            ? "Modo prueba: aquí te enviaríamos un enlace para cambiar la contraseña."
+            : "Si hay una cuenta con ese correo, te llegó un enlace para cambiar la contraseña.";
+        } catch (err) {
+          estado.classList.add("is-error");
+          estado.textContent = DATOS.mensajeError(err);
+        }
+      });
+
+      /* Enlaces directos: ingreso.html?modo=registro&rol=propietario */
+      const q = new URLSearchParams(location.search);
+      if (q.get("modo") === "registro") elegir(document.getElementById("tab-registro"));
+      const rol = document.querySelector(`[name="rol"][value="${CSS.escape(q.get("rol") || "")}"]`);
+      if (rol) { rol.checked = true; ponerRol(rol.value); }
+      document.getElementById("nota-modo").hidden = DATOS.modo !== "prueba";
+
+      MA.iniciar();
+    })();
+  </script>
+</body>
+</html>

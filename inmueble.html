@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Inmueble · Marco Abierto</title>
+  <meta name="theme-color" content="#0a2540">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body data-pagina="inmueble">
+  <div data-barra></div>
+
+  <main id="contenido">
+    <div class="contenedor">
+      <nav class="migas" aria-label="Ruta" id="migas"></nav>
+      <!-- Galería 3D: recorrido y fotos -->
+      <section class="detalle-visor visor-marco" id="visor" aria-label="Recorrido 3D y fotos"></section>
+
+      <div class="detalle">
+        <div style="display:grid;gap:56px">
+          <header id="cabecera"></header>
+
+          <section class="bloque" aria-labelledby="t-desc">
+            <h2 id="t-desc">Sobre este apartamento</h2>
+            <div id="descripcion"></div>
+          </section>
+
+          <section class="bloque" aria-labelledby="t-ficha">
+            <h2 id="t-ficha">Ficha técnica</h2>
+            <dl class="ficha" id="ficha"></dl>
+          </section>
+
+          <section class="bloque" aria-labelledby="t-ubic">
+            <h2 id="t-ubic">Ubicación</h2>
+            <div id="ubicacion"></div>
+          </section>
+        </div>
+
+        <aside class="contacto" id="agendar" aria-labelledby="t-contacto">
+          <h2 id="t-contacto">Agenda una visita</h2>
+          <p>Ya viste el recorrido. Si te gusta, te mostramos el apartamento en persona.</p>
+          <form class="formulario" data-form data-tabla="solicitudes_visita" data-exito="Listo, recibimos tu solicitud. Te escribimos para confirmar el día y la hora." novalidate>
+            <input type="hidden" name="inmueble_id" id="campo-inmueble-id">
+            <input type="hidden" name="inmueble_titulo" id="campo-inmueble-titulo">
+            <label class="campo"><span>Nombre</span><input class="entrada" name="nombre" autocomplete="name" required></label>
+            <label class="campo"><span>Celular</span><input class="entrada" name="celular" type="tel" inputmode="tel" autocomplete="tel" required></label>
+            <label class="campo"><span>Correo <small style="font-weight:400">(opcional)</small></span><input class="entrada" name="correo" type="email" autocomplete="email"></label>
+            <label class="campo"><span>¿Cuándo te queda bien?</span>
+              <select class="entrada" name="franja">
+                <option>Entre semana, mañana</option>
+                <option>Entre semana, tarde</option>
+                <option>Sábado</option>
+              </select>
+            </label>
+            <label class="consentimiento">
+              <input type="checkbox" name="autorizacion" required>
+              <span>Autorizo a Marco Abierto a tratar mis datos para responder esta solicitud y agendar la visita, según la <a class="enlace" href="privacidad.html#politica" target="_blank">Política de tratamiento de datos</a>. Puedo consultar, actualizar o pedir que borren mis datos cuando quiera.</span>
+            </label>
+            <label class="consentimiento">
+              <input type="checkbox" name="publicidad">
+              <span>Quiero recibir por WhatsApp o correo inmuebles parecidos. <small>(Opcional)</small></span>
+            </label>
+            <button class="boton boton--navy" type="submit"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-calendario"/></svg>Pedir visita</button>
+            <p class="form-estado" role="status"></p>
+          </form>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <div class="barra-accion" id="barra-accion">
+    <p class="barra-accion__precio" id="barra-precio"></p>
+    <a class="boton" href="#agendar"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-calendario"/></svg>Agendar visita</a>
+  </div>
+
+  <div data-pie></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/propiedades.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/mapa.js"></script>
+  <script>
+    (async () => {
+      const id = new URLSearchParams(location.search).get("id");
+      const todos = await DATOS.inmueblesPublicos();
+      const p = todos.find((x) => x.id === id) || window.PROPIEDADES.find((x) => x.id === id);
+      const I = MA.icono;
+      if (!p) {
+        document.getElementById("contenido").innerHTML = `<div class="contenedor" style="padding-block:80px 120px;display:grid;gap:16px;justify-items:start">
+          <h1 style="font-size:var(--t-titulo)">Este inmueble ya no está publicado</h1>
+          <p>Puede que ya se haya arrendado o vendido. Mira los que tenemos disponibles.</p>
+          <a class="boton boton--navy" href="buscar.html">Ver inmuebles</a></div>`;
+        document.getElementById("barra-accion").remove();
+        MA.iniciar();
+        return;
+      }
+      const esc = MA.esc;
+      const falta = () => "Por confirmar";
+
+      document.title = `${p.titulo} · ${MA.OPERACION[p.operacion]} · Marco Abierto`;
+
+      document.getElementById("migas").innerHTML =
+        `<a href="buscar.html">Buscar</a><span aria-hidden="true">/</span>
+         <a href="buscar.html?operacion=${p.operacion}">${MA.OPERACION[p.operacion]}</a><span aria-hidden="true">/</span>
+         <a href="buscar.html?zona=${encodeURIComponent(p.zona)}">${esc(p.zona)}</a>`;
+
+      document.getElementById("visor").innerHTML = MA.visorHTML(p);
+      document.querySelector("#visor .visor__escena").insertAdjacentHTML("beforeend", '<div class="marco__vidrio" aria-hidden="true"></div>');
+
+      document.getElementById("cabecera").innerHTML = `
+        <h1 class="detalle__titulo">${esc(p.titulo)}</h1>
+        <p class="tarjeta__lugar" style="margin-top:10px">${I("ubicacion")}${MA.OPERACION[p.operacion]} · ${esc(MA.lugar(p))}</p>
+        <p class="detalle__precio">${MA.precioHTML(p)}</p>
+        ${MA.specsHTML(p)}`;
+
+      document.getElementById("descripcion").innerHTML = p.descripcion
+        ? esc(p.descripcion).split(/\n{2,}/).map((t) => `<p style="margin-bottom:12px">${t.replace(/\n/g, "<br>")}</p>`).join("")
+        : "<p>Pronto agregamos la descripción. Mientras tanto, el recorrido 3D te muestra cada rincón.</p>";
+
+      const fila = (dt, dd) => `<div><dt>${dt}</dt><dd>${dd}</dd></div>`;
+      document.getElementById("ficha").innerHTML = [
+        fila("Negocio", MA.OPERACION[p.operacion]),
+        fila("Habitaciones", p.habitaciones),
+        fila("Baños", p.banos),
+        fila("Parqueadero", p.parqueadero ? "Sí" : "No"),
+        fila("Área", p.area ? p.area + " m²" : falta("m²")),
+        fila("Estrato", p.estrato ?? falta("estrato")),
+        fila("Administración", p.admin ? new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(p.admin) : falta("valor")),
+        fila("Código", String(p.id).slice(0, 8).toUpperCase())
+      ].join("");
+
+      document.getElementById("ubicacion").innerHTML = `
+        <ul class="specs" style="flex-direction:column;gap:12px">
+          <li>${I("ubicacion")}${esc(MA.lugar(p))}.</li>
+          ${p.metro ? `<li>${I("metro")}Cerca de ${esc(p.metro)}.</li>` : ""}
+        </ul>
+        ${p.lat != null && p.lng != null
+          ? `<div class="mapa-detalle" id="mapa-detalle" role="region" aria-label="Mapa con la zona aproximada del inmueble"></div><p class="filtros__nota" style="margin-top:8px">Zona aproximada. La dirección exacta se comparte al agendar la visita.</p>`
+          : ""}`;
+      if (p.lat != null && p.lng != null) {
+        // El mapa se carga cuando la sección se acerca a la pantalla
+        const caja = document.getElementById("mapa-detalle");
+        const io = new IntersectionObserver((e) => { if (e[0].isIntersecting) { io.disconnect(); MAPA.zona(caja, p); } }, { rootMargin: "300px" });
+        io.observe(caja);
+      }
+
+      document.getElementById("barra-precio").innerHTML = MA.precioHTML(p);
+
+      // La solicitud de visita viaja con el inmueble; se repone tras limpiar el formulario
+      const ponerInmueble = () => {
+        document.getElementById("campo-inmueble-id").value = p.id;
+        document.getElementById("campo-inmueble-titulo").value = p.titulo;
+      };
+      ponerInmueble();
+      document.querySelector("#agendar form").addEventListener("reset", () => setTimeout(ponerInmueble));
+
+      MA.iniciar();
+    })();
+  </script>
+</body>
+</html>

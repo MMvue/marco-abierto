@@ -1,0 +1,20 @@
+# Cabeceras de seguridad para Netlify (también las entiende Cloudflare Pages)
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+# Pantallas privadas: que los buscadores no las indexen
+/admin.html
+  X-Robots-Tag: noindex, nofollow
+/panel.html
+  X-Robots-Tag: noindex, nofollow
+/socio.html
+  X-Robots-Tag: noindex, nofollow
+/ingreso.html
+  X-Robots-Tag: noindex
+
+# Archivos de trabajo que no hace falta servir
+/supabase/*
+  X-Robots-Tag: noindex

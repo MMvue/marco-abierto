@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Propietarios · Marco Abierto</title>
+  <meta name="description" content="Publica tu apartamento con recorrido 3D y sigue en tiempo real todo lo que pasa con él, sin tener que preguntar.">
+  <meta name="theme-color" content="#0a2540">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body data-pagina="propietarios">
+  <div data-barra></div>
+
+  <main>
+    <section class="prop-hero campo-navy">
+      <div class="contenedor prop-hero__grid">
+        <div>
+          <h1 class="lineas">
+            <span class="linea"><span data-linea style="--i:0">Nunca tendrás</span></span>
+            <span class="linea"><span data-linea style="--i:1">que preguntar.</span></span>
+          </h1>
+          <p data-carga style="--d:380ms">Publicamos tu apartamento con recorrido 3D y te damos un panel donde ves, en tiempo real, cada visita, cada interesado y cada oferta.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:32px;--d:480ms" data-carga>
+            <a class="boton" href="#publicar">Publicar mi inmueble</a>
+            <a class="boton boton--claro" href="panel.html">Ver cómo es el panel</a>
+          </div>
+        </div>
+        <div id="visor-prop" data-carga style="--d:300ms"></div>
+      </div>
+    </section>
+
+    <!-- Disciplina operativa -->
+    <section class="seccion" aria-labelledby="t-comp">
+      <div class="contenedor compromiso">
+        <div>
+          <h2 id="t-comp" style="font-size:var(--t-titulo)" data-aparece>Lo que hacemos sin que lo pidas</h2>
+          <p style="margin-top:16px;max-width:36ch;font-size:var(--t-sub);--i:1" data-aparece>La información no sirve si tienes que perseguirla. Por eso cada paso queda en tu panel y te llega un aviso.</p>
+        </div>
+        <ul class="compromiso__lista">
+          <li data-aparece style="--i:1"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-calendario"/></svg>
+            <div><h3>Cada visita, antes y después</h3><p>Te avisamos cuando se agenda y te contamos qué le pareció al visitante. <span class="marcador">plazo del aviso</span></p></div></li>
+          <li data-aparece style="--i:2"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mensaje"/></svg>
+            <div><h3>Cada oferta, el mismo día</h3><p>Ninguna oferta se queda guardada en un cajón. La ves en el panel con todos sus detalles.</p></div></li>
+          <li data-aparece style="--i:3"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-campana"/></svg>
+            <div><h3>Reporte aunque no haya novedades</h3><p>Si una semana no pasa nada, también te lo decimos, con lo que vamos a hacer para moverlo. <span class="marcador">día del reporte</span></p></div></li>
+          <li data-aparece style="--i:4"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-persona"/></svg>
+            <div><h3>Una persona responsable</h3><p>Sabes quién lleva tu inmueble y cuál es el próximo paso, con fecha.</p></div></li>
+          <li data-aparece style="--i:5"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-documento"/></svg>
+            <div><h3>Documentos en un solo lugar</h3><p>Contrato, inventario y certificados, siempre a mano en tu panel.</p></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Qué incluye -->
+    <section class="seccion campo-celeste" aria-labelledby="t-incluye">
+      <div class="contenedor">
+        <div>
+          <h2 id="t-incluye" style="font-size:var(--t-titulo);margin-bottom:40px" data-aparece>Tu inmueble, listo para mostrarse</h2>
+          <ul class="tres__lista tres__lista--fila">
+            <li data-aparece style="--i:1"><span class="ico-grande"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cubo"/></svg></span>
+              <div><h3>Recorrido 3D</h3><p>Lo grabamos en tu apartamento. Quien lo busca lo recorre completo antes de pedir la visita. <span class="marcador">proveedor: Finca 360, por contratar</span></p></div></li>
+            <li data-aparece style="--i:2"><span class="ico-grande"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-foto"/></svg></span>
+              <div><h3>Fotos</h3><p>Para que lo comparen con calma y lleguen a la visita sabiendo lo que van a ver.</p></div></li>
+            <li data-aparece style="--i:3"><span class="ico-grande"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-llave"/></svg></span>
+              <div><h3>Menos visitas perdidas</h3><p>Quien agenda ya vio el apartamento por dentro. Abres la puerta a menos curiosos.</p></div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Formulario: publicar -->
+    <section class="seccion" id="publicar" aria-labelledby="t-publicar">
+      <div class="contenedor compromiso">
+        <div>
+          <h2 id="t-publicar" style="font-size:var(--t-titulo)" data-aparece>Publica tu inmueble</h2>
+          <p style="margin-top:16px;max-width:34ch;font-size:var(--t-sub);--i:1" data-aparece>Déjanos tus datos y te contactamos para conocer el apartamento y agendar el recorrido 3D.</p>
+          <p style="margin-top:16px;--i:2" data-aparece><span class="marcador">Tiempo de respuesta y comisión</span></p>
+        </div>
+        <form class="formulario contacto" data-form data-tabla="solicitudes_publicacion" data-exito="Listo, recibimos tu inmueble. Te escribimos para conocerlo y agendar el recorrido 3D." novalidate data-aparece>
+          <div class="formulario__fila">
+            <label class="campo"><span>Nombre</span><input class="entrada" name="nombre" autocomplete="name" required></label>
+            <label class="campo"><span>Celular</span><input class="entrada" name="celular" type="tel" inputmode="tel" autocomplete="tel" required></label>
+          </div>
+          <label class="campo"><span>Correo</span><input class="entrada" name="correo" type="email" autocomplete="email" required></label>
+          <div class="formulario__fila">
+            <label class="campo"><span>¿Qué quieres hacer?</span>
+              <select class="entrada" name="operacion" required>
+                <option value="arriendo">Arrendarlo</option>
+                <option value="venta">Venderlo</option>
+                <option value="ambos">Todavía no sé</option>
+              </select>
+            </label>
+            <label class="campo"><span>Zona</span><select class="entrada" name="zona" id="zona-prop" required></select></label>
+          </div>
+          <label class="campo"><span>Algo más que debamos saber <small style="font-weight:400">(opcional)</small></span><textarea class="entrada" name="mensaje"></textarea></label>
+          <label class="consentimiento">
+            <input type="checkbox" name="autorizacion" required>
+            <span>Autorizo a Marco Abierto a tratar mis datos y los de mi inmueble para evaluar y gestionar su arriendo o venta, según la <a class="enlace" href="privacidad.html#politica" target="_blank">Política de tratamiento de datos</a>. Puedo consultar, actualizar o pedir que borren mis datos cuando quiera.</span>
+          </label>
+          <button class="boton boton--navy" type="submit">Quiero publicar</button>
+          <p class="form-estado" role="status"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Socios referidores -->
+    <section class="seccion campo-navy" id="socios" aria-labelledby="t-socios">
+      <div class="contenedor compromiso">
+        <div>
+          <h2 id="t-socios" style="font-size:var(--t-titulo)" data-aparece>Socios referidores</h2>
+          <p style="margin-top:16px;max-width:36ch;font-size:var(--t-sub);--i:1" data-aparece>¿Conoces propietarios que quieren arrendar o vender? Preséntanoslos. Cuando el negocio se cierra, recibes tu comisión y sigues cada referido en tu propio panel.</p>
+          <p style="margin-top:16px;--i:2" data-aparece><span class="marcador">Porcentaje, forma de pago y condiciones</span></p>
+          <p style="margin-top:24px;--i:3" data-aparece><a class="boton boton--claro" href="socio.html">Ver cómo es el panel de socio</a></p>
+        </div>
+        <form class="formulario contacto" data-form data-tabla="socios_postulaciones" data-exito="Listo, recibimos tu postulación. Te contactamos para contarte cómo empezar." novalidate data-aparece style="color:var(--navy)">
+          <div class="formulario__fila">
+            <label class="campo"><span>Nombre</span><input class="entrada" name="nombre" autocomplete="name" required></label>
+            <label class="campo"><span>Celular</span><input class="entrada" name="celular" type="tel" inputmode="tel" autocomplete="tel" required></label>
+          </div>
+          <label class="campo"><span>Correo</span><input class="entrada" name="correo" type="email" autocomplete="email" required></label>
+          <label class="campo"><span>¿A qué te dedicas? <small style="font-weight:400">(opcional)</small></span><input class="entrada" name="ocupacion" placeholder="Portero, administrador, agente, amigo de propietarios…"></label>
+          <label class="consentimiento">
+            <input type="checkbox" name="autorizacion" required>
+            <span>Autorizo a Marco Abierto a tratar mis datos para gestionar mi registro como socio referidor y el pago de comisiones, según la <a class="enlace" href="privacidad.html#politica" target="_blank">Política de tratamiento de datos</a>.</span>
+          </label>
+          <button class="boton boton--navy" type="submit"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-socio"/></svg>Quiero ser socio</button>
+          <p class="form-estado" role="status"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Preguntas -->
+    <section class="seccion" aria-labelledby="t-preg">
+      <div class="contenedor compromiso">
+        <h2 id="t-preg" style="font-size:var(--t-titulo)" data-aparece>Preguntas de propietarios</h2>
+        <div class="preguntas">
+          <details><summary>¿Cuánto cobran? <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mas"/></svg></summary>
+            <div><span class="marcador">Comisión de arriendo y de venta, y qué incluye</span></div></details>
+          <details><summary>¿El recorrido 3D tiene costo para mí? <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mas"/></svg></summary>
+            <div><span class="marcador">Confirmar si va incluido en la comisión</span></div></details>
+          <details><summary>¿Qué veo en mi panel? <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mas"/></svg></summary>
+            <div>El estado actual de tu inmueble, cada visita con su comentario, los interesados, las ofertas, el próximo paso con fecha y responsable, y tus documentos. <a class="enlace" href="panel.html">Mira cómo es el panel</a>.</div></details>
+          <details><summary>¿Necesito instalar algo? <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mas"/></svg></summary>
+            <div>No. Entras desde el navegador del celular o del computador, con tu usuario.</div></details>
+          <details><summary>¿Puedo terminar el servicio? <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mas"/></svg></summary>
+            <div><span class="marcador">Condiciones de terminación del contrato de corretaje</span></div></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-pie></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/propiedades.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    (() => {
+      const P = window.PROPIEDADES;
+      document.getElementById("visor-prop").innerHTML = MA.visorHTML(P[1]);
+      document.getElementById("zona-prop").innerHTML = '<option value="">Elige una zona</option>' +
+        window.ZONAS.map((z) => `<option>${z.nombre}</option>`).join("") + "<option>Otra</option>";
+      MA.iniciar();
+    })();
+  </script>
+</body>
+</html>

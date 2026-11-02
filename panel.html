@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Panel del propietario · Marco Abierto</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0a2540">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body data-pagina="panel">
+  <div data-barra></div>
+
+  <div class="aviso-demo" role="note" id="aviso" hidden>
+    <div class="contenedor" id="aviso-texto"></div>
+  </div>
+
+  <main class="contenedor panel" data-ui>
+    <header class="panel__cab">
+      <span class="en-vivo" id="actualizado">Actualizado hace un momento</span>
+      <h1 id="panel-titulo">Tu apartamento</h1>
+      <div class="panel__meta" id="panel-meta"></div>
+      <label class="campo" id="selector-caja" hidden style="max-width:420px"><span>Ver inmueble</span><select class="entrada" id="selector"></select></label>
+    </header>
+
+    <div id="sin-inmueble" class="caja" hidden>
+      <h2 style="font-size:1.5rem">Todavía no vemos un inmueble en tu cuenta</h2>
+      <p>Cuando firmemos el contrato, tu inmueble aparece aquí automáticamente con el mismo correo con el que entraste. Si ya firmaste y no lo ves, escríbenos. <span class="marcador">WhatsApp de contacto</span></p>
+      <p><a class="boton boton--navy" href="propietarios.html#publicar">Publicar mi inmueble</a></p>
+    </div>
+
+    <div class="tablero" id="tablero">
+      <section class="caja estado-actual" aria-labelledby="t-estado">
+        <h2 id="t-estado" style="color:rgba(255,255,255,.8);font-weight:600">Estado de tu inmueble</h2>
+        <p class="grande" style="font-weight:800" id="estado-grande"></p>
+        <ol class="etapas" aria-label="Etapas" id="etapas"></ol>
+      </section>
+
+      <section class="caja" aria-labelledby="t-linea">
+        <h2 id="t-linea">Lo que ha pasado</h2>
+        <div class="linea-tiempo" id="linea"></div>
+      </section>
+
+      <div style="display:grid;gap:16px;align-content:start">
+        <section class="caja proximo" aria-labelledby="t-prox">
+          <h2 id="t-prox">Próximo paso</h2>
+          <strong id="prox-titulo"></strong>
+          <p style="display:flex;gap:8px;align-items:center" id="prox-fecha-caja"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-calendario"/></svg><span id="prox-fecha"></span></p>
+          <p style="display:flex;gap:8px;align-items:center"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-persona"/></svg><span id="prox-resp"></span></p>
+        </section>
+
+        <section class="caja" aria-labelledby="t-semana">
+          <h2 id="t-semana">Últimos 7 días</h2>
+          <div class="cifras">
+            <div><strong id="c-vistas">0</strong><span>abrieron el recorrido 3D</span></div>
+            <div><strong id="c-visitas">0</strong><span>pidieron visita</span></div>
+            <div><strong id="c-ofertas">0</strong><span>ofertas</span></div>
+          </div>
+          <p style="font-size:.85rem;color:var(--tinta-2)" id="cifras-nota"></p>
+        </section>
+
+        <section class="caja" aria-labelledby="t-docs">
+          <h2 id="t-docs">Documentos</h2>
+          <ul class="docs" id="docs"></ul>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div data-pie></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/propiedades.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    (async () => {
+      MA.iniciar();
+      const I = MA.icono;
+      const esc = MA.esc;
+      const ETAPAS = ["Contrato firmado", "Recorrido 3D grabado", "Publicado", "Visitas", "Ofertas", "Entrega"];
+      const ESTADO = ["Preparando tu inmueble", "Recorrido 3D listo", "Publicado", "Recibiendo visitas", "Revisando ofertas", "Entregado"];
+      const ICONO_ETAPA = ["check", "cubo", "ojo", "llave", "mensaje", "casa"];
+      const ICONO_TIPO = { contrato: "documento", recorrido: "cubo", publicado: "ojo", visita_agendada: "calendario", visita_realizada: "llave", oferta: "mensaje", reporte: "campana", documento: "documento", entrega: "casa", nota: "mensaje" };
+
+      const fecha = (iso) => {
+        const d = new Date(iso);
+        const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+        const dia = new Date(d); dia.setHours(0, 0, 0, 0);
+        const n = Math.round((hoy - dia) / 864e5);
+        const hora = d.toLocaleTimeString("es-CO", { hour: "numeric", minute: "2-digit" });
+        if (n === 0) return "Hoy, " + hora;
+        if (n === 1) return "Ayer, " + hora;
+        if (n === -1) return "Mañana, " + hora;
+        return d.toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long" }) + ", " + hora;
+      };
+      const aviso = (txt) => { document.getElementById("aviso").hidden = false; document.getElementById("aviso-texto").innerHTML = txt; };
+
+      const pintar = ({ inmueble: p, eventos, docs, resumen, ejemplo }) => {
+        document.getElementById("panel-titulo").textContent = p.titulo;
+        document.getElementById("panel-meta").innerHTML =
+          `<span>${I("ubicacion")}${esc(MA.lugar(p))}</span><span>${I("llave")}${MA.OPERACION[p.operacion]}</span><span>Código ${esc(String(p.id).slice(0, 8).toUpperCase())}</span>`;
+        document.getElementById("estado-grande").textContent = ESTADO[p.etapa];
+        document.getElementById("etapas").innerHTML = ETAPAS.map((e, i) =>
+          `<li class="etapa${i < p.etapa ? " is-hecha" : i === p.etapa ? " is-actual" : ""}"${i === p.etapa ? ' aria-current="step"' : ""}>
+            <span class="etapa__punto">${I(i < p.etapa ? "check" : ICONO_ETAPA[i])}</span>${e}</li>`).join("");
+
+        document.getElementById("linea").innerHTML = eventos.length ? eventos.map((e) => `
+          <div class="evento">
+            <span class="evento__ico">${I(ICONO_TIPO[e.tipo] || "mensaje")}</span>
+            <div><p style="font-size:.82rem;color:var(--tinta-2)">${fecha(e.creado)}</p><h3>${esc(e.titulo)}</h3>${e.detalle ? `<p>${esc(e.detalle)}</p>` : ""}
+            ${e.avisado ? `<span class="evento__aviso">${I("check")}Te avisamos por WhatsApp</span>` : ""}</div>
+          </div>`).join("")
+          : '<p class="admin-vacio">Aquí verás cada visita, oferta y avance de tu inmueble, apenas pase.</p>';
+
+        document.getElementById("prox-titulo").textContent = p.proximo_paso || "Lo estamos definiendo; te avisamos apenas lo tengamos.";
+        document.getElementById("prox-fecha-caja").hidden = !p.proximo_paso_fecha;
+        if (p.proximo_paso_fecha) document.getElementById("prox-fecha").textContent = fecha(p.proximo_paso_fecha);
+        document.getElementById("prox-resp").innerHTML = "Responsable: " + (p.responsable ? esc(p.responsable) : "por asignar");
+
+        document.getElementById("c-vistas").textContent = resumen.vistas_recorrido;
+        document.getElementById("c-visitas").textContent = resumen.visitas_pedidas;
+        document.getElementById("c-ofertas").textContent = resumen.ofertas;
+        document.getElementById("cifras-nota").textContent = "Se cuentan solas desde el sitio y lo que registra tu asesor.";
+
+        document.getElementById("docs").innerHTML = docs.length ? docs.map((d) => `
+          <li><span style="display:flex;gap:10px;align-items:center">${I("documento")}${esc(d.nombre)}</span>
+          <span class="estado-doc${d.estado === "pendiente" ? " pendiente" : ""}">${d.estado[0].toUpperCase() + d.estado.slice(1)}</span></li>`).join("")
+          : '<li><span style="color:var(--tinta-2)">Aún no hay documentos registrados.</span></li>';
+      };
+
+      /* ---------- Ejemplo: sin sesión de propietario ---------- */
+      const ejemplo = () => {
+        const base = window.PROPIEDADES[0];
+        const ahora = new Date();
+        const hace = (dias, h, m) => { const d = new Date(ahora); d.setDate(d.getDate() - dias); d.setHours(h, m, 0, 0); return d.toISOString(); };
+        const manana = new Date(ahora); manana.setDate(manana.getDate() + 1); manana.setHours(10, 0, 0, 0);
+        return {
+          ejemplo: true,
+          inmueble: { ...base, etapa: 3, proximo_paso: "Visita con un interesado en arriendo", proximo_paso_fecha: manana.toISOString(), responsable: null },
+          eventos: [
+            { creado: hace(0, 9, 40), tipo: "visita_agendada", titulo: "Visita agendada para mañana", detalle: "Interesado en arriendo. Ya vio el recorrido 3D completo.", avisado: true },
+            { creado: hace(1, 17, 15), tipo: "visita_realizada", titulo: "Visita realizada", detalle: "Le gustó la luz de la sala; preguntó por el parqueadero. No hizo oferta todavía.", avisado: true },
+            { creado: hace(2, 11, 5), tipo: "reporte", titulo: "Reporte semanal enviado", detalle: "Resumen de visitas al recorrido, interesados y próximos pasos.", avisado: false },
+            { creado: hace(4, 15, 30), tipo: "publicado", titulo: "Recorrido 3D publicado", detalle: "Ya aparece en la búsqueda de " + base.zona + ".", avisado: true },
+            { creado: hace(6, 10, 0), tipo: "contrato", titulo: "Contrato de corretaje firmado", detalle: "Disponible en tus documentos.", avisado: true }
+          ],
+          docs: [{ nombre: "Contrato de corretaje", estado: "firmado" }, { nombre: "Certificado de libertad", estado: "recibido" }, { nombre: "Inventario del inmueble", estado: "pendiente" }],
+          resumen: { vistas_recorrido: 14, visitas_pedidas: 3, ofertas: 1 }
+        };
+      };
+
+      const sesion = await DATOS.sesion();
+      if (!sesion) {
+        aviso('Así se ve el panel de un propietario. Si eres propietario, <a class="enlace" href="ingreso.html?volver=panel.html">ingresa</a> para ver tu inmueble.');
+        pintar(ejemplo());
+        return;
+      }
+
+      /* ---------- Propietario con sesión: datos reales ---------- */
+      let inmuebles = [];
+      try { inmuebles = await DATOS.misInmuebles(); } catch (e) { console.warn(e); }
+      if (!inmuebles.length) {
+        if (sesion.rol === "admin") aviso('Entraste como administrador: este panel lo ve cada propietario con su cuenta. Abajo ves cómo se ve. <a class="enlace" href="admin.html">Ir a administración</a>');
+        else { document.getElementById("tablero").hidden = true; document.getElementById("sin-inmueble").hidden = false; document.getElementById("panel-titulo").textContent = "Hola" + (sesion.nombre ? ", " + sesion.nombre.split(" ")[0] : ""); }
+        if (sesion.rol === "admin") pintar(ejemplo());
+        return;
+      }
+      if (DATOS.modo === "prueba") aviso("Modo prueba: estos datos están guardados solo en este navegador.");
+
+      const selector = document.getElementById("selector");
+      if (inmuebles.length > 1) {
+        document.getElementById("selector-caja").hidden = false;
+        selector.innerHTML = inmuebles.map((p, i) => `<option value="${i}">${esc(p.titulo)}</option>`).join("");
+      }
+
+      let ultima = Date.now();
+      const cargar = async () => {
+        const p = inmuebles[Number(selector.value) || 0];
+        const [eventos, docs, resumen] = await Promise.all([
+          DATOS.listar("inmueble_eventos", { inmueble_id: p.id }).catch(() => []),
+          DATOS.listar("inmueble_documentos", { inmueble_id: p.id }).catch(() => []),
+          DATOS.resumenInmueble(p.id).catch(() => ({ vistas_recorrido: 0, visitas_pedidas: 0, ofertas: 0 }))
+        ]);
+        pintar({ inmueble: p, eventos, docs, resumen, ejemplo: false });
+        ultima = Date.now();
+      };
+      // Refresca: el propietario nunca tiene que preguntar ni recargar
+      const refrescar = async () => {
+        try { inmuebles = (await DATOS.misInmuebles()) || inmuebles; } catch { /* se queda con lo último */ }
+        await cargar();
+      };
+      selector.addEventListener("change", cargar);
+      await cargar();
+      setInterval(refrescar, 60000);
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) refrescar(); });
+      const act = document.getElementById("actualizado");
+      setInterval(() => {
+        const min = Math.floor((Date.now() - ultima) / 60000);
+        act.textContent = min < 1 ? "Actualizado hace un momento" : `Actualizado hace ${min} min`;
+      }, 15000);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Administración · Marco Abierto</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a2540">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body data-pagina="admin">
+  <div data-barra></div>
+
+  <div class="aviso-demo" role="note">
+    <div class="contenedor" id="aviso-modo">Cargando…</div>
+  </div>
+
+  <!-- Sin sesión de administrador -->
+  <main class="contenedor panel" id="acceso" hidden>
+    <section class="caja admin-acceso" aria-labelledby="t-acceso">
+      <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-llave"/></svg>
+      <h1 id="t-acceso">Esta pantalla es solo para el equipo</h1>
+      <p id="acceso-texto">Entra con tu cuenta de administrador para ver las solicitudes.</p>
+      <a class="boton boton--navy" href="ingreso.html?volver=admin.html">Ingresar</a>
+    </section>
+  </main>
+
+  <main class="contenedor panel" id="contenido" data-ui hidden>
+    <header class="panel__cab admin-encabezado">
+      <div>
+        <span class="en-vivo" id="actualizado">Actualizado hace un momento</span>
+        <h1>Hoy en Marco Abierto</h1>
+        <p class="panel__meta"><span><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-calendario"/></svg><span id="hoy"></span></span><span><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-persona"/></svg><span id="quien"></span></span></p>
+      </div>
+      <div class="admin-encabezado__acciones">
+        <button class="boton boton--suave" type="button" id="recargar"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-girar"/></svg>Actualizar</button>
+        <button class="boton boton--suave" type="button" id="salir">Salir</button>
+      </div>
+    </header>
+
+    <!-- Lo que no puede esperar -->
+    <section class="caja estado-actual" aria-labelledby="t-pulso">
+      <h2 id="t-pulso" style="color:rgba(255,255,255,.8);font-weight:600">Lo que no puede esperar</h2>
+      <div class="admin-pulso">
+        <a href="#avisos" class="admin-pulso__principal"><strong id="n-avisos">0</strong><span>propietarios esperando noticias</span></a>
+        <a href="#b-solicitudes_publicacion"><strong id="n-solicitudes_publicacion">0</strong><span>inmuebles para publicar</span></a>
+        <a href="#b-solicitudes_visita"><strong id="n-solicitudes_visita">0</strong><span>visitas por confirmar</span></a>
+        <a href="#b-referidos"><strong id="n-referidos">0</strong><span>referidos sin contactar</span></a>
+        <a href="#b-socios_postulaciones"><strong id="n-socios_postulaciones">0</strong><span>socios por aprobar</span></a>
+      </div>
+    </section>
+
+    <!-- Disciplina operativa: ningún propietario debe tener que preguntar -->
+    <section class="caja" id="avisos" aria-labelledby="t-avisos">
+      <div class="admin-cab">
+        <h2 id="t-avisos">Propietarios esperando noticias</h2>
+        <p class="admin-regla">Regla: ningún propietario pasa más de <strong id="regla-dias"></strong> días sin noticias. Una novedad marcada como «ya se lo conté» cuenta como aviso. <span class="marcador">confirmar plazo</span></p>
+      </div>
+      <ul class="admin-lista" id="lista-avisos"></ul>
+    </section>
+
+    <!-- Bandeja de entrada -->
+    <section class="admin-bandeja" aria-labelledby="t-bandeja">
+      <div class="admin-bandeja__cab">
+        <h2 id="t-bandeja">Lo que llegó desde el sitio</h2>
+        <label class="chip"><input type="checkbox" id="solo-pendientes" checked><span>Solo pendientes</span></label>
+      </div>
+      <div class="admin-bandeja__grid" id="bandeja"></div>
+    </section>
+
+    <!-- Inventario -->
+    <section class="caja" id="inmuebles" aria-labelledby="t-inm">
+      <div class="admin-cab">
+        <div class="admin-cab__fila">
+          <h2 id="t-inm">Inmuebles</h2>
+          <button class="boton boton--navy" type="button" id="nuevo-inmueble"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mas"/></svg>Nuevo inmueble</button>
+        </div>
+        <div class="admin-filtros">
+          <label class="campo"><span class="sr-only">Buscar inmueble</span><input class="entrada" type="search" id="buscar-inm" placeholder="Buscar por título, zona, propietario o responsable" enterkeyhint="search" autocomplete="off"></label>
+          <label class="campo"><span class="sr-only">Etapa</span>
+            <select class="entrada" id="filtro-etapa"><option value="">Todas las etapas</option></select>
+          </label>
+        </div>
+      </div>
+      <div class="admin-tabla-caja">
+        <table class="admin-tabla">
+          <thead>
+            <tr><th scope="col">Inmueble</th><th scope="col">Etapa</th><th scope="col">Responsable</th><th scope="col">3D</th><th scope="col">Último aviso</th><th scope="col">Próximo paso</th><th scope="col"><span class="sr-only">Acciones</span></th></tr>
+          </thead>
+          <tbody id="tabla-inm"></tbody>
+        </table>
+      </div>
+      <p class="admin-vacio" id="inm-vacio" hidden></p>
+    </section>
+  </main>
+
+  <!-- Editor de inmueble -->
+  <dialog class="hoja-dialogo hoja-dialogo--ancha" id="dlg-inmueble" aria-labelledby="t-dlg-inm">
+    <form class="formulario" id="form-inmueble" novalidate>
+      <div class="hoja-dialogo__cab">
+        <h2 id="t-dlg-inm">Nuevo inmueble</h2>
+        <button class="boton boton--suave boton--icono" type="button" data-cerrar aria-label="Cerrar"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cerrar"/></svg></button>
+      </div>
+
+      <fieldset class="admin-grupo">
+        <legend>Lo que ve el público</legend>
+        <label class="campo"><span>Título</span><input class="entrada" name="titulo" required minlength="3" maxlength="120" placeholder="Apartamento en Laureles con balcón"></label>
+        <div class="formulario__fila">
+          <label class="campo"><span>Negocio</span>
+            <select class="entrada" name="operacion" required><option value="arriendo">Arriendo</option><option value="venta">Venta</option></select>
+          </label>
+          <label class="campo"><span>Tipo</span>
+            <select class="entrada" name="tipo" required><option value="apartamento">Apartamento</option><option value="apartaestudio">Apartaestudio</option></select>
+          </label>
+        </div>
+        <div class="formulario__fila">
+          <label class="campo"><span>Zona</span><select class="entrada" name="zona" id="inm-zona" required></select></label>
+          <label class="campo"><span>Barrio <small style="font-weight:400">(opcional)</small></span><input class="entrada" name="barrio" list="inm-barrios" maxlength="80" autocomplete="off" placeholder="Escribe o elige"><datalist id="inm-barrios"></datalist></label>
+        </div>
+        <div class="formulario__fila">
+          <label class="campo"><span>Municipio</span><input class="entrada" name="municipio" required maxlength="80"></label>
+          <label class="campo"><span>Metro cercano <small style="font-weight:400">(opcional)</small></span><input class="entrada" name="metro" maxlength="80"></label>
+        </div>
+        <div class="admin-numeros">
+          <label class="campo"><span>Habitaciones</span><input class="entrada" name="habitaciones" type="number" inputmode="numeric" min="0" max="20" required></label>
+          <label class="campo"><span>Baños</span><input class="entrada" name="banos" type="number" inputmode="numeric" min="0" max="20" required></label>
+          <label class="campo"><span>Parqueaderos</span><input class="entrada" name="parqueaderos" type="number" inputmode="numeric" min="0" max="10" value="0" required></label>
+          <label class="campo"><span>Área (m²)</span><input class="entrada" name="area" type="number" inputmode="decimal" min="1" step="0.01" required></label>
+          <label class="campo"><span>Estrato</span><input class="entrada" name="estrato" type="number" inputmode="numeric" min="1" max="6"></label>
+        </div>
+        <label class="campo"><span>Ubicación aproximada (latitud, longitud)</span><input class="entrada" name="ubicacion" inputmode="decimal" autocomplete="off" placeholder="6.2447, -75.5970" aria-describedby="ayuda-ubic"><small class="ingreso__ayuda" id="ayuda-ubic">Se llena con el centro de la zona. Para afinarla: en Google Maps, clic derecho sobre el edificio y copia las coordenadas. En el sitio se muestra como un área, nunca la dirección exacta.</small></label>
+        <div class="formulario__fila">
+          <label class="campo"><span id="lbl-precio">Precio</span><input class="entrada" name="precio" inputmode="numeric" data-pesos placeholder="$ 0"></label>
+          <label class="campo"><span>Administración</span><input class="entrada" name="administracion" inputmode="numeric" data-pesos placeholder="$ 0"></label>
+        </div>
+        <label class="campo"><span>Descripción</span><textarea class="entrada" name="descripcion" maxlength="4000" rows="5" placeholder="Luz, vista, estado, acabados, conjunto y lo que hay cerca"></textarea></label>
+        <label class="campo"><span>Enlace del recorrido 3D (Finca 360)</span><input class="entrada" name="tour_url" type="url" inputmode="url" placeholder="https://…" aria-describedby="ayuda-tour"><small class="ingreso__ayuda" id="ayuda-tour">Pega el enlace para insertar (embed) que te da el proveedor. Debe empezar por https://</small></label>
+
+        <div class="campo">
+          <span>Fotos <small style="font-weight:400">(la primera es la portada)</small></span>
+          <div class="admin-fotos" id="inm-fotos"></div>
+          <label class="boton boton--suave admin-subir"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-foto"/></svg>Agregar fotos<input type="file" id="inm-fotos-input" accept="image/jpeg,image/png,image/webp" multiple hidden></label>
+        </div>
+        <label class="chip"><input type="checkbox" name="publicado"><span><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-ojo"/></svg>Publicado en el sitio</span></label>
+      </fieldset>
+
+      <fieldset class="admin-grupo">
+        <legend>Seguimiento interno <small>(no sale en el sitio)</small></legend>
+        <div class="formulario__fila">
+          <label class="campo"><span>Correo del propietario</span><input class="entrada" name="propietario_correo" type="email" autocomplete="off" autocapitalize="none" aria-describedby="ayuda-prop"><small class="ingreso__ayuda" id="ayuda-prop">Con este correo el propietario ve su panel cuando crea su cuenta.</small></label>
+          <label class="campo"><span>Responsable</span><input class="entrada" name="responsable" maxlength="120" placeholder="Nombre del asesor"></label>
+        </div>
+        <div class="formulario__fila">
+          <label class="campo"><span>Etapa</span><select class="entrada" name="etapa" id="inm-etapa"></select></label>
+          <label class="campo"><span>Fecha del próximo paso</span><input class="entrada" name="proximo_paso_fecha" type="datetime-local"></label>
+        </div>
+        <label class="campo"><span>Próximo paso</span><input class="entrada" name="proximo_paso" maxlength="300" placeholder="Visita con interesado el sábado"></label>
+        <div class="campo">
+          <span>Documentos</span>
+          <ul class="admin-docs" id="inm-docs"></ul>
+          <button class="boton boton--suave admin-subir" type="button" id="agregar-doc"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mas"/></svg>Agregar documento</button>
+        </div>
+      </fieldset>
+
+      <button class="boton boton--navy" type="submit">Guardar inmueble</button>
+      <p class="form-estado" role="status"></p>
+    </form>
+  </dialog>
+
+  <!-- Registrar novedad -->
+  <dialog class="hoja-dialogo" id="dlg-novedad" aria-labelledby="t-dlg-nov">
+    <form class="formulario" id="form-novedad" novalidate>
+      <div class="hoja-dialogo__cab">
+        <h2 id="t-dlg-nov">Registrar novedad</h2>
+        <button class="boton boton--suave boton--icono" type="button" data-cerrar aria-label="Cerrar"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cerrar"/></svg></button>
+      </div>
+      <p id="nov-inmueble" style="font-weight:700"></p>
+      <label class="campo"><span>¿Qué pasó?</span><select class="entrada" name="tipo" id="nov-tipo" required></select></label>
+      <label class="campo"><span>Título que verá el propietario</span><input class="entrada" name="titulo" required minlength="3" maxlength="160"></label>
+      <label class="campo"><span>Detalle <small style="font-weight:400">(opcional)</small></span><textarea class="entrada" name="detalle" maxlength="2000" rows="3" placeholder="Por ejemplo: le gustó la luz; preguntó por el parqueadero"></textarea></label>
+      <label class="campo"><span>Cambiar etapa</span><select class="entrada" name="etapa" id="nov-etapa"></select></label>
+      <label class="consentimiento"><input type="checkbox" name="avisado" checked><span>Ya se lo conté al propietario (WhatsApp o llamada)</span></label>
+      <button class="boton boton--navy" type="submit">Guardar novedad</button>
+      <p class="form-estado" role="status"></p>
+    </form>
+  </dialog>
+
+  <div data-pie></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/propiedades.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    (async () => {
+      MA.iniciar();
+      const I = MA.icono;
+      const esc = MA.esc;
+      const DIAS_MAX_SIN_AVISO = 3; // regla de ejemplo, confirmar con el negocio
+      const ETAPAS = ["Contrato firmado", "Recorrido 3D grabado", "Publicado", "Visitas", "Ofertas", "Entrega"];
+      const TIPOS = {
+        visita_agendada: "Visita agendada", visita_realizada: "Visita realizada", oferta: "Oferta recibida",
+        reporte: "Reporte de seguimiento", publicado: "Publicado en el sitio", recorrido: "Recorrido 3D grabado",
+        contrato: "Contrato firmado", documento: "Documento", entrega: "Entrega", nota: "Otra novedad"
+      };
+      const pesos = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
+      const hace = (iso) => {
+        const min = Math.round((Date.now() - new Date(iso)) / 60000);
+        if (min < 1) return "hace un momento";
+        if (min < 60) return `hace ${min} min`;
+        const h = Math.round(min / 60);
+        if (h < 24) return `hace ${h} h`;
+        const d = Math.round(h / 24);
+        return d === 1 ? "ayer" : `hace ${d} días`;
+      };
+      const diasDesde = (iso) => (iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : null);
+      const whatsapp = (cel) => {
+        let n = String(cel || "").replace(/\D/g, "");
+        if (n.length === 10 && n.startsWith("3")) n = "57" + n;
+        return n.length >= 10 ? `https://wa.me/${n}` : null;
+      };
+      const codigo = (id) => String(id).slice(0, 8).toUpperCase();
+
+      document.getElementById("aviso-modo").textContent = DATOS.modo === "prueba"
+        ? "Modo prueba: todo se guarda solo en este navegador."
+        : "Datos reales. Lo que guardes aquí lo ven el sitio y los propietarios.";
+
+      /* ---------- Acceso ---------- */
+      const sesion = await DATOS.sesion();
+      if (!sesion || sesion.rol !== "admin") {
+        document.getElementById("acceso").hidden = false;
+        if (sesion) document.getElementById("acceso-texto").textContent = "Tu cuenta no es de administrador. Si deberías tener acceso, pídele a quien administra el sitio que te lo active.";
+        return;
+      }
+      document.getElementById("contenido").hidden = false;
+      document.getElementById("quien").textContent = sesion.nombre || sesion.correo;
+      document.getElementById("hoy").textContent = new Date().toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long" });
+      document.getElementById("regla-dias").textContent = DIAS_MAX_SIN_AVISO;
+      document.getElementById("salir").addEventListener("click", async () => { await DATOS.salir(); location.href = "ingreso.html"; });
+
+      let INM = [];
+      const datos = {};
+
+      /* ---------- Propietarios esperando noticias ---------- */
+      // Pendiente: inmueble activo (no entregado) cuyo último aviso pasó el plazo (o nunca se avisó)
+      const pendientesDeAviso = () => INM
+        .filter((p) => p.etapa < 5)
+        .map((p) => ({ p, dias: diasDesde(p.ultimo_aviso) ?? diasDesde(p.creado) }))
+        .filter((x) => x.dias > DIAS_MAX_SIN_AVISO || (!x.p.ultimo_aviso && x.dias >= 1))
+        .sort((a, b) => b.dias - a.dias);
+
+      const pintarAvisos = () => {
+        const lista = pendientesDeAviso();
+        document.getElementById("n-avisos").textContent = lista.length;
+        document.getElementById("lista-avisos").innerHTML = lista.length ? lista.map(({ p, dias }) => `
+          <li class="admin-item${dias > DIAS_MAX_SIN_AVISO + 1 ? " is-urgente" : ""}">
+            <span class="admin-item__ico">${I(dias > DIAS_MAX_SIN_AVISO + 1 ? "campana" : "reloj")}</span>
+            <div class="admin-item__txt">
+              <h3>${esc(p.titulo)} <small>· ${codigo(p.id)}</small></h3>
+              <p>${p.ultimo_aviso ? `Lleva ${dias} días sin noticias.` : "Todavía no ha recibido ninguna novedad."} ${p.responsable ? "Responsable: " + esc(p.responsable) + "." : ""} ${p.propietario_correo ? "" : "Sin correo de propietario."}</p>
+            </div>
+            <div class="admin-item__acciones admin-item__acciones--una">
+              <button class="boton boton--navy" type="button" data-novedad="${esc(p.id)}">${I("mensaje")}Registrar novedad</button>
+            </div>
+          </li>`).join("")
+          : `<li class="admin-listo">${I("check")}<span><strong>Todos los propietarios están al día.</strong> ${INM.length ? "Nadie tiene que preguntar hoy." : "Cuando crees inmuebles, aquí verás a quién le debes noticias."}</span></li>`;
+      };
+
+      /* ---------- Bandeja de entrada ---------- */
+      const BANDEJAS = [
+        {
+          tabla: "solicitudes_publicacion", titulo: "Inmuebles para publicar", icono: "casa", pendiente: "nueva",
+          estados: { nueva: "Nueva", contactada: "Contactada", convertida: "Ya publicada", descartada: "Descartada" },
+          resumen: (f) => `${f.operacion === "venta" ? "Quiere vender" : f.operacion === "arriendo" ? "Quiere arrendar" : "Aún no decide"} · ${esc(f.zona || "Zona sin indicar")}`,
+          detalle: (f) => (f.mensaje ? `“${esc(f.mensaje)}”` : "")
+        },
+        {
+          tabla: "solicitudes_visita", titulo: "Visitas pedidas", icono: "calendario", pendiente: "por_confirmar",
+          estados: { por_confirmar: "Por confirmar", confirmada: "Confirmada", realizada: "Realizada", cancelada: "Cancelada" },
+          resumen: (f) => `<a class="enlace" href="inmueble.html?id=${encodeURIComponent(f.inmueble_id || "")}">${esc(f.inmueble_titulo || "Inmueble")}</a> · ${esc(f.franja || "")}`,
+          detalle: (f) => (f.publicidad ? "Aceptó recibir inmuebles parecidos." : "")
+        },
+        {
+          tabla: "referidos", titulo: "Referidos de socios", icono: "socio", pendiente: "recibido",
+          nombre: (f) => f.propietario_nombre, celular: (f) => f.propietario_celular,
+          estados: { recibido: "Recibido", contactado: "Contactado", publicado: "Publicado", en_negocio: "En negocio", cerrado: "Cerrado", comision_pagada: "Comisión pagada", descartado: "Descartado" },
+          resumen: (f) => `${f.operacion === "venta" ? "Vender" : f.operacion === "arriendo" ? "Arrendar" : "Aún no decide"} · ${esc(f.zona || "Zona sin indicar")}`,
+          detalle: (f) => [f.nota ? `“${esc(f.nota)}”` : "", f.socio_id ? "Enviado por un socio con cuenta." : "Enviado sin cuenta de socio."].filter(Boolean).join(" ")
+        },
+        {
+          tabla: "socios_postulaciones", titulo: "Quieren ser socios", icono: "persona", pendiente: "nueva",
+          estados: { nueva: "Nueva", aprobada: "Aprobada", descartada: "Descartada" },
+          resumen: (f) => esc(f.ocupacion || "Sin ocupación indicada"),
+          detalle: () => ""
+        }
+      ];
+      const soloPend = document.getElementById("solo-pendientes");
+      const bandeja = document.getElementById("bandeja");
+
+      const tarjeta = (b, f) => {
+        const nombre = (b.nombre ? b.nombre(f) : f.nombre) || "Sin nombre";
+        const cel = b.celular ? b.celular(f) : f.celular;
+        const wa = whatsapp(cel);
+        const opciones = Object.entries(b.estados).map(([v, t]) => `<option value="${v}"${v === f.estado ? " selected" : ""}>${t}</option>`).join("");
+        return `<li class="admin-item admin-solicitud${f.estado === b.pendiente ? " is-pendiente" : ""}" data-id="${esc(f.id)}">
+          <span class="admin-item__ico">${I(b.icono)}</span>
+          <div class="admin-item__txt">
+            <h3>${esc(nombre)} <small>· ${hace(f.creado)}</small></h3>
+            <p>${b.resumen(f)}</p>
+            ${b.detalle(f) ? `<p>${b.detalle(f)}</p>` : ""}
+            <p class="admin-contacto">
+              ${cel ? `<a class="enlace" href="tel:${esc(String(cel).replace(/[^\d+]/g, ""))}">${I("mensaje")}${esc(cel)}</a>` : ""}
+              ${wa ? `<a class="enlace" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+              ${f.correo ? `<a class="enlace" href="mailto:${esc(f.correo)}">${esc(f.correo)}</a>` : ""}
+            </p>
+          </div>
+          <label class="campo admin-estado"><span class="sr-only">Estado</span>
+            <select class="entrada" data-estado data-tabla="${b.tabla}">${opciones}</select>
+          </label>
+        </li>`;
+      };
+
+      const pintarBandeja = () => {
+        bandeja.innerHTML = BANDEJAS.map((b) => {
+          const filas = (datos[b.tabla] || []).filter((f) => !soloPend.checked || f.estado === b.pendiente);
+          document.getElementById("n-" + b.tabla).textContent = (datos[b.tabla] || []).filter((f) => f.estado === b.pendiente).length;
+          return `<section class="caja" id="b-${b.tabla}" aria-labelledby="t-${b.tabla}">
+            <h2 id="t-${b.tabla}">${b.titulo}</h2>
+            ${datos[b.tabla] === null ? `<p class="admin-vacio">No se pudo cargar. Toca «Actualizar».</p>`
+              : filas.length ? `<ul class="admin-lista admin-lista--compacta">${filas.map((f) => tarjeta(b, f)).join("")}</ul>`
+              : `<p class="admin-vacio">${soloPend.checked ? "Nada pendiente aquí." : "Todavía no ha llegado nada."}</p>`}
+          </section>`;
+        }).join("");
+      };
+
+      const pintarPulso = () => {
+        let total = 0;
+        document.querySelectorAll(".admin-pulso a").forEach((a) => {
+          const n = Number(a.querySelector("strong").textContent);
+          total += n;
+          a.classList.toggle("is-alerta", n > 0);
+        });
+        document.title = (total ? `(${total}) ` : "") + "Administración · Marco Abierto";
+      };
+
+      bandeja.addEventListener("change", async (e) => {
+        const sel = e.target.closest("[data-estado]");
+        if (!sel) return;
+        const id = sel.closest("[data-id]").dataset.id;
+        sel.disabled = true;
+        try {
+          await DATOS.actualizar(sel.dataset.tabla, id, { estado: sel.value });
+          const f = datos[sel.dataset.tabla].find((x) => String(x.id) === id);
+          if (f) f.estado = sel.value;
+          pintarBandeja();
+          pintarPulso();
+        } catch (err) {
+          sel.disabled = false;
+          alert(DATOS.mensajeError(err));
+        }
+      });
+      soloPend.addEventListener("change", pintarBandeja);
+
+      /* ---------- Tabla de inmuebles ---------- */
+      const tabla = document.getElementById("tabla-inm");
+      const buscar = document.getElementById("buscar-inm");
+      const filtro = document.getElementById("filtro-etapa");
+      filtro.innerHTML += ETAPAS.map((e, i) => `<option value="${i}">${e}</option>`).join("");
+      const pintarTabla = () => {
+        const q = buscar.value.trim().toLowerCase();
+        const et = filtro.value;
+        const r = INM.filter((p) => (et === "" || p.etapa === Number(et)) &&
+          (!q || [p.titulo, p.zona, p.municipio, codigo(p.id), p.responsable, p.propietario_correo].join(" ").toLowerCase().includes(q)));
+        tabla.innerHTML = r.map((p) => {
+          const d = diasDesde(p.ultimo_aviso);
+          return `<tr>
+            <th scope="row" data-label="Inmueble">${esc(p.titulo)}<small>${codigo(p.id)} · ${MA.OPERACION[p.operacion]} · ${p.publicado ? '<span class="admin-publicado">Publicado</span>' : "Sin publicar"}</small></th>
+            <td data-label="Etapa">${ETAPAS[p.etapa]}</td>
+            <td data-label="Responsable">${esc(p.responsable || "Sin asignar")}</td>
+            <td data-label="3D"><span class="estado-doc${p.tour_url ? "" : " pendiente"}">${p.tour_url ? "Listo" : "Pendiente"}</span></td>
+            <td data-label="Último aviso"><span class="${d === null || d > DIAS_MAX_SIN_AVISO ? "admin-tarde" : ""}">${p.ultimo_aviso ? hace(p.ultimo_aviso) : "Nunca"}</span></td>
+            <td data-label="Próximo paso">${esc(p.proximo_paso || "Sin definir")}${p.proximo_paso_fecha ? `<small>${new Date(p.proximo_paso_fecha).toLocaleString("es-CO", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</small>` : ""}</td>
+            <td data-label="Acciones" class="admin-acciones-fila">
+              <button class="boton boton--suave" type="button" data-editar="${esc(p.id)}">Editar</button>
+              <button class="boton boton--suave" type="button" data-novedad="${esc(p.id)}">Novedad</button>
+              ${p.publicado ? `<a class="boton boton--suave" href="inmueble.html?id=${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver</a>` : ""}
+            </td>
+          </tr>`;
+        }).join("");
+        const vacio = document.getElementById("inm-vacio");
+        vacio.hidden = r.length > 0;
+        vacio.textContent = INM.length ? "No hay inmuebles con ese filtro." : "Todavía no hay inmuebles. Crea el primero con «Nuevo inmueble». Mientras tanto, el sitio muestra los de ejemplo.";
+      };
+      buscar.addEventListener("input", pintarTabla);
+      filtro.addEventListener("change", pintarTabla);
+      document.getElementById("contenido").addEventListener("click", (e) => {
+        const ed = e.target.closest("[data-editar]");
+        if (ed) abrirEditor(INM.find((p) => p.id === ed.dataset.editar));
+        const nv = e.target.closest("[data-novedad]");
+        if (nv) abrirNovedad(INM.find((p) => p.id === nv.dataset.novedad));
+      });
+
+      /* ---------- Carga ---------- */
+      let ultima = Date.now();
+      const cargar = async () => {
+        await Promise.all([
+          ...BANDEJAS.map(async (b) => { try { datos[b.tabla] = await DATOS.listar(b.tabla); } catch { datos[b.tabla] = null; } }),
+          (async () => { try { INM = await DATOS.listar("inmuebles"); } catch (e) { console.warn(e); } })()
+        ]);
+        ultima = Date.now();
+        pintarAvisos();
+        pintarBandeja();
+        pintarTabla();
+        pintarPulso();
+      };
+      document.getElementById("recargar").addEventListener("click", cargar);
+
+      /* ---------- Diálogos ---------- */
+      const abrirDialogo = (d) => { d.querySelector(".form-estado").textContent = ""; d.showModal(); document.body.classList.add("sin-scroll"); };
+      document.querySelectorAll("dialog").forEach((d) => {
+        d.addEventListener("close", () => document.body.classList.remove("sin-scroll"));
+        d.querySelector("[data-cerrar]").addEventListener("click", () => d.close());
+      });
+
+      /* ---------- Editor de inmueble ---------- */
+      const dlgInm = document.getElementById("dlg-inmueble");
+      const fInm = document.getElementById("form-inmueble");
+      const zonaSel = document.getElementById("inm-zona");
+      zonaSel.innerHTML = window.ZONAS.map((z) => `<option>${z.nombre}</option>`).join("") + "<option>Otra</option>";
+      document.getElementById("inm-etapa").innerHTML = ETAPAS.map((e, i) => `<option value="${i}">${e}</option>`).join("");
+      zonaSel.addEventListener("change", () => {
+        const z = window.ZONAS.find((x) => x.nombre === zonaSel.value);
+        // Sugerencias de barrio de la zona elegida
+        document.getElementById("inm-barrios").innerHTML = window.BARRIOS.filter((b) => b.zona === zonaSel.value).map((b) => `<option value="${b.nombre}">`).join("");
+        if (!z) return;
+        fInm.municipio.value = z.municipio;
+        fInm.metro.value = z.metro || "";
+        // La ubicación toma el centro de la zona, salvo que ya hayan escrito una propia
+        if (!fInm.ubicacion.value || fInm.ubicacion.dataset.auto === "1") {
+          fInm.ubicacion.value = `${z.lat}, ${z.lng}`;
+          fInm.ubicacion.dataset.auto = "1";
+        }
+      });
+      fInm.ubicacion.addEventListener("input", () => { fInm.ubicacion.dataset.auto = "0"; });
+      // Acepta "6.2447, -75.5970" (como lo copia Google Maps)
+      const leerUbicacion = (t) => {
+        const m = String(t || "").match(/(-?\d+(?:[.,]\d+)?)\s*[,;\s]\s*(-?\d+(?:[.,]\d+)?)/);
+        if (!m) return null;
+        const lat = Number(m[1].replace(",", ".")), lng = Number(m[2].replace(",", "."));
+        return lat > -5 && lat < 15 && lng > -82 && lng < -66 ? { lat, lng } : null;
+      };
+      fInm.operacion.addEventListener("change", () => {
+        document.getElementById("lbl-precio").textContent = fInm.operacion.value === "arriendo" ? "Canon mensual" : "Precio de venta";
+      });
+      fInm.querySelectorAll("[data-pesos]").forEach((inp) => inp.addEventListener("input", () => {
+        const n = Number(inp.value.replace(/\D/g, ""));
+        inp.value = n ? "$ " + n.toLocaleString("es-CO") : "";
+      }));
+      const numero = (v) => Number(String(v || "").replace(/\D/g, "")) || null;
+
+      // Fotos: las ya guardadas (URL) y las nuevas (archivo por subir), en orden
+      let fotos = [], docs = [], editando = null;
+      const pintarFotos = () => {
+        document.getElementById("inm-fotos").innerHTML = fotos.map((f, i) => `
+          <figure class="admin-foto">
+            <img src="${f.url ? MA.urlSegura(f.url) : f.vista}" alt="Foto ${i + 1}">
+            ${i === 0 ? '<figcaption>Portada</figcaption>' : `<button type="button" class="admin-foto__portada" data-portada="${i}" aria-label="Usar como portada">${I("check")}</button>`}
+            <button type="button" class="admin-foto__quitar" data-quitar="${i}" aria-label="Quitar foto ${i + 1}">${I("cerrar")}</button>
+          </figure>`).join("") || '<p class="ingreso__ayuda">Sin fotos todavía.</p>';
+      };
+      document.getElementById("inm-fotos-input").addEventListener("change", (e) => {
+        [...e.target.files].forEach((archivo) => fotos.push({ archivo, vista: URL.createObjectURL(archivo) }));
+        e.target.value = "";
+        pintarFotos();
+      });
+      fInm.addEventListener("click", (e) => {
+        const q = e.target.closest("[data-quitar]");
+        if (q) { fotos.splice(Number(q.dataset.quitar), 1); pintarFotos(); }
+        const pt = e.target.closest("[data-portada]");
+        if (pt) { const [f] = fotos.splice(Number(pt.dataset.portada), 1); fotos.unshift(f); pintarFotos(); }
+        const qd = e.target.closest("[data-quitar-doc]");
+        if (qd) { docs.splice(Number(qd.dataset.quitarDoc), 1); pintarDocs(); }
+      });
+
+      const pintarDocs = () => {
+        document.getElementById("inm-docs").innerHTML = docs.map((d, i) => `
+          <li>
+            <input class="entrada" data-doc-nombre="${i}" value="${esc(d.nombre)}" placeholder="Contrato de corretaje" aria-label="Nombre del documento ${i + 1}" maxlength="120">
+            <select class="entrada" data-doc-estado="${i}" aria-label="Estado del documento ${i + 1}">
+              ${["pendiente", "recibido", "firmado"].map((s) => `<option value="${s}"${s === d.estado ? " selected" : ""}>${s[0].toUpperCase() + s.slice(1)}</option>`).join("")}
+            </select>
+            <button type="button" class="boton boton--suave boton--icono" data-quitar-doc="${i}" aria-label="Quitar documento ${i + 1}">${I("cerrar")}</button>
+          </li>`).join("");
+      };
+      document.getElementById("inm-docs").addEventListener("input", (e) => {
+        const n = e.target.dataset.docNombre, s = e.target.dataset.docEstado;
+        if (n !== undefined) docs[n].nombre = e.target.value;
+        if (s !== undefined) docs[s].estado = e.target.value;
+      });
+      document.getElementById("agregar-doc").addEventListener("click", () => {
+        docs.push({ nombre: "", estado: "pendiente" });
+        pintarDocs();
+        document.querySelector(`[data-doc-nombre="${docs.length - 1}"]`).focus();
+      });
+
+      const localDT = (iso) => {
+        if (!iso) return "";
+        const d = new Date(iso);
+        return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      };
+
+      async function abrirEditor(p) {
+        editando = p || null;
+        fInm.reset();
+        document.getElementById("t-dlg-inm").textContent = p ? "Editar inmueble" : "Nuevo inmueble";
+        fotos = (p?.fotos || []).map((url) => ({ url }));
+        docs = [];
+        if (p) {
+          fInm.tipo.value = p.tipo || "apartamento";
+          fInm.parqueaderos.value = p.parqueaderos ?? (p.parqueadero ? 1 : 0);
+          fInm.ubicacion.value = p.lat != null && p.lng != null ? `${p.lat}, ${p.lng}` : "";
+          fInm.ubicacion.dataset.auto = "0";
+          for (const k of ["titulo", "operacion", "barrio", "municipio", "metro", "habitaciones", "banos", "area", "estrato", "descripcion", "tour_url", "propietario_correo", "responsable", "proximo_paso"]) {
+            if (fInm[k]) fInm[k].value = p[k] ?? "";
+          }
+          if (![...zonaSel.options].some((o) => o.value === p.zona)) zonaSel.insertAdjacentHTML("afterbegin", `<option>${esc(p.zona)}</option>`);
+          zonaSel.value = p.zona;
+          fInm.precio.value = p.precio ? "$ " + Number(p.precio).toLocaleString("es-CO") : "";
+          fInm.administracion.value = p.administracion ? "$ " + Number(p.administracion).toLocaleString("es-CO") : "";
+          fInm.publicado.checked = !!p.publicado;
+          fInm.etapa.value = p.etapa;
+          fInm.proximo_paso_fecha.value = localDT(p.proximo_paso_fecha);
+          try { docs = (await DATOS.listar("inmueble_documentos", { inmueble_id: p.id })).map((d) => ({ nombre: d.nombre, estado: d.estado })); } catch { docs = []; }
+        } else {
+          fInm.ubicacion.dataset.auto = "1";
+          zonaSel.dispatchEvent(new Event("change"));
+          docs = [{ nombre: "Contrato de corretaje", estado: "pendiente" }, { nombre: "Certificado de libertad", estado: "pendiente" }];
+        }
+        fInm.operacion.dispatchEvent(new Event("change"));
+        pintarFotos();
+        pintarDocs();
+        abrirDialogo(dlgInm);
+      }
+      document.getElementById("nuevo-inmueble").addEventListener("click", () => abrirEditor(null));
+
+      fInm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const estado = fInm.querySelector(".form-estado");
+        const boton = fInm.querySelector('[type="submit"]');
+        estado.classList.remove("is-error");
+        if (!fInm.checkValidity()) {
+          const malo = fInm.querySelector(":invalid:not(fieldset)");
+          estado.classList.add("is-error");
+          estado.textContent = malo && malo.name === "tour_url" ? "El enlace del recorrido debe empezar por https://"
+            : malo && malo.name === "area" ? "Escribe el área en m²: es obligatoria y se muestra en todas las tarjetas."
+            : "Revisa los campos marcados.";
+          if (malo) malo.focus();
+          return;
+        }
+        if (fInm.ubicacion.value.trim() && !leerUbicacion(fInm.ubicacion.value)) {
+          estado.classList.add("is-error");
+          estado.textContent = "La ubicación debe ser «latitud, longitud» dentro de Colombia, por ejemplo 6.2447, -75.5970.";
+          fInm.ubicacion.focus();
+          return;
+        }
+        if (fInm.publicado.checked && !fotos.length && !fInm.tour_url.value) {
+          estado.classList.add("is-error");
+          estado.textContent = "Para publicarlo agrega al menos el recorrido 3D o una foto.";
+          return;
+        }
+        boton.disabled = true;
+        try {
+          const id = editando ? editando.id : DATOS.nuevoId();
+          const carpeta = id;
+          const nuevas = fotos.filter((f) => f.archivo).length;
+          let n = 0;
+          for (const f of fotos) {
+            if (!f.archivo) continue;
+            estado.textContent = `Subiendo imagen ${++n} de ${nuevas}…`;
+            f.url = await DATOS.subirImagen(f.archivo, carpeta);
+            delete f.archivo;
+          }
+          estado.textContent = "Guardando…";
+          const v = (k) => fInm[k].value.trim() || null;
+          const fila = {
+            id,
+            titulo: v("titulo"), operacion: fInm.operacion.value, zona: zonaSel.value, barrio: v("barrio"), municipio: v("municipio"), metro: v("metro"),
+            habitaciones: Number(fInm.habitaciones.value), banos: Number(fInm.banos.value),
+            area: fInm.area.value ? Number(fInm.area.value) : null, estrato: fInm.estrato.value ? Number(fInm.estrato.value) : null,
+            precio: numero(fInm.precio.value), administracion: numero(fInm.administracion.value),
+            tipo: fInm.tipo.value,
+            parqueaderos: Number(fInm.parqueaderos.value) || 0, parqueadero: Number(fInm.parqueaderos.value) > 0,
+            lat: leerUbicacion(fInm.ubicacion.value)?.lat ?? null, lng: leerUbicacion(fInm.ubicacion.value)?.lng ?? null,
+            publicado: fInm.publicado.checked,
+            descripcion: v("descripcion"), tour_url: v("tour_url"),
+            fotos: fotos.map((f) => f.url),
+            propietario_correo: v("propietario_correo") ? v("propietario_correo").toLowerCase() : null,
+            responsable: v("responsable"), etapa: Number(fInm.etapa.value),
+            proximo_paso: v("proximo_paso"),
+            proximo_paso_fecha: fInm.proximo_paso_fecha.value ? new Date(fInm.proximo_paso_fecha.value).toISOString() : null
+          };
+          const eraPublicado = editando && editando.publicado;
+          await DATOS.upsert("inmuebles", fila);
+          // Documentos: se reemplaza la lista completa
+          await DATOS.borrar("inmueble_documentos", { inmueble_id: id });
+          for (const d of docs.filter((x) => x.nombre.trim())) {
+            await DATOS.upsert("inmueble_documentos", { id: DATOS.nuevoId(), inmueble_id: id, nombre: d.nombre.trim(), estado: d.estado });
+          }
+          // Al publicarlo por primera vez, queda la novedad para el propietario
+          if (fila.publicado && !eraPublicado) {
+            await DATOS.upsert("inmueble_eventos", { id: DATOS.nuevoId(), inmueble_id: id, tipo: "publicado", titulo: "Tu inmueble ya está publicado", detalle: "Ya aparece en la búsqueda del sitio con su recorrido y fotos.", avisado: false });
+          }
+          estado.textContent = "Guardado.";
+          await cargar();
+          setTimeout(() => dlgInm.close(), 500);
+        } catch (err) {
+          estado.classList.add("is-error");
+          estado.textContent = DATOS.mensajeError(err);
+        } finally {
+          boton.disabled = false;
+        }
+      });
+
+      /* ---------- Registrar novedad ---------- */
+      const dlgNov = document.getElementById("dlg-novedad");
+      const fNov = document.getElementById("form-novedad");
+      let novInmueble = null;
+      document.getElementById("nov-tipo").innerHTML = Object.entries(TIPOS).map(([v, t]) => `<option value="${v}">${t}</option>`).join("");
+      document.getElementById("nov-etapa").innerHTML = '<option value="">Sin cambio</option>' + ETAPAS.map((e, i) => `<option value="${i}">${e}</option>`).join("");
+      const SUGERIDO = {
+        visita_agendada: "Visita agendada", visita_realizada: "Visita realizada", oferta: "Llegó una oferta",
+        reporte: "Reporte de la semana", publicado: "Tu inmueble ya está publicado", recorrido: "Recorrido 3D grabado",
+        contrato: "Contrato firmado", documento: "Documento recibido", entrega: "Entrega del inmueble", nota: ""
+      };
+      const ETAPA_SUGERIDA = { recorrido: 1, publicado: 2, visita_agendada: 3, visita_realizada: 3, oferta: 4, entrega: 5 };
+      let tituloTocado = false;
+      fNov.titulo.addEventListener("input", () => { tituloTocado = true; });
+      fNov.tipo.addEventListener("change", () => {
+        if (!tituloTocado) fNov.titulo.value = SUGERIDO[fNov.tipo.value];
+        const sug = ETAPA_SUGERIDA[fNov.tipo.value];
+        fNov.etapa.value = sug !== undefined && novInmueble && sug > novInmueble.etapa ? String(sug) : "";
+      });
+      function abrirNovedad(p) {
+        if (!p) return;
+        novInmueble = p;
+        fNov.reset();
+        tituloTocado = false;
+        document.getElementById("nov-inmueble").textContent = `${p.titulo} · ${codigo(p.id)}`;
+        fNov.tipo.value = "reporte";
+        fNov.tipo.dispatchEvent(new Event("change"));
+        abrirDialogo(dlgNov);
+      }
+      fNov.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const estado = fNov.querySelector(".form-estado");
+        const boton = fNov.querySelector('[type="submit"]');
+        estado.classList.remove("is-error");
+        if (!fNov.checkValidity()) { fNov.reportValidity(); return; }
+        boton.disabled = true;
+        estado.textContent = "Guardando…";
+        try {
+          await DATOS.upsert("inmueble_eventos", {
+            id: DATOS.nuevoId(), inmueble_id: novInmueble.id, tipo: fNov.tipo.value,
+            titulo: fNov.titulo.value.trim(), detalle: fNov.detalle.value.trim() || null, avisado: fNov.avisado.checked
+          });
+          if (fNov.etapa.value !== "") await DATOS.actualizar("inmuebles", novInmueble.id, { etapa: Number(fNov.etapa.value) });
+          estado.textContent = "Guardado. El propietario ya lo ve en su panel.";
+          await cargar();
+          setTimeout(() => dlgNov.close(), 600);
+        } catch (err) {
+          estado.classList.add("is-error");
+          estado.textContent = DATOS.mensajeError(err);
+        } finally {
+          boton.disabled = false;
+        }
+      });
+
+      await cargar();
+      setInterval(() => { if (!document.querySelector("dialog[open]")) cargar(); }, 60000);
+      document.addEventListener("visibilitychange", () => { if (!document.hidden && !document.querySelector("dialog[open]")) cargar(); });
+      const act = document.getElementById("actualizado");
+      setInterval(() => {
+        const min = Math.floor((Date.now() - ultima) / 60000);
+        act.textContent = min < 1 ? "Actualizado hace un momento" : `Actualizado hace ${min} min`;
+      }, 15000);
+    })();
+  </script>
+</body>
+</html>
