@@ -123,10 +123,15 @@ button, [role="button"], [role="tab"], .boton, .chip {
 .boton--claro { background: var(--blanco); color: var(--navy); }
 .boton--suave { background: var(--superficie); color: var(--navy); }
 .boton--icono { width: 48px; min-height: 48px; padding: 0; }
+.boton .icono { transition: transform 300ms var(--ease-out); }
 @media (hover: hover) and (pointer: fine) {
-  .boton:hover { background: #bddcf0; }
+  .boton { transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover) ease, color var(--t-hover) ease, box-shadow 300ms var(--ease-out); }
+  .boton:hover { background: #bddcf0; transform: translateY(-1px); box-shadow: 0 10px 22px -12px rgba(10, 37, 64, 0.55); }
   .boton--navy:hover { background: var(--navy-3); }
   .boton--claro:hover, .boton--suave:hover { background: var(--celeste-2); }
+  /* La flecha del final se adelanta un poco */
+  .boton:hover .icono:last-child:not(:first-child) { transform: translateX(3px); }
+  .boton:active { transform: scale(0.97); box-shadow: none; }
 }
 
 .enlace {
@@ -141,7 +146,23 @@ button, [role="button"], [role="tab"], .boton, .chip {
   position: sticky; top: 0; z-index: 40;
   background: var(--navy); color: var(--blanco);
   padding-top: env(safe-area-inset-top, 0px);
+  transition: background-color 300ms ease, box-shadow 300ms ease;
 }
+/* Al bajar: la barra se vuelve vidrio oscuro y deja una sombra suave */
+.barra.is-abajo { box-shadow: 0 10px 30px -18px rgba(4, 16, 30, 0.8); }
+@supports (backdrop-filter: blur(1px)) {
+  .barra.is-abajo { background: rgba(10, 37, 64, 0.82); backdrop-filter: saturate(1.4) blur(14px); }
+}
+/* Línea celeste que avanza con la lectura de la página */
+.barra::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: linear-gradient(90deg, var(--celeste), #e3f1fb);
+  transform-origin: 0 50%; transform: scaleX(0); pointer-events: none;
+}
+@supports (animation-timeline: scroll()) {
+  .barra::after { animation: lectura linear both; animation-timeline: scroll(root); }
+}
+@keyframes lectura { to { transform: scaleX(1); } }
 .barra__fila { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
 /* Marca: símbolo del logo + "MARCO" en negrita y "ABIERTO" delgada, como el logo */
 .marca { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; line-height: 1; }
@@ -335,6 +356,22 @@ body.sin-scroll { overflow: hidden; }
   transition: transform var(--t-press) var(--ease-out);
 }
 .tarjeta:active .tarjeta__media { transform: scale(0.985); }
+/* Luz de fondo de cada tarjeta: el apartamento se ve a distintas horas del día */
+.tarjeta__media[data-tono="amanecer"] { background: radial-gradient(110% 85% at 82% 0%, #3d6f9d, #163a62 52%, #0d2846); }
+.tarjeta__media[data-tono="dia"] { background: radial-gradient(110% 85% at 82% 0%, #3474ad, #15426e 52%, #0f2c4c); }
+.tarjeta__media[data-tono="tarde"] { background: radial-gradient(60% 45% at 88% 0%, rgba(255, 196, 150, 0.28), transparent 70%), radial-gradient(110% 85% at 82% 0%, #4c6990, #1d3c63 52%, #0e2744); }
+.tarjeta__media[data-tono="noche"] { background: radial-gradient(110% 85% at 82% 0%, #20416b, #0d2646 52%, #071a30); }
+/* Entrada escalonada cuando cada tarjeta llega a la vista */
+@media (prefers-reduced-motion: no-preference) {
+  .js .tarjeta:not(.is-vista) { opacity: 0; }
+  .tarjeta.is-vista { animation: tarjeta-entra 800ms var(--ease-out) both; animation-delay: calc(var(--n, 0) * 90ms); }
+}
+@keyframes tarjeta-entra { from { opacity: 0; transform: translateY(22px); } }
+/* Al pasar el mouse la imagen se levanta un poco, con su sombra */
+@media (hover: hover) and (pointer: fine) {
+  .tarjeta__media { transition: transform 500ms var(--ease-out), box-shadow 500ms var(--ease-out); }
+  .tarjeta:hover .tarjeta__media { transform: translateY(-6px); box-shadow: 0 22px 40px -22px rgba(10, 37, 64, 0.7); }
+}
 .tarjeta__media > svg, .tarjeta__foto { display: block; width: 100%; height: 100%; }
 .tarjeta__foto { object-fit: cover; transition: transform 600ms var(--ease-out); }
 @media (hover: hover) and (pointer: fine) { .tarjeta:hover .tarjeta__foto { transform: scale(1.04); } }
@@ -462,8 +499,37 @@ textarea.entrada { min-height: 110px; resize: vertical; }
 /* =========================================================
    INICIO
    ========================================================= */
-.hero { padding: 28px 0 56px; }
+.hero { padding: 28px 0 56px; position: relative; isolation: isolate; overflow: clip; }
 .hero__grid { display: grid; gap: 24px; }
+/* Atmósfera de la portada: un resplandor celeste que respira detrás del visor
+   y la silueta de las montañas del valle al fondo */
+.hero::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  width: min(1100px, 120vw); aspect-ratio: 1; right: -18%; top: -30%;
+  background: radial-gradient(closest-side, rgba(159, 203, 230, 0.2), rgba(159, 203, 230, 0.06) 55%, transparent 75%);
+}
+.hero::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none; left: 0; right: 0; bottom: 0; height: min(38vw, 340px);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%23ffffff' fill-opacity='.035' d='M0 140 C120 90 210 60 320 92 S520 40 640 70 S860 150 980 104 S1180 30 1290 64 S1400 110 1440 96 V320 H0Z'/%3E%3Cpath fill='%23ffffff' fill-opacity='.04' d='M0 230 C150 180 260 200 380 170 S600 120 720 160 S940 220 1060 180 S1300 120 1440 170 V320 H0Z'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero::before { animation: respira 9s var(--ease-in-out) infinite alternate; }
+}
+@keyframes respira { from { opacity: 0.75; transform: scale(0.94); } to { opacity: 1; transform: scale(1.04) translate(-2%, 2%); } }
+/* Luz que entra por la ventana abierta del visor y cae hacia la izquierda */
+.hero__visor { position: relative; }
+.hero__visor::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  inset: 4% 2% -6% -30%;
+  background: linear-gradient(235deg, rgba(159, 203, 230, 0.28), rgba(159, 203, 230, 0.07) 45%, transparent 70%);
+  clip-path: polygon(88% 0%, 100% 0%, 96% 100%, 0% 100%, 30% 92%);
+  filter: blur(6px);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .js .hero__visor::before { opacity: 0; animation: luz-entra 1600ms var(--ease-out) 1300ms forwards; }
+}
+@keyframes luz-entra { to { opacity: 1; } }
 /* En celular el recorrido 3D va antes del buscador */
 .hero__texto { display: contents; }
 .hero__visor { order: 2; }
@@ -509,7 +575,7 @@ textarea.entrada { min-height: 110px; resize: vertical; }
 .visor-marco .visor__escena::before { background: var(--navy-3); transform: translate(var(--grosor), var(--grosor)); z-index: -2; }
 .visor-marco .visor__escena::after { background: var(--blanco); z-index: -1; }
 /* Lo que se ve por la ventana */
-.visor-marco .visor__panel { clip-path: var(--ventana); background: var(--navy-2); }
+.visor-marco .visor__panel { clip-path: var(--ventana); background: radial-gradient(120% 90% at 78% 8%, #24507f, var(--navy-2) 55%, #0c2541); }
 .visor-marco .visor__modelo svg { transform: scale(0.84) translate(1%, -2%); }
 .visor-marco .visor.is-completo .visor__modelo svg { transform: none; }
 /* El vidrio celeste: cubre la ventana y se corre hasta quedar como la franja del logo */
@@ -753,7 +819,14 @@ textarea.entrada { min-height: 110px; resize: vertical; }
 /* =========================================================
    BÚSQUEDA
    ========================================================= */
-.busqueda-cab { padding: 36px 0 28px; }
+.busqueda-cab { padding: 36px 0 28px; position: relative; isolation: isolate; overflow: clip; }
+/* El mismo ambiente de la portada: resplandor celeste y la silueta del valle */
+.busqueda-cab::before, .busqueda-cab::after { content: ""; position: absolute; z-index: -1; pointer-events: none; }
+.busqueda-cab::before { width: 900px; aspect-ratio: 1; right: -12%; top: -160%; background: radial-gradient(closest-side, rgba(159, 203, 230, 0.18), transparent 72%); }
+.busqueda-cab::after {
+  left: 0; right: 0; bottom: 0; height: 70%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%23ffffff' fill-opacity='.035' d='M0 140 C120 90 210 60 320 92 S520 40 640 70 S860 150 980 104 S1180 30 1290 64 S1400 110 1440 96 V320 H0Z'/%3E%3Cpath fill='%23ffffff' fill-opacity='.04' d='M0 230 C150 180 260 200 380 170 S600 120 720 160 S940 220 1060 180 S1300 120 1440 170 V320 H0Z'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+}
 .busqueda-cab h1 { font-size: var(--t-titulo); }
 .busqueda-cab p { margin-top: 10px; color: rgba(255,255,255,0.9); max-width: 52ch; }
 .busqueda { display: grid; gap: 32px; padding-block: 28px 120px; }
@@ -942,8 +1015,28 @@ textarea.entrada { min-height: 110px; resize: vertical; }
 .migas a { text-decoration: none; }
 .detalle { display: grid; gap: 48px; padding-block: 24px 140px; }
 .detalle__titulo { font-size: clamp(2rem, 5vw, 4rem); margin-top: 8px; }
-.detalle__precio { font-weight: 800; font-size: 1.6rem; letter-spacing: -0.02em; margin-top: 16px; }
+.detalle__precio { font-weight: 800; font-size: clamp(1.7rem, 2.8vw, 2.3rem); letter-spacing: -0.03em; margin-top: 16px; }
 .detalle .specs { margin-top: 20px; font-size: 1.05rem; gap: 10px 22px; }
+/* En la cabecera del detalle, los datos clave van en recuadros: se leen de un vistazo */
+#cabecera .specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; margin-top: 24px; }
+#cabecera .specs li {
+  display: grid; justify-items: start; gap: 10px; padding: 16px 18px;
+  background: var(--blanco); border-radius: 16px; box-shadow: inset 0 0 0 1px rgba(10, 37, 64, 0.07);
+  font-size: 0.98rem; line-height: 1.25;
+  transition: transform 400ms var(--ease-out), box-shadow 400ms var(--ease-out);
+}
+#cabecera .specs li .icono { width: 34px; height: 34px; padding: 7px; border-radius: 10px; background: var(--celeste-3); color: var(--navy-3); }
+#cabecera .specs__area { font-size: 1.15rem; }
+@keyframes sube-suave { from { opacity: 0; transform: translateY(14px); } }
+@media (hover: hover) and (pointer: fine) {
+  #cabecera .specs li:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 1px rgba(10, 37, 64, 0.07), 0 14px 28px -20px rgba(10, 37, 64, 0.6); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  #cabecera > * { animation: sube-suave 700ms var(--ease-out) both; }
+  #cabecera > :nth-child(2) { animation-delay: 80ms; }
+  #cabecera > :nth-child(3) { animation-delay: 160ms; }
+  #cabecera > :nth-child(4) { animation-delay: 240ms; }
+}
 .bloque { display: grid; gap: 14px; }
 .bloque h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
 .ficha { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; border-radius: var(--radio); overflow: clip; }

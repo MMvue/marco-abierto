@@ -108,6 +108,12 @@ const MA = (() => {
         <a class="boton" href="propietarios.html#publicar">Publicar mi inmueble</a>
       </div>`;
 
+    // Al bajar, la barra cambia de aspecto (ver .barra.is-abajo)
+    const barra = document.querySelector(".barra");
+    const marcarScroll = () => barra.classList.toggle("is-abajo", scrollY > 8);
+    addEventListener("scroll", marcarScroll, { passive: true });
+    marcarScroll();
+
     const menu = document.getElementById("menu-movil");
     const abrir = document.querySelector(".barra .barra__menu");
     const cerrar = menu.querySelector("[data-cerrar-menu]");
@@ -478,13 +484,17 @@ const MA = (() => {
   // Inmuebles pintados en tarjetas, para abrir la vista rápida sin volver a buscarlos
   const registro = new Map();
 
-  function tarjetaHTML(p) {
+  // Cada tarjeta sin foto tiene su propia luz de fondo (amanecer, día, tarde o noche), siempre la misma para el inmueble
+  const TONOS = ["amanecer", "dia", "tarde", "noche"];
+
+  function tarjetaHTML(p, i = 0) {
     registro.set(String(p.id), p);
     const foto = urlSegura((p.fotos || [])[0]);
     const con3d = p.tour || p.ejemplo;
     const url = `inmueble.html?id=${encodeURIComponent(p.id)}`;
-    return `<article class="tarjeta">
-      <div class="tarjeta__media">
+    // --n escalona la entrada de las tarjetas cuando se pintan
+    return `<article class="tarjeta" style="--n:${(Number(i) || 0) % 3}">
+      <div class="tarjeta__media" data-tono="${TONOS[anguloDe(p.id) % TONOS.length]}">
         ${foto ? `<img class="tarjeta__foto" src="${foto}" alt="" loading="lazy" decoding="async">` : modeloSVG(p).replace("data-modelo", `data-modelo data-base="${anguloDe(p.id)}"`)}
         <span class="tarjeta__vidrio" aria-hidden="true"></span>
         <span class="tarjeta__chips">
@@ -505,6 +515,13 @@ const MA = (() => {
   // Las tarjetas giran su modelo desde su propio ángulo: al pasar el mouse, o una vez al aparecer en celular
   function activarTarjetas(raiz = document) {
     const tarjetas = [...raiz.querySelectorAll(".tarjeta")];
+    // Entran a la vista con un pequeño ascenso (ver .tarjeta.is-vista en el CSS)
+    if ("IntersectionObserver" in window) {
+      const ioVista = new IntersectionObserver((entradas) => {
+        for (const e of entradas) if (e.isIntersecting) { e.target.classList.add("is-vista"); ioVista.unobserve(e.target); }
+      }, { rootMargin: "0px 0px -8% 0px" });
+      tarjetas.forEach((t) => ioVista.observe(t));
+    } else tarjetas.forEach((t) => t.classList.add("is-vista"));
     const base = (svg) => Number(svg.dataset.base) || 35;
     const io = "IntersectionObserver" in window ? new IntersectionObserver((entradas) => {
       for (const e of entradas) {
