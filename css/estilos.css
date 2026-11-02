@@ -91,12 +91,8 @@ button, [role="button"], [role="tab"], .boton, .chip {
 .icono { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 .contenedor { width: 100%; max-width: var(--ancho); margin-inline: auto; padding-inline: var(--margen); }
-/* Las superficies azules llevan un grano muy fino, como papel impreso: quita lo "plano" de pantalla */
-.campo-navy {
-  background: var(--navy) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-  color: var(--blanco);
-}
-.campo-celeste { background: var(--celeste); color: var(--navy); overflow-x: clip; }
+.campo-navy { background: var(--navy); color: var(--blanco); }
+.campo-celeste { background: var(--celeste); color: var(--navy); }
 .campo-claro { background: var(--celeste-3); }
 
 /* ---------- Marcadores de posición ---------- */
@@ -132,15 +128,10 @@ button, [role="button"], [role="tab"], .boton, .chip {
 .boton--claro { background: var(--blanco); color: var(--navy); }
 .boton--suave { background: var(--superficie); color: var(--navy); }
 .boton--icono { width: 48px; min-height: 48px; padding: 0; }
-.boton .icono { transition: transform 300ms var(--ease-out); }
 @media (hover: hover) and (pointer: fine) {
-  .boton { translate: var(--mx, 0px) var(--my, 0px); transition: transform var(--t-press) var(--ease-out), translate 350ms var(--ease-out), background-color var(--t-hover) ease, color var(--t-hover) ease, box-shadow 300ms var(--ease-out); }
-  .boton:hover { background: #bddcf0; transform: translateY(-1px); box-shadow: 0 10px 22px -12px rgba(10, 37, 64, 0.55); }
+  .boton:hover { background: #bddcf0; }
   .boton--navy:hover { background: var(--navy-3); }
   .boton--claro:hover, .boton--suave:hover { background: var(--celeste-2); }
-  /* La flecha del final se adelanta un poco */
-  .boton:hover .icono:last-child:not(:first-child) { transform: translateX(3px); }
-  .boton:active { transform: scale(0.97); box-shadow: none; }
 }
 
 .enlace {
@@ -155,23 +146,7 @@ button, [role="button"], [role="tab"], .boton, .chip {
   position: sticky; top: 0; z-index: 40;
   background: var(--navy); color: var(--blanco);
   padding-top: env(safe-area-inset-top, 0px);
-  transition: background-color 300ms ease, box-shadow 300ms ease;
 }
-/* Al bajar: la barra se vuelve vidrio oscuro y deja una sombra suave */
-.barra.is-abajo { box-shadow: 0 10px 30px -18px rgba(4, 16, 30, 0.8); }
-@supports (backdrop-filter: blur(1px)) {
-  .barra.is-abajo { background: rgba(10, 37, 64, 0.82); backdrop-filter: saturate(1.4) blur(14px); }
-}
-/* Línea celeste que avanza con la lectura de la página */
-.barra::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
-  background: linear-gradient(90deg, var(--celeste), #e3f1fb);
-  transform-origin: 0 50%; transform: scaleX(0); pointer-events: none;
-}
-@supports (animation-timeline: scroll()) {
-  .barra::after { animation: lectura linear both; animation-timeline: scroll(root); }
-}
-@keyframes lectura { to { transform: scaleX(1); } }
 .barra__fila { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
 /* Marca: símbolo del logo + "MARCO" en negrita y "ABIERTO" delgada, como el logo */
 .marca { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; line-height: 1; }
@@ -376,22 +351,6 @@ body.sin-scroll { overflow: hidden; }
   .tarjeta.is-vista { animation: tarjeta-entra 800ms var(--ease-out) both; animation-delay: calc(var(--n, 0) * 90ms); }
 }
 @keyframes tarjeta-entra { from { opacity: 0; transform: translateY(22px); } }
-/* Al pasar el mouse la imagen se levanta un poco, con su sombra */
-@media (hover: hover) and (pointer: fine) {
-  .tarjeta__media { transition: transform 450ms var(--ease-out), box-shadow 500ms var(--ease-out); }
-  .tarjeta:hover .tarjeta__media {
-    transform: translateY(-6px) perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-    box-shadow: 0 26px 44px -24px rgba(10, 37, 64, 0.75);
-  }
-  /* Brillo que sigue al mouse sobre la imagen */
-  .tarjeta__media::after {
-    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0;
-    background: radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(255, 255, 255, 0.2), transparent 55%);
-    transition: opacity 400ms ease;
-  }
-  .tarjeta:hover .tarjeta__media::after { opacity: 1; }
-  .tarjeta__chips { z-index: 2; }
-}
 .tarjeta__media > svg, .tarjeta__foto { display: block; width: 100%; height: 100%; }
 .tarjeta__foto { object-fit: cover; transition: transform 600ms var(--ease-out); }
 @media (hover: hover) and (pointer: fine) { .tarjeta:hover .tarjeta__foto { transform: scale(1.04); } }
@@ -472,15 +431,6 @@ textarea.entrada { min-height: 110px; resize: vertical; }
 
 /* ---------- Pie ---------- */
 .pie { background: var(--navy); color: var(--blanco); padding: 72px 0 calc(32px + env(safe-area-inset-bottom, 0px)); }
-/* Cierre del pie: el lema grande y el botón, separados del resto por una línea */
-.pie__cierre {
-  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 28px 40px;
-  padding-bottom: clamp(40px, 6vw, 72px); margin-bottom: clamp(40px, 6vw, 72px);
-  border-bottom: 1px solid rgba(159, 203, 230, 0.18);
-}
-.pie__lema { font-size: clamp(2.8rem, 8vw, 7.5rem); font-weight: 800; letter-spacing: -0.05em; line-height: 0.92; }
-.pie__lema span { color: var(--celeste); }
-.pie__ir { min-height: 60px; padding-inline: 1.8em; font-size: 1.05rem; }
 /* Arriba del pie: el marco del logo, grande, y las columnas de enlaces */
 .pie__arriba { display: grid; gap: 48px; }
 .pie__marco { width: clamp(120px, 34vw, 170px); }
@@ -505,9 +455,6 @@ textarea.entrada { min-height: 110px; resize: vertical; }
 @media (prefers-reduced-motion: no-preference) {
   .js [data-aparece] { opacity: 0; transform: translateY(24px); transition: opacity 700ms var(--ease-out), transform 900ms var(--ease-expo); transition-delay: calc(var(--i, 0) * 80ms); }
   .js [data-aparece].is-in { opacity: 1; transform: none; }
-  /* Los títulos de sección suben desde detrás de una máscara, como el titular de la portada */
-  .js h2[data-aparece] { opacity: 1; transform: translateY(45%); clip-path: inset(0 0 100% 0); transition: transform 1100ms var(--ease-expo), clip-path 1100ms var(--ease-expo); transition-delay: calc(var(--i, 0) * 80ms); }
-  .js h2[data-aparece].is-in { transform: none; clip-path: inset(-10% -5% -20% -5%); }
 }
 
 /* ---------- Titular con líneas que suben ---------- */
@@ -539,30 +486,6 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 
 /* Mientras el visor no está listo, todo el hero queda en pausa en su primer cuadro */
 .cargando .hero *, .cargando .hero *::before, .cargando .hero *::after, .cargando .hero::before { animation-play-state: paused !important; }
-
-/* ---------- Intro de la primera visita ----------
-   El marco del logo se dibuja, se rellena y su vidrio se abre; luego la cortina sube */
-.intro { display: none; }
-.con-intro body { overflow: hidden; }
-.con-intro .intro {
-  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
-  background: var(--navy); color: var(--blanco);
-  transition: transform 1100ms var(--ease-in-out);
-}
-.intro__centro { display: grid; justify-items: center; gap: 22px; transition: transform 1100ms var(--ease-in-out), opacity 600ms ease; }
-.intro__marco { width: clamp(84px, 14vw, 128px); overflow: visible; }
-.intro__trazo { fill: none; stroke: var(--celeste); stroke-width: 1.2; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: intro-trazo 900ms var(--ease-in-out) 150ms forwards; }
-.intro__relleno { fill: var(--blanco); opacity: 0; animation: intro-aparece 500ms ease 850ms forwards; }
-.intro__vidrio { fill: var(--celeste); opacity: 0; d: path("M24.5 63 L50 63 L63.3 13.4 L39.6 16.4 Z"); animation: intro-vidrio 900ms var(--ease-expo) 1050ms forwards; }
-.intro__marca { font-size: 0.95rem; letter-spacing: 0.32em; font-weight: 400; opacity: 0; transform: translateY(8px); animation: intro-marca 700ms var(--ease-out) 950ms forwards; }
-.intro__marca b { font-weight: 800; letter-spacing: 0.2em; }
-@keyframes intro-trazo { to { stroke-dashoffset: 0; } }
-@keyframes intro-aparece { to { opacity: 1; } }
-@keyframes intro-vidrio { 0% { opacity: 0.5; } 100% { opacity: 1; d: path("M36 64 L49.5 64 L63 14 L58 18 Z"); } }
-@keyframes intro-marca { to { opacity: 1; transform: none; } }
-/* Salida: la cortina sube y el contenido se va un poco más rápido, con parallax */
-.intro-sale .intro { transform: translateY(-100%); }
-.intro-sale .intro__centro { transform: translateY(-40vh); opacity: 0; }
 .hero { padding: 28px 0 56px; position: relative; isolation: isolate; overflow: clip; }
 .hero__grid { display: grid; gap: 24px; }
 /* Atmósfera de la portada: un resplandor celeste que respira detrás del visor
@@ -658,28 +581,6 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 @media (prefers-reduced-motion: no-preference) {
   .js .hero__visor .visor__tabs { animation: sube-suave 1000ms var(--ease-expo) 650ms both; }
 }
-
-/* ---------- Franja de zonas ----------
-   Los nombres de las zonas pasan grandes, unos rellenos y otros solo con borde.
-   Se mueven solos y aceleran con el scroll (js en index.html) */
-.franja { overflow: clip; padding-block: clamp(26px, 4.5vw, 52px); border-block: 1px solid rgba(10, 37, 64, 0.08); }
-.franja__pista { display: flex; align-items: center; gap: clamp(22px, 3vw, 46px); width: max-content; will-change: transform; }
-.franja__zona {
-  font-size: clamp(2.4rem, 7vw, 6.6rem); font-weight: 800; letter-spacing: -0.045em; line-height: 1; white-space: nowrap;
-  color: transparent; -webkit-text-stroke: 1.5px rgba(10, 37, 64, 0.55);
-}
-.franja__zona:nth-of-type(3n + 1) { color: var(--navy); -webkit-text-stroke: 0; }
-.franja__sep { width: clamp(26px, 3.6vw, 52px); flex: none; }
-
-/* Parallax de la portada al bajar (computador): el visor baja más lento y el texto se aleja */
-@supports (animation-timeline: scroll()) {
-  @media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
-    .hero__visor { animation: hero-visor-baja linear both; animation-timeline: scroll(root); animation-range: 0 90vh; }
-    .hero__texto > div:first-child { animation: hero-texto-sube linear both; animation-timeline: scroll(root); animation-range: 0 80vh; }
-  }
-}
-@keyframes hero-visor-baja { to { transform: translateY(14%); } }
-@keyframes hero-texto-sube { to { transform: translateY(-22%); opacity: 0.25; } }
 /* En el detalle la ventana es ancha: la franja de vidrio se pega al borde derecho */
 .detalle-visor.visor-marco { --vidrio-abierto: polygon(85.5% 94.5%, 89% 94.5%, 95.5% 5.5%, 93% 5.6%); }
 /* Sobre fondo claro el marco es azul, como en el logo */
@@ -884,17 +785,6 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 
 /* Fragmento del panel (interfaz real, datos de ejemplo) */
 .mini-panel { background: var(--blanco); color: var(--navy); border-radius: var(--radio); padding: 18px; display: grid; gap: 16px; box-shadow: 0 30px 60px -30px rgba(10, 37, 64, 0.45); }
-/* El panel de muestra flota sobre una segunda hoja, como una app real en capas */
-.mini-panel { position: relative; isolation: isolate; }
-.mini-panel::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
-  background: rgba(255, 255, 255, 0.45); transform: translate(min(18px, 2vw), 18px) rotate(2deg);
-  box-shadow: 0 30px 60px -34px rgba(10, 37, 64, 0.35);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .mini-panel.is-in { animation: flota 7s var(--ease-in-out) 1.2s infinite alternate; }
-}
-@keyframes flota { to { transform: translateY(-10px); } }
 .mini-panel__cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 .mini-panel__estado { font-size: 1.6rem; letter-spacing: -0.03em; }
 .en-vivo { display: inline-flex; align-items: center; gap: 8px; font-size: var(--t-nota); font-weight: 600; color: #0f6b52; }
@@ -1115,22 +1005,10 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 .migas a { text-decoration: none; }
 .detalle { display: grid; gap: 48px; padding-block: 24px 140px; }
 .detalle__titulo { font-size: clamp(2rem, 5vw, 4rem); margin-top: 8px; }
-.detalle__precio { font-weight: 800; font-size: clamp(1.7rem, 2.8vw, 2.3rem); letter-spacing: -0.03em; margin-top: 16px; }
+.detalle__precio { font-weight: 800; font-size: 1.6rem; letter-spacing: -0.02em; margin-top: 16px; }
 .detalle .specs { margin-top: 20px; font-size: 1.05rem; gap: 10px 22px; }
-/* En la cabecera del detalle, los datos clave van en recuadros: se leen de un vistazo */
-#cabecera .specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; margin-top: 24px; }
-#cabecera .specs li {
-  display: grid; justify-items: start; gap: 10px; padding: 16px 18px;
-  background: var(--blanco); border-radius: 16px; box-shadow: inset 0 0 0 1px rgba(10, 37, 64, 0.07);
-  font-size: 0.98rem; line-height: 1.25;
-  transition: transform 400ms var(--ease-out), box-shadow 400ms var(--ease-out);
-}
-#cabecera .specs li .icono { width: 34px; height: 34px; padding: 7px; border-radius: 10px; background: var(--celeste-3); color: var(--navy-3); }
-#cabecera .specs__area { font-size: 1.15rem; }
 @keyframes sube-suave { from { opacity: 0; transform: translateY(14px); } }
-@media (hover: hover) and (pointer: fine) {
-  #cabecera .specs li:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 1px rgba(10, 37, 64, 0.07), 0 14px 28px -20px rgba(10, 37, 64, 0.6); }
-}
+/* La cabecera del detalle entra suave, por partes */
 @media (prefers-reduced-motion: no-preference) {
   #cabecera > * { animation: sube-suave 700ms var(--ease-out) both; }
   #cabecera > :nth-child(2) { animation-delay: 80ms; }

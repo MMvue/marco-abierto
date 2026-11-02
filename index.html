@@ -12,28 +12,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/estilos.css">
   <script>document.documentElement.classList.add("js")</script>
-  <script>
-    // La portada espera a que el visor esté listo para entrar completa (texto y marco a la vez).
-    // La primera visita de la sesión abre con la intro del marco.
-    (function () {
-      var h = document.documentElement;
-      h.classList.add("cargando");
-      try { if (!sessionStorage.getItem("ma-intro") && !matchMedia("(prefers-reduced-motion: reduce)").matches) h.classList.add("con-intro"); } catch (e) {}
-    })();
-  </script>
+  <!-- La portada espera a que el visor esté listo para entrar completa (texto y marco a la vez) -->
+  <script>document.documentElement.classList.add("cargando")</script>
 </head>
 <body data-pagina="inicio">
-  <!-- Intro: el marco del logo se dibuja y su vidrio se abre -->
-  <div class="intro" aria-hidden="true">
-    <div class="intro__centro">
-      <svg class="intro__marco" viewBox="6 -4 74 82">
-        <path class="intro__relleno" fill-rule="evenodd" d="M30 6 L76 0 L58 74 L10 74 Z M38.5 15.5 L64 12.5 L50.5 64 L23 64 Z"/>
-        <path class="intro__trazo" d="M30 6 L76 0 L58 74 L10 74 Z M38.5 15.5 L64 12.5 L50.5 64 L23 64 Z" pathLength="1"/>
-        <path class="intro__vidrio" d="M36 64 L49.5 64 L63 14 L58 18 Z"/>
-      </svg>
-      <p class="intro__marca"><b>MARCO</b> ABIERTO</p>
-    </div>
-  </div>
   <div data-barra></div>
 
   <main>
@@ -44,7 +26,7 @@
           <div>
             <h1 class="hero__titulo lineas">
               <span class="linea"><span data-linea style="--i:0">Entra antes</span></span>
-              <span class="linea"><span data-linea style="--i:1">de visitar<span class="menta">.</span></span></span>
+              <span class="linea"><span data-linea style="--i:1">de visitar.</span></span>
             </h1>
             <p class="hero__bajada" data-carga style="--d:380ms">Cada apartamento que publicamos en Medellín y el Valle de Aburrá tiene recorrido 3D. Recórrelo desde el celular y agenda solo las visitas que valen la pena.</p>
           </div>
@@ -96,9 +78,6 @@
         <p style="margin-top:32px"><a class="boton boton--navy" href="buscar.html">Ver todos los inmuebles <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-flecha"/></svg></a></p>
       </div>
     </section>
-
-    <!-- Franja de zonas que pasa con el scroll (decorativa: las zonas se eligen más abajo, en el mapa) -->
-    <div class="franja" aria-hidden="true"><div class="franja__pista" id="franja"></div></div>
 
     <!-- El apartamento se arma mientras bajas: piso, paredes, muebles -->
     <section class="arma campo-navy" id="arma" aria-labelledby="t-arma">
@@ -210,22 +189,8 @@
   <script>
     /* ---------- Entrada de la portada ----------
        Todo el hero queda en pausa (clase "cargando") hasta que el visor está pintado;
-       entonces texto, buscador y marco entran juntos. Si hay intro, se recoge primero. */
-    const abrirPortada = () => {
-      const h = document.documentElement;
-      if (!h.classList.contains("cargando") || h.classList.contains("abriendo")) return;
-      h.classList.add("abriendo");
-      const conIntro = h.classList.contains("con-intro");
-      // La intro dura lo que tarda en dibujarse el marco, aunque los datos lleguen antes
-      const espera = conIntro ? Math.max(0, 1900 - performance.now()) : 0;
-      setTimeout(() => {
-        if (!conIntro) { h.classList.remove("cargando", "abriendo"); return; }
-        try { sessionStorage.setItem("ma-intro", "1"); } catch {}
-        h.classList.add("intro-sale");
-        setTimeout(() => h.classList.remove("cargando", "abriendo"), 380);
-        setTimeout(() => h.classList.remove("con-intro", "intro-sale"), 1300);
-      }, espera);
-    };
+       entonces texto, buscador y marco entran juntos. */
+    const abrirPortada = () => document.documentElement.classList.remove("cargando");
     // Si los datos tardan (conexión lenta), el texto entra igual y el marco llega con su propia animación
     setTimeout(abrirPortada, 1400);
 
@@ -237,30 +202,6 @@
       // El vidrio del marco: se corre al cargar y deja ver el apartamento
       document.querySelector("#hero-visor .visor__escena").insertAdjacentHTML("beforeend", '<div class="marco__vidrio" aria-hidden="true"></div>');
       requestAnimationFrame(abrirPortada);
-
-      /* ---------- Franja de zonas: avanza sola y acelera con el scroll ---------- */
-      (() => {
-        const pista = document.getElementById("franja");
-        const sep = '<svg class="franja__sep" viewBox="6 -4 74 82"><path fill="#0a2540" fill-rule="evenodd" d="M30 6 L76 0 L58 74 L10 74 Z M38.5 15.5 L64 12.5 L50.5 64 L23 64 Z"/><path fill="#9fcbe6" d="M36 64 L49.5 64 L63 14 L58 18 Z"/></svg>';
-        const tramo = window.ZONAS.filter((z) => z.destacada).map((z) => `<span class="franja__zona">${MA.esc(z.nombre)}</span>${sep}`).join("");
-        pista.innerHTML = tramo + tramo; // dos copias: cuando la primera sale, la segunda ocupa su lugar
-        if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        let x = 0, visible = false, yAntes = scrollY, extra = 0, antes = performance.now();
-        new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(pista);
-        const paso = (t) => {
-          const dt = Math.min(0.05, (t - antes) / 1000); antes = t;
-          const dy = scrollY - yAntes; yAntes = scrollY;
-          extra += (Math.abs(dy) * 6 - extra) * 0.08;          // el scroll empuja la franja y luego se calma
-          if (visible) {
-            x -= (60 + extra) * dt;
-            const mitad = pista.scrollWidth / 2;
-            if (-x >= mitad) x += mitad;
-            pista.style.transform = `translate3d(${x.toFixed(2)}px,0,0)`;
-          }
-          requestAnimationFrame(paso);
-        };
-        requestAnimationFrame(paso);
-      })();
       document.getElementById("recientes").innerHTML = P.slice(0, 6).map(MA.tarjetaHTML).join("");
       /* ---------- Escena: el apartamento se arma mientras bajas ---------- */
       (() => {

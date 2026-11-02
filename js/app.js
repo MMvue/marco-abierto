@@ -108,12 +108,6 @@ const MA = (() => {
         <a class="boton" href="propietarios.html#publicar">Publicar mi inmueble</a>
       </div>`;
 
-    // Al bajar, la barra cambia de aspecto (ver .barra.is-abajo)
-    const barra = document.querySelector(".barra");
-    const marcarScroll = () => barra.classList.toggle("is-abajo", scrollY > 8);
-    addEventListener("scroll", marcarScroll, { passive: true });
-    marcarScroll();
-
     const menu = document.getElementById("menu-movil");
     const abrir = document.querySelector(".barra .barra__menu");
     const cerrar = menu.querySelector("[data-cerrar-menu]");
@@ -134,11 +128,6 @@ const MA = (() => {
     lugar.outerHTML = `
       <footer class="pie">
         <div class="contenedor">
-          <!-- Cierre: el lema de la marca, grande, con la invitación a buscar -->
-          <div class="pie__cierre">
-            <p class="pie__lema" data-aparece>Entra antes<br>de visitar<span>.</span></p>
-            <a class="boton pie__ir" href="buscar.html" data-aparece style="--i:2">Ver apartamentos ${icono("flecha")}</a>
-          </div>
           <div class="pie__arriba">
           <!-- El marco del logo, grande: el vidrio se abre cuando el pie aparece -->
           <div class="pie__marco" data-aparece aria-hidden="true">
@@ -527,19 +516,6 @@ const MA = (() => {
       }, { rootMargin: "0px 0px -8% 0px" });
       tarjetas.forEach((t) => ioVista.observe(t));
     } else tarjetas.forEach((t) => t.classList.add("is-vista"));
-    // Con mouse, la imagen se inclina hacia el puntero y un brillo la recorre (ver --rx, --ry, --gx, --gy en el CSS)
-    if (punteroFino.matches && !reducido.matches) tarjetas.forEach((t) => {
-      const m = t.querySelector(".tarjeta__media");
-      t.addEventListener("pointermove", (e) => {
-        const r = m.getBoundingClientRect();
-        const px = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)), py = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
-        m.style.setProperty("--ry", `${((px - 0.5) * 8).toFixed(2)}deg`);
-        m.style.setProperty("--rx", `${((0.5 - py) * 6).toFixed(2)}deg`);
-        m.style.setProperty("--gx", `${(px * 100).toFixed(1)}%`);
-        m.style.setProperty("--gy", `${(py * 100).toFixed(1)}%`);
-      });
-      t.addEventListener("pointerleave", () => ["--rx", "--ry"].forEach((v) => m.style.removeProperty(v)));
-    });
     const base = (svg) => Number(svg.dataset.base) || 35;
     const io = "IntersectionObserver" in window ? new IntersectionObserver((entradas) => {
       for (const e of entradas) {
@@ -790,29 +766,11 @@ const MA = (() => {
     document.head.append(s);
   }
 
-  /* ---------- Botones magnéticos: con mouse, el botón se inclina un poco hacia el puntero ---------- */
-  function activarMagneticos() {
-    if (!punteroFino.matches || reducido.matches) return;
-    let actual = null;
-    const soltar = () => { if (actual) { actual.style.removeProperty("--mx"); actual.style.removeProperty("--my"); actual = null; } };
-    document.addEventListener("pointermove", (e) => {
-      const b = e.target.closest && e.target.closest(".boton");
-      if (b !== actual) soltar();
-      if (!b) return;
-      actual = b;
-      const r = b.getBoundingClientRect();
-      b.style.setProperty("--mx", `${((e.clientX - r.left - r.width / 2) * 0.16).toFixed(1)}px`);
-      b.style.setProperty("--my", `${((e.clientY - r.top - r.height / 2) * 0.28).toFixed(1)}px`);
-    }, { passive: true });
-    document.addEventListener("pointerleave", soltar);
-  }
-
   function iniciar() {
     montarSprite();
     montarBarra();
     montarPie();
     activarScrollSuave();
-    activarMagneticos();
     document.querySelectorAll("[data-visor]").forEach(activarVisor);
     activarFormularios();
     activarApariciones();
