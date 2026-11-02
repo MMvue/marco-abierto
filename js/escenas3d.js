@@ -36,9 +36,22 @@ function crearRender(caja, { sombras = false, alfa = true } = {}) {
   return r;
 }
 
+// El primer cuadro de una escena compila shaders y sube texturas: congela la página casi un segundo.
+// Se hace antes, cuando el navegador está libre (después de la entrada de la portada), y no al llegar con el scroll.
+function precalentar(render, escena, camara, dibujar) {
+  const esperar = (fn) => ("requestIdleCallback" in window ? requestIdleCallback(fn, { timeout: 4000 }) : setTimeout(fn, 1500));
+  setTimeout(() => esperar(async () => {
+    try {
+      if (render.compileAsync) await render.compileAsync(escena, camara);
+      else render.compile(escena, camara);
+    } catch { /* si falla, se compila en el primer cuadro como antes */ }
+    esperar(() => dibujar());
+  }), 2600);
+}
+
 // Solo dibuja mientras la escena está en pantalla
-function cuandoVisible(el, alCambiar) {
-  const io = new IntersectionObserver((e) => alCambiar(e[0].isIntersecting), { rootMargin: "200px" });
+function cuandoVisible(el, alCambiar, margen = "200px") {
+  const io = new IntersectionObserver((e) => alCambiar(e[0].isIntersecting), { rootMargin: margen });
   io.observe(el);
 }
 
@@ -546,7 +559,7 @@ export function casa(caja) {
   escenaEnv.add(new THREE.Mesh(new THREE.SphereGeometry(50, 32, 16), matCielo));
   let envRT = null, pEnv = -1;
   const actualizarEntorno = (p) => {
-    if (Math.abs(p - pEnv) < 0.03) return;
+    if (Math.abs(p - pEnv) < 0.05) return;   // regenerarlo cuesta: solo cuando el cielo cambió de verdad
     pEnv = p;
     const nuevo = pmrem.fromScene(escenaEnv, 0, 0.1, 100);
     escena.environment = nuevo.texture;
@@ -689,6 +702,8 @@ export function casa(caja) {
     requestAnimationFrame(cuadro);
   };
   cuandoVisible(caja, (si) => { visible = si; if (si && !corriendo) { corriendo = true; requestAnimationFrame(cuadro); } });
+  // Primer cuadro por adelantado (shaders, sombras, reflejos y resplandor listos antes de llegar)
+  precalentar(render, escena, camara, () => { if (!corriendo) { aplicar(actual, performance.now() / 1000); compositor.render(); } });
   return true;
 }
 
@@ -1188,7 +1203,9 @@ export async function valle(caja) {
         const el = etiquetas.get(p.nombre);
         if (saliendo || (!p.n && p.nombre !== elegida)) { el.style.opacity = 0; el.style.pointerEvents = "none"; return; }
         el.style.pointerEvents = "";
-        const ew = el.offsetWidth || 80, eh = el.offsetHeight || 26;
+        // El tamaño se mide una sola vez: leerlo en cada cuadro forzaba al navegador a recalcular la página
+        if (!el._ancho) { el._ancho = el.offsetWidth || 0; el._alto = el.offsetHeight || 0; }
+        const ew = el._ancho || 80, eh = el._alto || 26;
         const x = acotar(p.x - ew / 2, 6, w - ew - 6);
         const base = p.y - eh;
         let y = base;
@@ -1204,6 +1221,8 @@ export async function valle(caja) {
     requestAnimationFrame(cuadro);
   }
   let visible = false, corriendo = false;
-  cuandoVisible(caja, (si) => { visible = si; if (si && !corriendo) { corriendo = true; antes = performance.now(); requestAnimationFrame(cuadro); } });
+  cuandoVisible(caja, (si) => { visible = si; if (si && !corriendo) { corriendo = true; antes = performance.now(); requestAnimationFrame(cuadro); } }, "1000px");
+  // Primer cuadro por adelantado, para que el valle no congele la página al llegar con el scroll
+  precalentar(render, escena, camara, () => { if (!corriendo) render.render(escena, camara); });
   return true;
 }
