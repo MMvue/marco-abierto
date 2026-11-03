@@ -155,9 +155,13 @@ button, [role="button"], [role="tab"], .boton, .chip {
 .marca__texto b { font-weight: 800; }
 .marca__texto span { font-weight: 400; letter-spacing: 0.14em; }
 .barra__nav { display: none; }
-.barra__nav a { text-decoration: none; font-weight: 500; padding: 8px 4px; opacity: 0.86; transition: opacity var(--t-hover) ease; }
-.barra__nav a[aria-current="page"] { opacity: 1; box-shadow: inset 0 -3px 0 var(--luz); }
-@media (hover: hover) and (pointer: fine) { .barra__nav a:hover { opacity: 1; } }
+/* La barrita de luz: completa en la página actual y crece al pasar por las demás */
+.barra__nav a { position: relative; text-decoration: none; font-weight: 500; padding: 8px 4px; opacity: 0.86; transition: opacity var(--t-hover) ease; }
+.barra__nav a::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: 0; height: 3px; border-radius: 2px; background: var(--luz); transform: scaleX(0); transition: transform var(--t-ui) var(--ease-out); }
+.barra__nav a[aria-current="page"] { opacity: 1; }
+.barra__nav a[aria-current="page"]::after { transform: scaleX(1); }
+@media (hover: hover) and (pointer: fine) { .barra__nav a:hover { opacity: 1; } .barra__nav a:hover::after { transform: scaleX(1); } }
+.barra__nav a:focus-visible::after { transform: scaleX(1); }
 .barra__acciones { display: flex; align-items: center; gap: 8px; }
 .barra__acciones .boton { min-height: 44px; padding: 0 1.1em; font-size: 0.95rem; }
 .barra__menu { background: transparent; border: 0; color: var(--blanco); width: 44px; height: 44px; display: grid; place-items: center; cursor: pointer; border-radius: 999px; }
@@ -1438,3 +1442,24 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 .legal__indice { display: grid; gap: 8px; align-content: start; }
 .legal__indice a { text-decoration: none; font-weight: 600; }
 @media (min-width: 960px) { .legal { grid-template-columns: 3fr 8fr; gap: 72px; } .legal__indice { position: sticky; top: 100px; } }
+
+/* =========================================================
+   AYUDA
+   ========================================================= */
+.ayuda-asesor__grid { display: grid; gap: 32px; align-items: center; }
+.ayuda-asesor h2, .ayuda-preguntas > h2 { font-size: var(--t-titulo); }
+.ayuda-asesor__texto { margin-top: 16px; max-width: 38ch; font-size: var(--t-sub); }
+.ayuda-asesor__form { background: var(--blanco); border-radius: var(--radio); padding: 24px; }
+.ayuda-temas { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
+.ayuda-temas legend { padding: 0; margin-bottom: 10px; font-weight: 600; }
+.ayuda-temas .chip span { background: var(--fondo); box-shadow: none; }
+.ayuda-temas .chip input:focus-visible + span { outline-color: var(--grafito); }
+.ayuda-asesor__form .boton { width: 100%; }
+.ayuda-asesor__nota { font-size: var(--t-nota); color: var(--tinta-2); }
+.ayuda-preguntas { display: grid; gap: 40px; }
+.ayuda-grupo { display: grid; gap: 16px; }
+.ayuda-grupo h3 { font-size: 1.25rem; }
+@media (min-width: 960px) {
+  .ayuda-asesor__grid { grid-template-columns: 5fr 6fr; gap: 72px; }
+  .ayuda-grupo { grid-template-columns: 4fr 8fr; gap: 48px; align-items: start; }
+}

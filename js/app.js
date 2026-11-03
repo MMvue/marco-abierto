@@ -81,13 +81,15 @@ const MA = (() => {
     { href: "buscar.html?operacion=arriendo", texto: "Arriendo", icono: "llave", id: "arriendo" },
     { href: "buscar.html?operacion=venta", texto: "Venta", icono: "casa", id: "venta" },
     { href: "propietarios.html", texto: "Propietarios", icono: "persona", id: "propietarios" },
-    { href: "panel.html", texto: "Mi panel", icono: "edificio", id: "panel" }
+    { href: "ayuda.html", texto: "Ayuda", icono: "mensaje", id: "ayuda" }
   ];
 
   function montarBarra() {
     const lugar = document.querySelector("[data-barra]");
     if (!lugar) return;
-    const actual = document.body.dataset.pagina;
+    const pagina = document.body.dataset.pagina;
+    // En la búsqueda, la opción marcada es la del tipo de negocio (arriendo o venta)
+    const actual = pagina === "buscar" ? new URLSearchParams(location.search).get("operacion") || pagina : pagina;
     const enlaces = NAV.map((n) => `<a href="${n.href}"${n.id === actual ? ' aria-current="page"' : ""}>${n.texto}</a>`).join("");
     const enlacesMovil = NAV.map((n) => `<a href="${n.href}">${icono(n.icono)}${n.texto}</a>`).join("");
     lugar.outerHTML = `
@@ -145,7 +147,8 @@ const MA = (() => {
             <div>
               <h2>Marco Abierto</h2>
               <p>Arriendo y venta de apartamentos en Medellín y el Valle de Aburrá, con recorrido 3D en cada inmueble.</p>
-              <p style="margin-top:14px"><span class="marcador">WhatsApp, correo y dirección de oficina</span></p>
+              <p style="margin-top:14px"><a class="enlace" href="https://wa.me/573053957570" target="_blank" rel="noopener">Escríbenos por WhatsApp</a></p>
+              <p style="margin-top:8px"><span class="marcador">Correo y dirección de oficina</span></p>
             </div>
             <div>
               <h2>Buscar</h2>
@@ -168,6 +171,7 @@ const MA = (() => {
             <div>
               <h2>Legal</h2>
               <ul>
+                <li><a href="ayuda.html">Ayuda y preguntas frecuentes</a></li>
                 <li><a href="privacidad.html">Aviso de privacidad</a></li>
                 <li><a href="privacidad.html#politica">Política de tratamiento de datos</a></li>
                 <li><a href="privacidad.html#derechos">Tus derechos como titular</a></li>
