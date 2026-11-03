@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Buscar apartamentos · Marco Abierto</title>
   <meta name="description" content="Busca apartamentos en arriendo y venta en Medellín y el Valle de Aburrá, todos con recorrido 3D.">
-  <meta name="theme-color" content="#0a2540">
+  <meta name="theme-color" content="#16181d">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
   <div data-barra></div>
 
   <main>
-    <section class="busqueda-cab campo-navy">
+    <section class="busqueda-cab campo-grafito">
       <div class="contenedor">
         <h1 id="titulo-busqueda">Apartamentos con recorrido 3D</h1>
         <p>Todos tienen recorrido 3D y fotos. Filtra y abre el que te guste.</p>
@@ -123,7 +123,7 @@
         </form>
         <div class="hoja__pie">
           <button class="boton boton--suave" type="button" id="limpiar">Limpiar</button>
-          <button class="boton boton--navy" type="button" id="ver-resultados">Ver inmuebles</button>
+          <button class="boton boton--grafito" type="button" id="ver-resultados">Ver inmuebles</button>
         </div>
       </aside>
 
@@ -131,7 +131,7 @@
         <div class="resultados-barra">
           <h2 id="titulo-resultados" class="conteo" aria-live="polite"></h2>
           <div class="resultados-barra__acciones">
-            <button class="boton boton--navy abrir-filtros" type="button" aria-controls="hoja-filtros" aria-expanded="false" id="abrir-filtros">
+            <button class="boton boton--grafito abrir-filtros" type="button" aria-controls="hoja-filtros" aria-expanded="false" id="abrir-filtros">
               <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-filtro"/></svg><span>Filtros</span>
             </button>
             <label class="campo ordenar"><span class="sr-only">Ordenar</span>
@@ -310,7 +310,7 @@
         lista.innerHTML = r.length ? r.map(MA.tarjetaHTML).join("") :
           `<div class="vacio">${MA.icono("casa")}<h3 style="font-size:1.4rem">${barrioVacio ? `Aún no hay inmuebles en ${esc(barrioVacio.valor)}` : "No hay inmuebles con esos filtros"}</h3>
             <p>${zonaDelBarrio ? `Mira lo que tenemos en ${esc(zonaDelBarrio)}, la zona de ese barrio.` : "Prueba con otra zona o quita algún filtro."}</p>
-            ${zonaDelBarrio ? `<button class="boton boton--navy" type="button" data-ver-zona="${esc(zonaDelBarrio)}" data-quitar-barrio="${esc(barrioVacio.valor)}">Ver ${esc(zonaDelBarrio)}</button>` : '<button class="boton boton--navy" type="button" data-limpiar-todo>Quitar filtros</button>'}</div>`;
+            ${zonaDelBarrio ? `<button class="boton boton--grafito" type="button" data-ver-zona="${esc(zonaDelBarrio)}" data-quitar-barrio="${esc(barrioVacio.valor)}">Ver ${esc(zonaDelBarrio)}</button>` : '<button class="boton boton--grafito" type="button" data-limpiar-todo>Quitar filtros</button>'}</div>`;
         MA.activarTarjetas(lista);
         if (vistaMapa()) MAPA.pintar(r);
 

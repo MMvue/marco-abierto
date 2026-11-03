@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Inmueble · Marco Abierto</title>
-  <meta name="theme-color" content="#0a2540">
+  <meta name="theme-color" content="#16181d">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,7 +65,7 @@
               <input type="checkbox" name="publicidad">
               <span>Quiero recibir por WhatsApp o correo inmuebles parecidos. <small>(Opcional)</small></span>
             </label>
-            <button class="boton boton--navy" type="submit"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-calendario"/></svg>Pedir visita</button>
+            <button class="boton boton--grafito" type="submit"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-calendario"/></svg>Pedir visita</button>
             <p class="form-estado" role="status"></p>
           </form>
         </aside>
@@ -95,7 +95,7 @@
         document.getElementById("contenido").innerHTML = `<div class="contenedor" style="padding-block:80px 120px;display:grid;gap:16px;justify-items:start">
           <h1 style="font-size:var(--t-titulo)">Este inmueble ya no está publicado</h1>
           <p>Puede que ya se haya arrendado o vendido. Mira los que tenemos disponibles.</p>
-          <a class="boton boton--navy" href="buscar.html">Ver inmuebles</a></div>`;
+          <a class="boton boton--grafito" href="buscar.html">Ver inmuebles</a></div>`;
         document.getElementById("barra-accion").remove();
         MA.iniciar();
         return;

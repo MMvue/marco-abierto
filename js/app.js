@@ -52,9 +52,12 @@ const MA = (() => {
     return `<svg class="icono ${clase}" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-${nombre}"/></svg>`;
   }
 
-  // Símbolo del logo en versión plana: el marco inclinado con su vidrio y la M
-  function logoSVG(color = "#ffffff", vidrio = "#9fcbe6") {
-    return `<svg class="marca__simbolo" viewBox="0 0 140 82" aria-hidden="true">
+  // Símbolo del logo con su relieve: el marco inclinado con su vidrio y la M.
+  // Las caras laterales (ladoV y ladoH) son las de una extrusión hacia abajo a la derecha.
+  function logoSVG(color = "#f5f5f3", vidrio = "#ff9f7a", ladoV = "#b7bac2", ladoH = "#8c9099") {
+    return `<svg class="marca__simbolo" viewBox="0 0 142 82" aria-hidden="true">
+      <path fill="${ladoV}" d="M76 0 L58 74 L61.5 78.5 L79.5 4.5Z M23 64 L38.5 15.5 L42 20 L26.5 68.5Z M95 25 L106 55 L109.5 59.5 L98.5 29.5Z M124 39 L138 74 L141.5 78.5 L127.5 43.5Z M117.5 55 L110 74 L113.5 78.5 L121 59.5Z"/>
+      <path fill="${ladoH}" d="M58 74 L10 74 L13.5 78.5 L61.5 78.5Z M38.5 15.5 L64 12.5 L67.5 17 L42 20Z M138 74 L125 74 L128.5 78.5 L141.5 78.5Z M110 74 L98 74 L101.5 78.5 L113.5 78.5Z"/>
       <path fill="${color}" fill-rule="evenodd" d="M30 6 L76 0 L58 74 L10 74 Z M38.5 15.5 L64 12.5 L50.5 64 L23 64 Z"/>
       <path fill="${vidrio}" d="M36 64 L49.5 64 L63 14 L58 18 Z"/>
       <path fill="${vidrio}" d="M76 25 L82 25 L96 66 L92 74 Z"/>
@@ -131,9 +134,11 @@ const MA = (() => {
           <div class="pie__arriba">
           <!-- El marco del logo, grande: el vidrio se abre cuando el pie aparece -->
           <div class="pie__marco" data-aparece aria-hidden="true">
-            <svg viewBox="6 -4 74 82">
-              <path fill="#ffffff" fill-rule="evenodd" d="M30 6 L76 0 L58 74 L10 74 Z M38.5 15.5 L64 12.5 L50.5 64 L23 64 Z"/>
-              <path class="pie__vidrio" fill="#9fcbe6" d="M36 64 L49.5 64 L63 14 L58 18 Z"/>
+            <svg viewBox="6 -4 78 86">
+              <path fill="#b7bac2" d="M76 0 L58 74 L61.5 78.5 L79.5 4.5Z M23 64 L38.5 15.5 L42 20 L26.5 68.5Z"/>
+              <path fill="#8c9099" d="M58 74 L10 74 L13.5 78.5 L61.5 78.5Z M38.5 15.5 L64 12.5 L67.5 17 L42 20Z"/>
+              <path fill="#f5f5f3" fill-rule="evenodd" d="M30 6 L76 0 L58 74 L10 74 Z M38.5 15.5 L64 12.5 L50.5 64 L23 64 Z"/>
+              <path class="pie__vidrio" fill="#ff9f7a" d="M36 64 L49.5 64 L63 14 L58 18 Z"/>
             </svg>
           </div>
           <div class="pie__cols">
@@ -221,7 +226,7 @@ const MA = (() => {
     return r;
   }
 
-  const COLOR_PISO = { social: "#cfe5f3", alcoba: "#e8f2fa", servicio: "#b3d4ea", bano: "#d6e6f2" };
+  const COLOR_PISO = { social: "#ffd9c7", alcoba: "#f3ece6", servicio: "#e6e1db", bano: "#eadfd8" };
 
   function muebles(p) {
     const m = [];
@@ -232,7 +237,7 @@ const MA = (() => {
       const h = Math.min(18, alto - 6);
       m.push({ x: 10, y: y + (alto - h) / 2, w: 15, h, c: "#ffffff" });
     }
-    m.push({ x: -44, y: 20, w: 26, h: 9, c: "#11304f" });  // sofá
+    m.push({ x: -44, y: 20, w: 26, h: 9, c: "#2b2f37" });  // sofá
     m.push({ x: -30, y: 0, w: 16, h: 10, c: "#ffffff" });  // comedor
     m.push({ x: -48, y: -33, w: 26, h: 5, c: "#ffffff" }); // mesón
     return m;
@@ -259,14 +264,14 @@ const MA = (() => {
     const capas = [];
     for (let k = 1; k <= CAPAS; k++) {
       const tope = k === CAPAS;
-      capas.push(`<g data-capa="${k}"><use href="#${id}-int" stroke="${tope ? "#9fcbe6" : "#1b4370"}"/><use href="#${id}-ext" stroke="${tope ? "#9fcbe6" : "#0a2540"}"/></g>`);
+      capas.push(`<g data-capa="${k}"><use href="#${id}-int" stroke="${tope ? "#ff9f7a" : "#2b2f37"}"/><use href="#${id}-ext" stroke="${tope ? "#ff9f7a" : "#16181d"}"/></g>`);
     }
     return `<svg viewBox="0 0 400 300" role="img" aria-label="Vista previa ilustrativa de la distribución: ${p.habitaciones} habitaciones y ${p.banos} baños" data-modelo>
       <defs>
         <path id="${id}-int" d="${interiores}" fill="none" stroke-width="1.5" stroke-linejoin="round"/>
         <path id="${id}-ext" d="${exterior}" fill="none" stroke-width="2.6" stroke-linejoin="round"/>
       </defs>
-      <g data-capa="0"><path d="${exterior}" fill="#0a2540" transform="translate(0 3)"/>${pisos}<g data-muebles>${mueb}</g></g>
+      <g data-capa="0"><path d="${exterior}" fill="#16181d" transform="translate(0 3)"/>${pisos}<g data-muebles>${mueb}</g></g>
       ${capas.join("")}
     </svg>`;
   }
@@ -632,7 +637,7 @@ const MA = (() => {
         ${specsHTML(p)}
         <div class="vista-rapida__acciones">
           <a class="boton boton--suave" href="${url}">Ver todo el detalle</a>
-          <a class="boton boton--navy" href="${url}#agendar">${icono("calendario")}Agendar visita</a>
+          <a class="boton boton--grafito" href="${url}#agendar">${icono("calendario")}Agendar visita</a>
         </div>
       </div>`;
     dialogoRapido.showModal();

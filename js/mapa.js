@@ -96,7 +96,7 @@ window.MAPA = (() => {
             ${MA.specsHTML(p)}
             <div class="pop-mapa__acciones">
               <button class="boton boton--suave" type="button" data-vista-rapida="${MA.esc(p.id)}">Vista rápida</button>
-              <a class="boton boton--navy" href="${url}">Ver</a>
+              <a class="boton boton--grafito" href="${url}">Ver</a>
             </div>
           </div>`, { maxWidth: 280, minWidth: 240 })
         .addTo(capa);
@@ -115,7 +115,7 @@ window.MAPA = (() => {
       maxZoom: 18,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(m);
-    L.circle([p.lat, p.lng], { radius: 350, color: "#1b4370", weight: 2, fillColor: "#9fcbe6", fillOpacity: 0.35 }).addTo(m);
+    L.circle([p.lat, p.lng], { radius: 350, color: "#16181d", weight: 2, fillColor: "#ff9f7a", fillOpacity: 0.35 }).addTo(m);
     return true;
   }
 

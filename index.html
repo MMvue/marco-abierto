@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Marco Abierto · Apartamentos en Medellín con recorrido 3D</title>
   <meta name="description" content="Arriendo y venta de apartamentos en Medellín y el Valle de Aburrá. Cada inmueble con recorrido 3D y fotos.">
-  <meta name="theme-color" content="#0a2540">
+  <meta name="theme-color" content="#16181d">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,7 @@
 
   <main>
     <!-- Hero: el recorrido 3D es lo primero que se ve -->
-    <section class="hero campo-navy">
+    <section class="hero campo-grafito">
       <div class="contenedor hero__grid">
         <div class="hero__texto">
           <div>
@@ -60,7 +60,7 @@
                 <small class="buscador__ayuda" id="h-max-ayuda" aria-live="polite"></small>
               </div>
             </div>
-            <button class="boton boton--navy buscador__ir" type="submit"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-casa"/></svg>Ver apartamentos</button>
+            <button class="boton boton--grafito buscador__ir" type="submit"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-casa"/></svg>Ver apartamentos</button>
           </form>
         </div>
         <div class="hero__visor visor-marco" id="hero-visor"></div>
@@ -75,35 +75,31 @@
           <p data-aparece style="--i:1">Pasa el dedo por las tarjetas y abre el que te guste: recorrido 3D y fotos en un mismo lugar.</p>
         </div>
         <div class="fila" id="recientes"></div>
-        <p style="margin-top:32px"><a class="boton boton--navy" href="buscar.html">Ver todos los inmuebles <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-flecha"/></svg></a></p>
+        <p style="margin-top:32px"><a class="boton boton--grafito" href="buscar.html">Ver todos los inmuebles <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-flecha"/></svg></a></p>
       </div>
     </section>
 
-    <!-- El apartamento se arma mientras bajas: piso, paredes, muebles -->
-    <section class="arma campo-navy" id="arma" aria-labelledby="t-arma">
-      <div class="arma__escena">
-        <div class="contenedor arma__grid">
-          <div class="arma__texto">
-            <h2 id="t-arma">Recórrelo sin salir de casa</h2>
-            <ol class="arma__pasos" id="arma-pasos">
-              <li class="arma__paso is-activo">
-                <span class="arma__ico"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cubo"/></svg></span>
-                <div><h3>Recorre cada espacio</h3><p>El recorrido 3D te lleva cuarto por cuarto, con la luz y el tamaño real.</p></div>
-              </li>
-              <li class="arma__paso">
-                <span class="arma__ico"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-calendario"/></svg></span>
-                <div><h3>Agenda solo lo que te gustó</h3><p>Cuando vayas, ya sabes lo que vas a encontrar.</p>
-                  <a class="boton arma__boton" href="buscar.html">Ver apartamentos</a></div>
-              </li>
-            </ol>
-          </div>
-          <figure class="arma__modelo" id="arma-modelo" aria-label="Un apartamento ilustrativo que se arma en 3D: piso, paredes y muebles"></figure>
+    <!-- Las ventanas de Medellín: al bajar se encienden; las de luz cálida son inmuebles publicados -->
+    <section class="ventanas campo-grafito" id="ventanas" aria-labelledby="t-ventanas">
+      <div class="contenedor ventanas__grid">
+        <div class="ventanas__texto">
+          <p class="ventanas__antetitulo" data-aparece>Medellín, esta noche</p>
+          <h2 id="t-ventanas" data-aparece style="--i:1">Cada luz cálida es un hogar disponible</h2>
+          <p class="ventanas__intro" data-aparece style="--i:2">Toca una ventana de luz cálida y asómate: es un inmueble publicado, con recorrido 3D y fotos para verlo sin salir de casa.</p>
+          <p class="ventanas__cuenta" data-aparece style="--i:3"><strong id="ventanas-n">0</strong><span id="ventanas-n-texto">hogares encendidos</span></p>
         </div>
+        <figure class="ciudad" id="ciudad" aria-label="Edificios de noche. Las ventanas de luz cálida son inmuebles publicados que puedes abrir">
+          <span class="ciudad__luna" aria-hidden="true"></span>
+          <div class="ciudad__edificios" id="ciudad-edificios"></div>
+          <div class="ciudad__suelo" aria-hidden="true"></div>
+          <span class="ciudad__etiqueta" id="ciudad-etiqueta" aria-hidden="true"></span>
+        </figure>
+        <div class="ventanas__ficha" id="ventanas-ficha" aria-live="polite"><p class="ventanas__pista">Toca una ventana de luz cálida para ver qué hay adentro</p></div>
       </div>
     </section>
 
     <!-- Propietarios: segundo diferenciador -->
-    <section class="seccion campo-celeste" aria-labelledby="t-prop">
+    <section class="seccion campo-luz" aria-labelledby="t-prop">
       <div class="contenedor prop">
         <div class="prop__texto">
           <h2 id="t-prop" data-aparece>Tu inmueble, siempre a la vista</h2>
@@ -115,7 +111,7 @@
             <li><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg>Recorrido 3D al publicar <span class="marcador">confirmar si tiene costo</span></li>
           </ul>
           <div style="display:flex;flex-wrap:wrap;gap:12px;--i:3" data-aparece>
-            <a class="boton boton--navy" href="propietarios.html#publicar">Publicar mi inmueble</a>
+            <a class="boton boton--grafito" href="propietarios.html#publicar">Publicar mi inmueble</a>
             <a class="boton boton--claro" href="panel.html">Ver cómo es el panel</a>
           </div>
         </div>
@@ -153,7 +149,7 @@
     </section>
 
     <!-- Socios referidores -->
-    <section class="seccion campo-navy" aria-labelledby="t-socios">
+    <section class="seccion campo-grafito" aria-labelledby="t-socios">
       <div class="contenedor socios">
         <div>
           <h2 id="t-socios" data-aparece>Refiere un inmueble y gana</h2>
@@ -182,8 +178,7 @@
     } }
   </script>
   <script type="module">
-    import { casa, valle } from "./js/escenas3d.js";
-    casa(document.getElementById("arma-modelo"));
+    import { valle } from "./js/escenas3d.js";
     valle(document.getElementById("mapa-valle"));
   </script>
   <script>
@@ -203,45 +198,124 @@
       document.querySelector("#hero-visor .visor__escena").insertAdjacentHTML("beforeend", '<div class="marco__vidrio" aria-hidden="true"></div>');
       requestAnimationFrame(abrirPortada);
       document.getElementById("recientes").innerHTML = P.slice(0, 6).map(MA.tarjetaHTML).join("");
-      /* ---------- Escena: el apartamento se arma mientras bajas ---------- */
+      /* ---------- Escena: las ventanas de Medellín ----------
+         Al bajar se encienden las luces de la ciudad. Las de luz cálida son inmuebles publicados:
+         al tocarlas se ve su ficha. La sección no se queda fija; solo cambian opacidades. */
       (() => {
-        const seccion = document.getElementById("arma");
-        const caja = document.getElementById("arma-modelo");
-        // insertAdjacentHTML (no innerHTML) para no borrar el lienzo 3D si ya se montó
-        caja.insertAdjacentHTML("afterbegin", MA.modeloSVG(ejemplos.find((p) => p.habitaciones >= 3) || ejemplos[0]));
-        const svg = caja.querySelector("[data-modelo]");
-        const capas = [...svg.querySelectorAll("[data-capa]")];
-        const muebles = svg.querySelector("[data-muebles]");
-        const pasos = [...document.querySelectorAll(".arma__paso")];
+        const seccion = document.getElementById("ventanas");
+        const ciudad = document.getElementById("ciudad");
+        const ficha = document.getElementById("ventanas-ficha");
+        const etiqueta = document.getElementById("ciudad-etiqueta");
+        const cuenta = document.getElementById("ventanas-n");
+        const cuentaTexto = document.getElementById("ventanas-n-texto");
         const acotar = (x) => Math.max(0, Math.min(1, x));
-        // 0–20 %: aparece el piso · 20–65 %: suben las paredes · 62–82 %: llegan los muebles · el modelo gira todo el tiempo
-        const pintar = (p) => {
-          capas[0].style.opacity = 0.15 + 0.85 * acotar(p / 0.2);
-          const nivel = acotar((p - 0.2) / 0.45) * (capas.length - 1);
-          capas.slice(1).forEach((g, i) => { g.style.opacity = i < nivel ? 1 : 0; });
-          muebles.style.opacity = acotar((p - 0.62) / 0.2);
-          MA.girarModelo(svg, 12 + p * 58);
-          const paso = p < 0.5 ? 0 : 1;
-          pasos.forEach((li, k) => li.classList.toggle("is-activo", k === paso));
-          // La casa en 3D (js/escenas3d.js) escucha este avance
-          window.__armaProgreso = p;
-          window.dispatchEvent(new CustomEvent("arma:progreso", { detail: p }));
+        // Azar con semilla: la ciudad se ve igual en cada visita
+        let semilla = 20;
+        const azar = () => ((semilla = (semilla * 16807) % 2147483647) - 1) / 2147483646;
+        const EDIFICIOS = [{ cols: 3, pisos: 9 }, { cols: 5, pisos: 15, antena: true }, { cols: 4, pisos: 11 }, { cols: 3, pisos: 13, antena: true }];
+        const casillas = [];
+        EDIFICIOS.forEach((e, b) => {
+          for (let f = 0; f < e.pisos; f++) for (let c = 0; c < e.cols; c++) casillas.push({ b, f, c, piso: e.pisos - f });
+        });
+        // Los hogares van en pisos altos y medios (no en el primero), en casillas al azar
+        const libres = casillas.filter((k) => k.piso > 1).sort(() => azar() - 0.5);
+        const hogares = P.slice(0, 18);
+        hogares.forEach((p, k) => { const c = libres[k]; c.hogar = p; c.k = k; });
+        // Cuándo se enciende cada ventana (avance 0–1): las cálidas al azar, los hogares uno tras otro
+        casillas.forEach((c) => {
+          if (c.hogar) c.umbral = 0.3 + (0.58 * c.k) / Math.max(1, hogares.length - 1);
+          else if (azar() < 0.42) { c.umbral = 0.04 + azar() * 0.9; c.brillo = (0.45 + azar() * 0.5).toFixed(2); }
+        });
+        document.getElementById("ciudad-edificios").innerHTML = EDIFICIOS.map((e, b) => `
+          <div class="edificio${e.antena ? " edificio--antena" : ""}" style="--cols:${e.cols}" aria-hidden="${hogares.some((_, k) => libres[k].b === b) ? "false" : "true"}">
+            <div class="edificio__fachada">${casillas.filter((c) => c.b === b).map((c) => c.hogar
+              ? `<button class="ventana ventana--hogar" type="button" data-k="${c.k}" style="--k:${c.k}" aria-label="Piso ${c.piso}: ${MA.esc(c.hogar.titulo)}, ${MA.esc(MA.lugar(c.hogar))}"></button>`
+              : `<span class="ventana" aria-hidden="true"${c.brillo ? ` style="--brillo:${c.brillo}"` : ""}></span>`).join("")}
+            </div>
+          </div>`).join("");
+        const elementos = [...ciudad.querySelectorAll(".ventana")];
+        const luces = casillas.map((c, i) => ({ el: elementos[i], umbral: c.umbral, hogar: !!c.hogar, on: false })).filter((l) => l.umbral != null);
+        const botones = [...ciudad.querySelectorAll(".ventana--hogar")];
+
+        // Ficha del hogar elegido y etiqueta con su número de apartamento
+        let elegido = null;
+        const elegir = (k) => {
+          if (k === elegido) return;
+          elegido = k;
+          const c = casillas.find((x) => x.k === k), p = c.hogar;
+          const apto = `Piso ${c.piso} · Apto ${c.piso}0${c.c + 1}`;
+          const foto = MA.urlSegura((p.fotos || [])[0]);
+          botones.forEach((b) => b.classList.toggle("is-elegida", Number(b.dataset.k) === k));
+          ficha.innerHTML = `
+            <a class="ficha-hogar" href="inmueble.html?id=${encodeURIComponent(p.id)}">
+              <span class="ficha-hogar__media">${foto ? `<img src="${foto}" alt="" decoding="async">` : MA.modeloSVG(p)}</span>
+              <span class="ficha-hogar__datos">
+                <span class="ficha-hogar__apto">${apto} · ${MA.OPERACION[p.operacion]}</span>
+                <span class="ficha-hogar__titulo">${MA.esc(p.titulo)}</span>
+                <span class="ficha-hogar__lugar">${MA.esc(MA.lugar(p))}</span>
+                <span class="ficha-hogar__precio">${MA.precioHTML(p)}</span>
+                <span class="ficha-hogar__ir">Asomarse ${MA.icono("flecha")}</span>
+              </span>
+            </a>`;
+          const svg = ficha.querySelector("[data-modelo]");
+          if (svg) MA.girarModelo(svg, 35);
+          const b = botones.find((x) => Number(x.dataset.k) === k);
+          const rc = ciudad.getBoundingClientRect(), rb = b.getBoundingClientRect();
+          etiqueta.textContent = `Apto ${c.piso}0${c.c + 1}`;
+          etiqueta.style.setProperty("--x", `${rb.left - rc.left + rb.width / 2}px`);
+          etiqueta.style.setProperty("--y", `${rb.top - rc.top}px`);
+          etiqueta.classList.add("is-visible");
         };
-        if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-          seccion.classList.add("is-quieta");
-          pintar(1);
-          return;
-        }
-        seccion.classList.add("is-escena");
-        let pendiente = false;
+        botones.forEach((b) => {
+          const k = Number(b.dataset.k);
+          b.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse" && b.classList.contains("is-on")) elegir(k); });
+          b.addEventListener("focus", () => elegir(k));
+          b.addEventListener("click", () => elegir(k));
+        });
+        // En celular las ventanas son pequeñas: un toque cerca de una de luz cálida también la elige
+        ciudad.addEventListener("click", (e) => {
+          if (e.target.closest(".ventana--hogar")) return;
+          let mejor = null, dist = 36;
+          for (const b of botones) {
+            if (!b.classList.contains("is-on")) continue;
+            const r = b.getBoundingClientRect();
+            const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+            if (d < dist) { dist = d; mejor = b; }
+          }
+          if (mejor) elegir(Number(mejor.dataset.k));
+        });
+        addEventListener("resize", () => { if (elegido != null) { const k = elegido; elegido = null; elegir(k); } });
+
+        let encendidos = -1;
+        const pintar = (p) => {
+          let n = 0;
+          for (const l of luces) {
+            const on = p >= l.umbral;
+            if (on !== l.on) { l.on = on; l.el.classList.toggle("is-on", on); }
+            if (on && l.hogar) n++;
+          }
+          if (n !== encendidos) {
+            encendidos = n;
+            cuenta.textContent = n;
+            cuentaTexto.textContent = n === 1 ? "hogar encendido" : "hogares encendidos";
+            // Con todos encendidos, la ciudad hace un pulso y se muestra el primer hogar
+            const completa = n === hogares.length && n > 0;
+            if (completa && !ciudad.classList.contains("is-completa") && elegido == null) elegir(0);
+            ciudad.classList.toggle("is-completa", completa);
+          }
+        };
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) { pintar(1); return; }
+        // El avance va de 0 (la sección asoma por abajo) a 1 (la ciudad ya está casi toda a la vista)
+        let pendiente = false, activa = false;
         const medir = () => {
           pendiente = false;
-          const r = seccion.getBoundingClientRect();
-          pintar(acotar(-r.top / Math.max(1, r.height - innerHeight)));
+          const r = ciudad.getBoundingClientRect();
+          pintar(acotar((innerHeight - r.top) / (innerHeight * 0.3 + r.height * 0.85)));
         };
-        addEventListener("scroll", () => { if (!pendiente) { pendiente = true; requestAnimationFrame(medir); } }, { passive: true });
-        addEventListener("resize", medir);
-        medir();
+        const alBajar = () => { if (activa && !pendiente) { pendiente = true; requestAnimationFrame(medir); } };
+        new IntersectionObserver((e) => { activa = e[0].isIntersecting; if (activa) medir(); }, { rootMargin: "100px" }).observe(seccion);
+        addEventListener("scroll", alBajar, { passive: true });
+        pintar(0);
       })();
 
       /* ---------- Buscador compacto de la portada ---------- */
@@ -370,7 +444,7 @@
           detalle.innerHTML = `
             <p class="zona-detalle__nombre">${MA.esc(z.nombre)}</p>
             <p class="zona-detalle__datos">${MA.icono("ubicacion")}${MA.esc(z.municipio)}${z.metro ? ` · ${MA.icono("metro")}${MA.esc(z.metro)}` : ""}</p>
-            <a class="boton boton--navy" href="buscar.html?zona=${encodeURIComponent(z.nombre)}">${n ? `Ver ${n} ${n === 1 ? "inmueble" : "inmuebles"}` : "Ver zona"}</a>`;
+            <a class="boton boton--grafito" href="buscar.html?zona=${encodeURIComponent(z.nombre)}">${n ? `Ver ${n} ${n === 1 ? "inmueble" : "inmuebles"}` : "Ver zona"}</a>`;
         };
         document.querySelectorAll(".zonas-mapa [data-zona]").forEach((el) => {
           el.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") elegir(el.dataset.zona); });

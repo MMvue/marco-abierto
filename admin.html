@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Administración · Marco Abierto</title>
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#0a2540">
+  <meta name="theme-color" content="#16181d">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +26,7 @@
       <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-llave"/></svg>
       <h1 id="t-acceso">Esta pantalla es solo para el equipo</h1>
       <p id="acceso-texto">Entra con tu cuenta de administrador para ver las solicitudes.</p>
-      <a class="boton boton--navy" href="ingreso.html?volver=admin.html">Ingresar</a>
+      <a class="boton boton--grafito" href="ingreso.html?volver=admin.html">Ingresar</a>
     </section>
   </main>
 
@@ -78,7 +78,7 @@
       <div class="admin-cab">
         <div class="admin-cab__fila">
           <h2 id="t-inm">Inmuebles</h2>
-          <button class="boton boton--navy" type="button" id="nuevo-inmueble"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mas"/></svg>Nuevo inmueble</button>
+          <button class="boton boton--grafito" type="button" id="nuevo-inmueble"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-mas"/></svg>Nuevo inmueble</button>
         </div>
         <div class="admin-filtros">
           <label class="campo"><span class="sr-only">Buscar inmueble</span><input class="entrada" type="search" id="buscar-inm" placeholder="Buscar por título, zona, propietario o responsable" enterkeyhint="search" autocomplete="off"></label>
@@ -167,7 +167,7 @@
         </div>
       </fieldset>
 
-      <button class="boton boton--navy" type="submit">Guardar inmueble</button>
+      <button class="boton boton--grafito" type="submit">Guardar inmueble</button>
       <p class="form-estado" role="status"></p>
     </form>
   </dialog>
@@ -185,7 +185,7 @@
       <label class="campo"><span>Detalle <small style="font-weight:400">(opcional)</small></span><textarea class="entrada" name="detalle" maxlength="2000" rows="3" placeholder="Por ejemplo: le gustó la luz; preguntó por el parqueadero"></textarea></label>
       <label class="campo"><span>Cambiar etapa</span><select class="entrada" name="etapa" id="nov-etapa"></select></label>
       <label class="consentimiento"><input type="checkbox" name="avisado" checked><span>Ya se lo conté al propietario (WhatsApp o llamada)</span></label>
-      <button class="boton boton--navy" type="submit">Guardar novedad</button>
+      <button class="boton boton--grafito" type="submit">Guardar novedad</button>
       <p class="form-estado" role="status"></p>
     </form>
   </dialog>
@@ -265,7 +265,7 @@
               <p>${p.ultimo_aviso ? `Lleva ${dias} días sin noticias.` : "Todavía no ha recibido ninguna novedad."} ${p.responsable ? "Responsable: " + esc(p.responsable) + "." : ""} ${p.propietario_correo ? "" : "Sin correo de propietario."}</p>
             </div>
             <div class="admin-item__acciones admin-item__acciones--una">
-              <button class="boton boton--navy" type="button" data-novedad="${esc(p.id)}">${I("mensaje")}Registrar novedad</button>
+              <button class="boton boton--grafito" type="button" data-novedad="${esc(p.id)}">${I("mensaje")}Registrar novedad</button>
             </div>
           </li>`).join("")
           : `<li class="admin-listo">${I("check")}<span><strong>Todos los propietarios están al día.</strong> ${INM.length ? "Nadie tiene que preguntar hoy." : "Cuando crees inmuebles, aquí verás a quién le debes noticias."}</span></li>`;
