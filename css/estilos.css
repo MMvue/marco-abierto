@@ -948,12 +948,53 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 /* Barra de resultados: conteo, filtros (celular), ordenar y lista/mapa */
 .resultados-barra__acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .ordenar .entrada { min-height: 44px; padding-block: 8px; }
+/* Lista desplegable con la estética del sitio (ver selectorPropio en js/app.js) */
+.selector { position: relative; min-width: 0; }
+.selector__boton {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding-right: 12px; text-align: left; cursor: pointer;
+}
+.selector__boton:disabled { opacity: 0.6; cursor: default; }
+.selector:has(.selector__nativo:focus) .selector__boton { box-shadow: inset 0 0 0 2px var(--grafito); }
+/* El <select> real queda debajo del botón: guarda el valor y permite avisar si falta */
+.selector__nativo { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; padding: 0; opacity: 0; pointer-events: none; }
+.ordenar { min-width: 0; }
+@media (min-width: 960px) { .ordenar .selector__boton { min-width: 186px; } }
+.selector__boton span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.selector__boton .icono { width: 20px; height: 20px; flex: none; color: var(--grafito-3); transition: transform var(--t-hover) var(--ease-out); }
+.selector__boton[aria-expanded="true"] { box-shadow: inset 0 0 0 2px var(--grafito); }
+.selector__boton[aria-expanded="true"] .icono { transform: rotate(180deg); }
+@media (hover: hover) and (pointer: fine) { .selector__boton:hover { box-shadow: inset 0 0 0 1.5px var(--grafito-3); } .selector__boton[aria-expanded="true"]:hover { box-shadow: inset 0 0 0 2px var(--grafito); } }
+.selector__lista {
+  position: absolute; left: 0; top: calc(100% + 8px); z-index: 30;
+  min-width: 100%; width: max-content; max-width: min(420px, calc(100vw - 24px)); max-height: min(320px, 60vh); overflow-y: auto; overscroll-behavior: contain;
+  margin: 0; padding: 6px; list-style: none; border-radius: 16px;
+  background: var(--blanco); color: var(--grafito); box-shadow: 0 18px 40px rgba(22, 24, 29, 0.28);
+  transform-origin: top left;
+}
+.selector__lista:focus { outline: none; }
+.selector__lista.is-arriba { top: auto; bottom: calc(100% + 8px); transform-origin: bottom left; }
+.selector__lista li { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; padding: 6px 12px; border-radius: 10px; cursor: pointer; }
+.selector__lista li .icono { width: 18px; height: 18px; flex: none; visibility: hidden; }
+.selector__lista li.is-activa { background: var(--luz-3); }
+.selector__lista li[aria-selected="true"] { font-weight: 700; }
+.selector__lista li[aria-selected="true"] .icono { visibility: visible; }
+@media (prefers-reduced-motion: no-preference) {
+  .selector__lista:not([hidden]) { animation: selector-abre 160ms var(--ease-out); }
+  @keyframes selector-abre { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+}
 .vista-toggle label { min-height: 40px; padding: 0 14px; }
 .vista-toggle .icono { width: 18px; height: 18px; }
 /* En celular: Filtros | Ordenar | Lista/Mapa en una sola fila */
 @media (max-width: 959px) {
   .resultados-barra__acciones { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
   .vista-toggle label { padding: 0 12px; }
+}
+/* En pantallas muy angostas, ordenar baja a su propia fila para que no quede aplastado */
+@media (max-width: 359px) {
+  .resultados-barra__acciones { grid-template-columns: auto minmax(0, 1fr); }
+  .ordenar { grid-column: 1 / -1; grid-row: 2; }
+  .vista-toggle { justify-self: end; }
 }
 @media (max-width: 479px) {
   .vt-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

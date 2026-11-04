@@ -609,6 +609,154 @@ const MA = (() => {
     return { cerrar };
   }
 
+  /* ---------- Listas desplegables con la estética del sitio ---------- */
+  // Reemplazan la lista que dibuja el navegador. El <select> sigue debajo: guarda el valor, valida y viaja en el formulario.
+  const selectoresListos = new WeakSet();
+  let selectoresCreados = 0;
+
+  function selectorPropio(select) {
+    if (selectoresListos.has(select)) return;
+    selectoresListos.add(select);
+    const etiqueta = select.closest("label");
+    const nombre = select.getAttribute("aria-label") || etiqueta?.querySelector("span")?.textContent.trim() || "";
+    const idLista = `selector-${++selectoresCreados}`;
+
+    const caja = document.createElement("div");
+    caja.className = "selector";
+    caja.innerHTML = `<button class="entrada selector__boton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="${idLista}"><span></span>${icono("abajo")}</button>
+      <ul class="selector__lista" id="${idLista}" role="listbox" tabindex="-1" aria-label="${esc(nombre)}" data-lenis-prevent hidden></ul>`;
+    select.replaceWith(caja);
+    const boton = caja.querySelector("button");
+    const lista = caja.querySelector("ul");
+    // El botón va primero para que tocar el título del campo abra esta lista
+    boton.after(select);
+    select.classList.add("selector__nativo");
+    select.tabIndex = -1;
+    select.setAttribute("aria-hidden", "true");
+
+    let filas = [];
+    let activa = 0;
+
+    const pintar = () => {
+      const texto = select.selectedOptions[0]?.textContent.trim() || "";
+      boton.querySelector("span").textContent = texto;
+      boton.setAttribute("aria-label", nombre ? `${nombre}: ${texto}` : texto);
+      filas.forEach((li, i) => li.setAttribute("aria-selected", String(i === select.selectedIndex)));
+    };
+    const construir = () => {
+      lista.innerHTML = [...select.options].map((o, i) => `<li role="option" id="${idLista}-${i}" data-i="${i}" aria-selected="false"><span>${esc(o.textContent.trim())}</span>${icono("check")}</li>`).join("");
+      filas = [...lista.children];
+      pintar();
+    };
+    const resaltar = (i) => {
+      if (!filas.length) return;
+      activa = (i + filas.length) % filas.length;
+      filas.forEach((li, k) => li.classList.toggle("is-activa", k === activa));
+      lista.setAttribute("aria-activedescendant", filas[activa].id);
+      const f = filas[activa];
+      if (f.offsetTop < lista.scrollTop) lista.scrollTop = f.offsetTop;
+      else if (f.offsetTop + f.offsetHeight > lista.scrollTop + lista.clientHeight) lista.scrollTop = f.offsetTop + f.offsetHeight - lista.clientHeight;
+    };
+    const cerrar = (devolverFoco = true) => {
+      if (lista.hidden) return;
+      lista.hidden = true;
+      boton.setAttribute("aria-expanded", "false");
+      if (devolverFoco) boton.focus({ preventScroll: true });
+    };
+    const abrir = () => {
+      if (!filas.length || select.disabled) return;
+      lista.hidden = false;
+      boton.setAttribute("aria-expanded", "true");
+      // Si abajo no cabe y arriba sí, abre hacia arriba
+      const b = boton.getBoundingClientRect();
+      const alto = lista.offsetHeight + 8;
+      lista.classList.toggle("is-arriba", innerHeight - b.bottom < alto && b.top > alto);
+      // En una ventana angosta se corre a la izquierda para no salirse de la pantalla
+      lista.style.left = "";
+      const exceso = lista.getBoundingClientRect().right - (document.documentElement.clientWidth - 12);
+      if (exceso > 0) lista.style.left = `${-exceso}px`;
+      resaltar(Math.max(select.selectedIndex, 0));
+      lista.focus({ preventScroll: true });
+    };
+    const elegir = (i) => {
+      const cambio = select.selectedIndex !== i;
+      select.selectedIndex = i;
+      cerrar();
+      if (cambio) {
+        select.dispatchEvent(new Event("input", { bubbles: true }));
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    };
+
+    // Evita que el botón le quite el foco a la lista: así el clic de cerrar no la vuelve a abrir
+    boton.addEventListener("mousedown", (e) => e.preventDefault());
+    boton.addEventListener("click", () => (lista.hidden ? abrir() : cerrar()));
+    boton.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); abrir(); }
+    });
+    lista.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") { e.preventDefault(); resaltar(activa + 1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); resaltar(activa - 1); }
+      else if (e.key === "Home") { e.preventDefault(); resaltar(0); }
+      else if (e.key === "End") { e.preventDefault(); resaltar(filas.length - 1); }
+      else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); elegir(activa); }
+      else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); cerrar(); }
+      else if (e.key === "Tab") cerrar();
+      else if (e.key.length === 1) {
+        // Escribir una letra salta a la opción que empieza así, como en una lista normal
+        const i = filas.findIndex((li) => norm(li.textContent).startsWith(norm(e.key)));
+        if (i >= 0) resaltar(i);
+      }
+    });
+    lista.addEventListener("pointermove", (e) => {
+      const li = e.target.closest("[data-i]");
+      if (li && Number(li.dataset.i) !== activa) resaltar(Number(li.dataset.i));
+    });
+    lista.addEventListener("click", (e) => {
+      e.preventDefault(); // Dentro de un <label>, el clic no debe llegar al botón y reabrir la lista
+      const li = e.target.closest("[data-i]");
+      if (li) elegir(Number(li.dataset.i));
+    });
+    caja.addEventListener("focusout", (e) => { if (!caja.contains(e.relatedTarget)) cerrar(false); });
+
+    // Si el formulario avisa que falta este dato, el foco cae en el <select> oculto: una tecla abre la lista
+    select.addEventListener("keydown", (e) => { if (e.key !== "Tab") { e.preventDefault(); abrir(); } });
+
+    // Mantiene el botón al día con lo que hagan las páginas: cambiar el valor, las opciones, bloquearla o limpiar el formulario
+    ["value", "selectedIndex"].forEach((prop) => {
+      const d = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, prop);
+      Object.defineProperty(select, prop, {
+        configurable: true,
+        get() { return d.get.call(this); },
+        set(v) { d.set.call(this, v); pintar(); }
+      });
+    });
+    select.addEventListener("change", pintar);
+    select.form?.addEventListener("reset", () => setTimeout(pintar));
+    new MutationObserver(() => {
+      construir();
+      boton.disabled = select.disabled;
+      if (select.disabled) cerrar(false);
+    }).observe(select, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["disabled"] });
+
+    boton.disabled = select.disabled;
+    construir();
+  }
+
+  // Todas las listas del sitio, también las que aparecen después (por ejemplo en las tablas de administración).
+  // En el celular se deja el selector del teléfono, que es más cómodo con el dedo.
+  function activarSelectores() {
+    if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    document.querySelectorAll("select.entrada").forEach(selectorPropio);
+    new MutationObserver((cambios) => {
+      cambios.forEach((c) => c.addedNodes.forEach((n) => {
+        if (n.nodeType !== 1) return;
+        if (n.matches("select.entrada")) selectorPropio(n);
+        else n.querySelectorAll("select.entrada").forEach(selectorPropio);
+      }));
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+
   /* ---------- Vista rápida: el visor en una hoja, sin salir del listado ---------- */
   let dialogoRapido = null;
   function abrirVistaRapida(p, origen) {
@@ -782,6 +930,7 @@ const MA = (() => {
     activarScrollSuave();
     document.querySelectorAll("[data-visor]").forEach(activarVisor);
     activarFormularios();
+    activarSelectores();
     activarApariciones();
     marcarSesion();
   }

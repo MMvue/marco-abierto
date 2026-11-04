@@ -5,3 +5,5 @@ PUBLICAR.md
 servidor-local.ps1
 supabase/
 .claude/
+# Proyecciones y documentos internos: el repositorio es público, esto nunca se sube.
+finanzas/
