@@ -168,6 +168,7 @@
       </fieldset>
 
       <button class="boton boton--grafito" type="submit">Guardar inmueble</button>
+      <button class="boton boton--suave boton--eliminar" type="button" id="eliminar-inmueble" hidden>Eliminar inmueble</button>
       <p class="form-estado" role="status"></p>
     </form>
   </dialog>
@@ -406,7 +407,6 @@
               <button class="boton boton--suave" type="button" data-editar="${esc(p.id)}">Editar</button>
               <button class="boton boton--suave" type="button" data-novedad="${esc(p.id)}">Novedad</button>
               ${p.publicado ? `<a class="boton boton--suave" href="inmueble.html?id=${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver</a>` : ""}
-              <button class="boton boton--suave boton--eliminar" type="button" data-eliminar="${esc(p.id)}" aria-label="Eliminar ${esc(p.titulo)}">Eliminar</button>
             </td>
           </tr>`;
         }).join("");
@@ -421,8 +421,6 @@
         if (ed) abrirEditor(INM.find((p) => p.id === ed.dataset.editar));
         const nv = e.target.closest("[data-novedad]");
         if (nv) abrirNovedad(INM.find((p) => p.id === nv.dataset.novedad));
-        const el = e.target.closest("[data-eliminar]");
-        if (el) abrirEliminar(INM.find((p) => p.id === el.dataset.eliminar));
       });
 
       /* ---------- Carga ---------- */
@@ -443,7 +441,7 @@
       /* ---------- Diálogos ---------- */
       const abrirDialogo = (d) => { d.querySelector(".form-estado").textContent = ""; d.showModal(); document.body.classList.add("sin-scroll"); };
       document.querySelectorAll("dialog").forEach((d) => {
-        d.addEventListener("close", () => document.body.classList.remove("sin-scroll"));
+        d.addEventListener("close", () => { if (!document.querySelector("dialog[open]")) document.body.classList.remove("sin-scroll"); });
         d.querySelector("[data-cerrar]").addEventListener("click", () => d.close());
       });
 
@@ -469,6 +467,7 @@
           await DATOS.eliminarInmueble(porEliminar);
           await cargar();
           dlgEli.close();
+          document.getElementById("dlg-inmueble").close();
         } catch (err) {
           estado.classList.add("is-error");
           estado.textContent = DATOS.mensajeError(err);
@@ -568,6 +567,7 @@
         editando = p || null;
         fInm.reset();
         document.getElementById("t-dlg-inm").textContent = p ? "Editar inmueble" : "Nuevo inmueble";
+        document.getElementById("eliminar-inmueble").hidden = !p;
         fotos = (p?.fotos || []).map((url) => ({ url }));
         docs = [];
         if (p) {
@@ -597,6 +597,7 @@
         abrirDialogo(dlgInm);
       }
       document.getElementById("nuevo-inmueble").addEventListener("click", () => abrirEditor(null));
+      document.getElementById("eliminar-inmueble").addEventListener("click", () => abrirEliminar(editando));
 
       fInm.addEventListener("submit", async (e) => {
         e.preventDefault();
