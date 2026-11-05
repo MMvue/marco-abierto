@@ -1362,6 +1362,9 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 .admin-acciones-fila { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
 .admin-acciones-fila::before { display: none !important; }
 .admin-acciones-fila .boton { min-height: 40px; padding: 0 14px; font-size: 0.88rem; }
+.boton--eliminar { color: var(--alerta); }
+.boton--peligro { background: var(--alerta); color: var(--blanco); }
+.eliminar-acciones { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 
 /* Editor de inmueble */
 .hoja-dialogo--ancha { max-height: 94dvh; }

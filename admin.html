@@ -172,6 +172,23 @@
     </form>
   </dialog>
 
+  <!-- Confirmar antes de eliminar un inmueble -->
+  <dialog class="hoja-dialogo" id="dlg-eliminar" aria-labelledby="t-dlg-eli">
+    <div class="formulario">
+      <div class="hoja-dialogo__cab">
+        <h2 id="t-dlg-eli">¿Eliminar este inmueble?</h2>
+        <button class="boton boton--suave boton--icono" type="button" data-cerrar aria-label="Cerrar"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-cerrar"/></svg></button>
+      </div>
+      <p id="eli-inmueble" style="font-weight:700"></p>
+      <p id="eli-aviso"></p>
+      <div class="eliminar-acciones">
+        <button class="boton boton--suave" type="button" id="eli-cancelar" autofocus>Cancelar</button>
+        <button class="boton boton--peligro" type="button" id="eli-confirmar">Sí, eliminar</button>
+      </div>
+      <p class="form-estado" role="status"></p>
+    </div>
+  </dialog>
+
   <!-- Registrar novedad -->
   <dialog class="hoja-dialogo" id="dlg-novedad" aria-labelledby="t-dlg-nov">
     <form class="formulario" id="form-novedad" novalidate>
@@ -389,6 +406,7 @@
               <button class="boton boton--suave" type="button" data-editar="${esc(p.id)}">Editar</button>
               <button class="boton boton--suave" type="button" data-novedad="${esc(p.id)}">Novedad</button>
               ${p.publicado ? `<a class="boton boton--suave" href="inmueble.html?id=${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver</a>` : ""}
+              <button class="boton boton--suave boton--eliminar" type="button" data-eliminar="${esc(p.id)}" aria-label="Eliminar ${esc(p.titulo)}">Eliminar</button>
             </td>
           </tr>`;
         }).join("");
@@ -403,6 +421,8 @@
         if (ed) abrirEditor(INM.find((p) => p.id === ed.dataset.editar));
         const nv = e.target.closest("[data-novedad]");
         if (nv) abrirNovedad(INM.find((p) => p.id === nv.dataset.novedad));
+        const el = e.target.closest("[data-eliminar]");
+        if (el) abrirEliminar(INM.find((p) => p.id === el.dataset.eliminar));
       });
 
       /* ---------- Carga ---------- */
@@ -425,6 +445,36 @@
       document.querySelectorAll("dialog").forEach((d) => {
         d.addEventListener("close", () => document.body.classList.remove("sin-scroll"));
         d.querySelector("[data-cerrar]").addEventListener("click", () => d.close());
+      });
+
+      /* ---------- Eliminar inmueble ---------- */
+      const dlgEli = document.getElementById("dlg-eliminar");
+      const eliConfirmar = document.getElementById("eli-confirmar");
+      let porEliminar = null;
+      const abrirEliminar = (p) => {
+        if (!p) return;
+        porEliminar = p;
+        document.getElementById("eli-inmueble").textContent = `${p.titulo} · ${codigo(p.id)}`;
+        document.getElementById("eli-aviso").textContent = (p.publicado ? "Está publicado y dejará de verse en la página. " : "") +
+          "Se borran también sus fotos, novedades y documentos. Esto no se puede deshacer.";
+        abrirDialogo(dlgEli);
+      };
+      document.getElementById("eli-cancelar").addEventListener("click", () => dlgEli.close());
+      eliConfirmar.addEventListener("click", async () => {
+        const estado = dlgEli.querySelector(".form-estado");
+        estado.classList.remove("is-error");
+        estado.textContent = "Eliminando…";
+        eliConfirmar.disabled = true;
+        try {
+          await DATOS.eliminarInmueble(porEliminar);
+          await cargar();
+          dlgEli.close();
+        } catch (err) {
+          estado.classList.add("is-error");
+          estado.textContent = DATOS.mensajeError(err);
+        } finally {
+          eliConfirmar.disabled = false;
+        }
       });
 
       /* ---------- Editor de inmueble ---------- */

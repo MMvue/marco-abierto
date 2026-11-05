@@ -56,6 +56,7 @@ window.DATOS = (() => {
     if (/rate limit|too many/i.test(m)) return "Demasiados intentos seguidos. Espera un momento.";
     if (/PGRST205|schema cache|does not exist/i.test(m) || (e && e.code === "PGRST205")) return "La base de datos todavía no tiene las tablas: falta correr supabase/esquema.sql.";
     if (/no-encontrada/i.test(m)) return "No encontramos una cuenta con ese correo en este navegador (modo prueba).";
+    if (/no-eliminado/i.test(m)) return "No se pudo eliminar. Revisa que hayas entrado con la cuenta de administrador.";
     return "No pudimos completar la acción. Intenta de nuevo en un momento.";
   }
 
@@ -166,6 +167,30 @@ window.DATOS = (() => {
     // Modo prueba: imagen pequeña dentro del navegador
     const chica = await reducirImagen(archivo, 480);
     return new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(chica); });
+  }
+
+  // Borra un inmueble con sus novedades, documentos y vistas. Después intenta quitar sus fotos.
+  async function eliminarInmueble(inmueble) {
+    if (real) {
+      const cliente = await sb();
+      // Se pide la fila borrada: si los permisos lo impiden, Supabase no da error y simplemente no borra nada
+      const { data, error } = await cliente.from("inmuebles").delete().eq("id", inmueble.id).select("id");
+      if (error) throw error;
+      if (!data || !data.length) throw new Error("no-eliminado");
+      const MARCA = "/object/public/inmuebles/";
+      const rutas = [...(inmueble.fotos || []), inmueble.plano_url]
+        .filter((u) => u && u.includes(MARCA))
+        .map((u) => decodeURIComponent(u.split(MARCA)[1].split("?")[0]));
+      if (rutas.length) {
+        const { data: borradas, error: errorFotos } = await cliente.storage.from("inmuebles").remove(rutas);
+        if (errorFotos || !borradas || !borradas.length) console.warn("El inmueble se eliminó, pero quedaron fotos guardadas.", errorFotos);
+      }
+      return;
+    }
+    escribir("inmuebles", leer("inmuebles", []).filter((f) => f.id !== inmueble.id));
+    ["inmueble_eventos", "inmueble_documentos", "recorrido_vistas"].forEach((t) => {
+      escribir(t, leer(t, []).filter((f) => f.inmueble_id !== inmueble.id));
+    });
   }
 
   async function registrarVistaRecorrido(inmuebleId) {
@@ -283,7 +308,7 @@ window.DATOS = (() => {
   return {
     modo: real ? "supabase" : "prueba", RUTA_POR_ROL, nuevoId,
     guardar, listar, actualizar, upsert, borrar,
-    inmueblesPublicos, subirImagen, registrarVistaRecorrido, misInmuebles, resumenInmueble,
+    inmueblesPublicos, subirImagen, eliminarInmueble, registrarVistaRecorrido, misInmuebles, resumenInmueble,
     registrar, ingresar, sesion, salir, recuperarClave, mensajeError
   };
 })();
