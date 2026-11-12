@@ -148,6 +148,7 @@ const MA = (() => {
               <h2>Marco Abierto</h2>
               <p>Arriendo y venta de apartamentos en Medellín y el Valle de Aburrá, con recorrido 3D en cada inmueble.</p>
               <p style="margin-top:14px"><a class="enlace" href="https://wa.me/573053957570" target="_blank" rel="noopener">Escríbenos por WhatsApp</a></p>
+              <p style="margin-top:8px"><a class="enlace" href="https://www.instagram.com/marcoabiertoo/" target="_blank" rel="noopener">Síguenos en Instagram</a></p>
               <p style="margin-top:8px"><span class="marcador">Correo y dirección de oficina</span></p>
             </div>
             <div>
