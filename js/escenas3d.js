@@ -18,7 +18,8 @@ const hash = (s) => { let h = 2166136261; for (const c of String(s)) { h ^= c.ch
 
 function crearRender(caja, { sombras = false, alfa = true } = {}) {
   const r = new THREE.WebGLRenderer({ antialias: true, alpha: alfa, powerPreference: "high-performance" });
-  r.setPixelRatio(Math.min(devicePixelRatio || 1, tactil ? 1.5 : 1.75));
+  // Nitidez suficiente sin dibujar de más (el valle tiene miles de edificios)
+  r.setPixelRatio(Math.min(devicePixelRatio || 1, tactil ? 1.25 : 1.5));
   r.outputColorSpace = THREE.SRGBColorSpace;
   r.toneMapping = THREE.ACESFilmicToneMapping;
   r.toneMappingExposure = 1.0;
@@ -75,9 +76,20 @@ function textura(ancho, alto, dibujar, color = true) {
 /* =========================================================
    EL VALLE DE ABURRÁ
    ========================================================= */
+// El armado del valle es mucho cálculo (relieve, miles de edificios y luces). Se reparte en pedacitos
+// de unos 8 ms y entre uno y otro el navegador atiende el scroll: así la página nunca se congela.
+const ceder = () => new Promise((ok) => (window.scheduler && scheduler.yield ? scheduler.yield().then(ok) : setTimeout(ok, 0)));
+function repartidor() {
+  let t0 = performance.now();
+  return async () => { if (performance.now() - t0 > 8) { await ceder(); t0 = performance.now(); } };
+}
+
 export async function valle(caja) {
   // Espera a que la portada tenga lista la lista de zonas y el detalle
   if (!window.VALLE) await new Promise((ok) => addEventListener("valle:listo", ok, { once: true }));
+  // y a que la entrada de la portada termine: el valle está más abajo y no corre prisa
+  await new Promise((ok) => (window.requestIdleCallback ? requestIdleCallback(ok, { timeout: 2500 }) : setTimeout(ok, 1200)));
+  const pausa = repartidor();
   const V = window.VALLE;
 
   let render;
@@ -131,6 +143,12 @@ export async function valle(caja) {
   const cosG = Math.cos(GIRO), sinG = Math.sin(GIRO);
   const MANZANA = 0.16, CALLE = 0.035;
   const zonasXZ = window.ZONAS.map((z) => [X(z.lng), Z(z.lat)]);
+  // Distancia a la zona más cercana (sin crear listas en cada punto: se llama decenas de miles de veces)
+  const cercaDeZona = (x, z) => {
+    let m = Infinity;
+    for (const [zx, zz] of zonasXZ) { const d = Math.hypot(zx - x, zz - z); if (d < m) m = d; }
+    return m;
+  };
 
   /* ---------- Relieve ---------- */
   // La ciudad ocupa 30 × 40 unidades; el terreno llega mucho más lejos para que las montañas
@@ -142,12 +160,13 @@ export async function valle(caja) {
   const colores = new Float32Array(pos.count * 3);
   const urbano = new Float32Array(pos.count);
   for (let i = 0; i < pos.count; i++) {
+    if ((i & 255) === 0) await pausa();
     const u = pos.getX(i), v = pos.getZ(i);
     const x = u * 17 + u * u * u * 33, z = v * 22 + v * v * v * 33;   // mitad: 50 × 55 unidades
     pos.setXYZ(i, x, altura(x, z), z);
     // Qué tan urbano es el suelo: el fondo del valle cerca de las zonas
     const [d, w] = alRio(x, z);
-    const cercaZ = Math.min(...zonasXZ.map(([zx, zz]) => Math.hypot(zx - x, zz - z)));
+    const cercaZ = cercaDeZona(x, z);
     urbano[i] = acotar((0.98 - d / w) / 0.2) * acotar(0.25 + Math.exp(-cercaZ / 2.6)) * (d > 0.14 ? 1 : 0);
   }
   geo.computeVertexNormals();
@@ -156,7 +175,9 @@ export async function valle(caja) {
   const TONOS = [[0, "#15161a"], [0.5, "#1a1c21"], [1.3, "#202329"], [2.4, "#272a31"], [3.6, "#30343c"], [5.2, "#3b3f48"], [7, "#474c56"]].map(([h, c]) => [h, new THREE.Color(c)]);
   const c = new THREE.Color();
   const nor = geo.attributes.normal;
+  await pausa();
   for (let i = 0; i < pos.count; i++) {
+    if ((i & 1023) === 0) await pausa();
     const x = pos.getX(i), h = pos.getY(i), z = pos.getZ(i);
     let k = 1;
     while (k < TONOS.length - 1 && h > TONOS[k][0]) k++;
@@ -246,12 +267,13 @@ export async function valle(caja) {
   const R = Math.ceil(26 / MANZANA);
   const densidad = tactil ? 0.55 : 1;
   for (let i = -R; i <= R; i++) for (let j = -R; j <= R; j++) {
+    if (j === -R) await pausa();
     const uc = i * MANZANA + CALLE + LOTE, vc = j * MANZANA + CALLE + LOTE;
     const cx = uc * cosG - vc * sinG, cz = uc * sinG + vc * cosG;
     if (Math.abs(cx) > ANCHO_T * 0.46 || Math.abs(cz) > LARGO_T * 0.46) continue;
     const [d, w] = alRio(cx, cz);
     if (d / w > 0.97 || d < 0.2) continue;
-    const cerca = Math.min(...zonasXZ.map(([zx, zz]) => Math.hypot(zx - cx, zz - cz)));
+    const cerca = cercaDeZona(cx, cz);
     if (azar() > (0.12 + 0.88 * Math.exp(-cerca / 2.4)) * densidad) continue;
     const dc = Math.hypot(CENTRO[0] - cx, CENTRO[1] - cz), dp = Math.hypot(POBLADO[0] - cx, POBLADO[1] - cz);
     const torre = 0.08 + 0.55 * Math.exp(-dc / 1.6) + 0.5 * Math.exp(-dp / 1.2) + 0.12 * Math.exp(-cerca / 1.2);
@@ -269,6 +291,7 @@ export async function valle(caja) {
   // Barrios que suben por las laderas: casas bajas de ladrillo, sin cuadrícula
   const EN_LADERA = tactil ? 1800 : 3500;
   for (let k = 0, puestas = 0; puestas < EN_LADERA && k < EN_LADERA * 30; k++) {
+    if ((k & 511) === 0) await pausa();
     const x = (azar() - 0.5) * ANCHO_T * 0.92, z = (azar() - 0.5) * LARGO_T * 0.92;
     const [d, w] = alRio(x, z);
     const r = d / w;
@@ -290,6 +313,7 @@ export async function valle(caja) {
   const pl = [], cl = [];
   const SODIO = new THREE.Color("#ffb05a"), LED = new THREE.Color("#fff1e6");
   for (let i = 0, k = 0; i < NL && k < NL * 30; k++) {
+    if ((k & 511) === 0) await pausa();
     let x = (azar() - 0.5) * ANCHO_T * 0.92, z = (azar() - 0.5) * LARGO_T * 0.92;
     const [d, w] = alRio(x, z);
     const r = d / w;
@@ -327,7 +351,11 @@ export async function valle(caja) {
     }
     return t;
   };
-  const carriles = [carril(0.13), carril(-0.13)];
+  await pausa();
+  const carriles = [carril(0.13)];
+  await pausa();
+  carriles.push(carril(-0.13));
+  await pausa();
   const NC = tactil ? 220 : 380;
   const carros = Array.from({ length: NC }, (_, i) => ({ l: i % 2, u: azar(), v: (0.008 + azar() * 0.006) * (i % 2 ? -1 : 1) }));
   const pc = new Float32Array(NC * 3), cc2 = new Float32Array(NC * 3);
@@ -487,13 +515,15 @@ export async function valle(caja) {
     const r = caja.getBoundingClientRect();
     tiltMeta = reducido ? 1 : acotar((innerHeight - r.top) / (innerHeight * 0.9 + r.height * 0.4));
   };
-  addEventListener("scroll", medirScroll, { passive: true });
+  // Se mide dentro de cada cuadro (y solo mientras el valle se ve), no en cada evento de scroll
   medirScroll();
   tilt = tiltMeta;
 
+  let ancho = caja.clientWidth, alto = caja.clientHeight;
   const medir = () => {
     const w = caja.clientWidth, h = caja.clientHeight;
     if (!w || !h) return;
+    ancho = w; alto = h;
     render.setSize(w, h, false);
     camara.aspect = w / h;
     camara.updateProjectionMatrix();
@@ -503,8 +533,13 @@ export async function valle(caja) {
 
   const v = new THREE.Vector3();
   let antes = performance.now();
+  let firmaEtiquetas = "";
   function cuadro(ahora) {
     if (!visible) { corriendo = false; return; }
+    requestAnimationFrame(cuadro);
+    // Para los carros y el metro bastan 30 cuadros por segundo: deja la mitad del tiempo libre para el scroll.
+    // Los vuelos hacia una zona sí van a 60.
+    if (!vuelo && !saliendo && ahora - antes < 1000 / 30 - 4) return;
     const dt = Math.min(0.1, (ahora - antes) / 1000);
     antes = ahora;
 
@@ -525,7 +560,8 @@ export async function valle(caja) {
       actual.radio *= 0.993;                       // sigue entrando mientras aparece el fundido
     } else {
       // En la vista general, la inclinación sigue al scroll
-      tilt += (tiltMeta - tilt) * 0.08;
+      medirScroll();
+      tilt += (tiltMeta - tilt) * 0.14;
       const e = suavizar(tilt);
       const vista = VISTA();
       actual = { objetivo: centro.clone(), radio: mezclar(48, vista.radio, e), pol: mezclar(0.15, vista.pol, e), az: mezclar(-0.1, vista.az, e) };
@@ -552,11 +588,17 @@ export async function valle(caja) {
     });
 
     render.render(escena, camara);
+    if (!caja.classList.contains("is-lista")) caja.classList.add("is-lista");
 
     // Etiquetas sobre los pines (se esconden durante el zoom).
     // Su lugar no depende de cuál está elegida: altura fija (la del pin crecido) y orden fijo al repartirlas,
     // para que pasar el mouse por una no mueva a las demás.
-    const w = caja.clientWidth, h = caja.clientHeight;
+    // Si la cámara no se movió, las etiquetas siguen donde estaban: no se tocan
+    const w = ancho, h = alto;
+    const cp = camara.position;
+    const firma = `${cp.x.toFixed(3)},${cp.y.toFixed(3)},${cp.z.toFixed(3)},${w},${h},${elegida},${!!saliendo}`;
+    if (firma === firmaEtiquetas) return;
+    firmaEtiquetas = firma;
     const puestas = [];
     [...pines.entries()]
       .map(([nombre, pin], i) => {
@@ -582,12 +624,11 @@ export async function valle(caja) {
         el.classList.toggle("is-elegida", p.nombre === elegida);
         puestas.push({ x, y, w: ew, h: eh });
       });
-
-    requestAnimationFrame(cuadro);
   }
   let visible = false, corriendo = false;
-  cuandoVisible(caja, (si) => { visible = si; if (si && !corriendo) { corriendo = true; antes = performance.now(); requestAnimationFrame(cuadro); } }, "1000px");
+  // Solo se anima cuando está en pantalla (o a punto de entrar)
+  cuandoVisible(caja, (si) => { visible = si; if (si && !corriendo) { corriendo = true; antes = performance.now() - 100; requestAnimationFrame(cuadro); } }, "150px");
   // Primer cuadro por adelantado, para que el valle no congele la página al llegar con el scroll
-  precalentar(render, escena, camara, () => { if (!corriendo) render.render(escena, camara); });
+  precalentar(render, escena, camara, () => { if (!corriendo) { render.render(escena, camara); caja.classList.add("is-lista"); } });
   return true;
 }

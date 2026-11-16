@@ -12,6 +12,36 @@ const MA = (() => {
   const reducido = matchMedia("(prefers-reduced-motion: reduce)");
   const punteroFino = matchMedia("(hover: hover) and (pointer: fine)");
 
+  /* ---------- Maqueta 3D de cada inmueble (js/maqueta3d.js, con Three.js) ----------
+     Se carga la primera vez que hace falta. Mientras llega, o si el navegador
+     no puede con 3D, se ve el dibujo plano (modeloSVG), que siempre se pinta primero.
+     La página necesita el importmap de Three.js en el <head>. */
+  const ESTILO_MAQUETA = "real"; // "real" (materiales), "blanca" (de arquitecto) o "marca" (grafito y luz)
+  const urlMaqueta = new URL("maqueta3d.js", document.currentScript.src).href;
+  let cargaMaqueta = null;
+  const motorMaqueta = () => cargaMaqueta || (cargaMaqueta = import(urlMaqueta).then((m) => (m.hay3D() ? m : null)).catch(() => null));
+  // Medidas: las reales cuando se tomen en el inmueble; en los ejemplos, las de la maqueta
+  const medidasDe = (p) => p.medidas || !!p.ejemplo;
+  const maquetasVivas = new Set();
+
+  // Pone la maqueta encima del dibujo plano de la caja. Devuelve null si no se pudo.
+  async function maquetaEn(caja, p, opciones = {}) {
+    const m = await motorMaqueta();
+    for (const x of maquetasVivas) if (!x.hueco.isConnected) { x.destruir(); maquetasVivas.delete(x); }
+    if (!m || !caja.isConnected) return null;
+    const hueco = document.createElement("div");
+    const plano = caja.querySelector(":scope > [data-modelo]");
+    if (plano) plano.after(hueco); else caja.prepend(hueco);
+    const mq = m.montarMaqueta(hueco, p, {
+      estilo: ESTILO_MAQUETA, medidas: medidasDe(p), ...opciones,
+      alListo: () => { caja.classList.add("con-maqueta"); if (opciones.alListo) opciones.alListo(); }
+    });
+    if (!mq) { hueco.remove(); return null; }
+    mq.hueco = hueco;
+    maquetasVivas.add(mq);
+    return mq;
+  }
+
   /* ---------- Íconos literales ---------- */
   const ICONOS = {
     casa: '<path d="M3 11 12 3l9 8"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>',
@@ -148,7 +178,6 @@ const MA = (() => {
               <h2>Marco Abierto</h2>
               <p>Arriendo y venta de apartamentos en Medellín y el Valle de Aburrá, con recorrido 3D en cada inmueble.</p>
               <p style="margin-top:14px"><a class="enlace" href="https://wa.me/573053957570" target="_blank" rel="noopener">Escríbenos por WhatsApp</a></p>
-              <p style="margin-top:8px"><span class="marcador">Correo y dirección de oficina</span></p>
             </div>
             <div>
               <h2>Buscar</h2>
@@ -164,8 +193,7 @@ const MA = (() => {
                 <li><a href="ingreso.html?modo=registro&amp;rol=propietario">Crear cuenta de propietario</a></li>
                 <li><a href="propietarios.html">Cómo trabajamos</a></li>
                 <li><a href="propietarios.html#publicar">Publicar inmueble</a></li>
-                <li><a href="panel.html">Panel del propietario</a></li>
-                <li><a href="socio.html">Panel del socio referidor</a></li>
+                <li><a href="propietarios.html#socios">Socios referidores</a></li>
               </ul>
             </div>
             <div>
@@ -181,7 +209,7 @@ const MA = (() => {
           </div>
           <div class="pie__legal">
             <p>Tratamos tus datos personales según la Ley 1581 de 2012 y la Ley 1266 de 2008. Puedes conocer, actualizar, rectificar o pedir que eliminemos tus datos en cualquier momento: <a class="enlace" href="privacidad.html#derechos">así se hace</a>.</p>
-            <p><span class="marcador">Razón social y NIT</span> · © ${new Date().getFullYear()} Marco Abierto</p>
+            <p>© ${new Date().getFullYear()} Marco Abierto</p>
           </div>
         </div>
       </footer>`;
@@ -313,19 +341,19 @@ const MA = (() => {
 
   function visorHTML(p, { titulo = true } = {}) {
     const id = `v${++contadorVisores}`;
+    registro.set(String(p.id), p);
     const fotosOk = (p.fotos || []).map(urlSegura).filter(Boolean);
     const fotos = fotosOk.length
-      ? fotosOk.map((src, i) => `<figure class="visor__foto"><img src="${src}" alt="${esc(p.titulo)}, foto ${i + 1} de ${fotosOk.length}" loading="lazy" decoding="async"></figure>`).join("")
+      // Cada foto se ve completa (sin recortes); detrás va ella misma difuminada para llenar el espacio
+      ? fotosOk.map((src, i) => `<figure class="visor__foto"><img class="visor__foto-fondo" src="${src}" alt="" aria-hidden="true" loading="lazy" decoding="async"><img class="visor__foto-img" src="${src}" alt="${esc(p.titulo)}, foto ${i + 1} de ${fotosOk.length}" loading="lazy" decoding="async"></figure>`).join("")
       : FOTOS_PENDIENTES.map((f) => `<figure class="visor__foto foto-vacia">${icono("foto")}<span><strong>Foto real pendiente</strong><br>${f}</span></figure>`).join("");
     const totalFotos = fotosOk.length || FOTOS_PENDIENTES.length;
 
     // Miniatura de la pestaña de fotos: en celular se ve el ícono; en pantallas anchas, la primera foto
     const miniFotos = icono("foto") + (fotosOk[0] ? `<img src="${fotosOk[0]}" alt="" loading="lazy">` : "");
 
-    // Mientras carga el recorrido se ve una portada: la primera foto o el modelo ilustrativo
-    const portada = fotosOk[0]
-      ? `<img class="visor__portada" src="${fotosOk[0]}" alt="" decoding="async">`
-      : `<div class="visor__modelo" tabindex="0" aria-label="Vista previa ilustrativa. Usa las flechas para girar">${modeloSVG(p)}</div>`;
+    // El 3D va primero siempre: mientras carga el recorrido se ve la maqueta del apartamento
+    const portada = `<div class="visor__modelo" tabindex="0" aria-label="Maqueta ilustrativa. Arrastra o usa las flechas para girarla">${modeloSVG(p)}</div>`;
     const tour = urlSegura(p.tour);
     const panel3d = tour
       ? `${portada}
@@ -333,13 +361,15 @@ const MA = (() => {
       : `${portada}
          <div class="visor__nota">
            ${p.ejemplo ? "" : '<span class="pastilla pastilla--oscura">Recorrido 3D en preparación</span>'}
-           ${fotosOk[0] ? "" : `<span class="pastilla pastilla--oscura">${icono("girar")}Arrastra para girar</span>`}
+           <span class="pastilla pastilla--oscura">${icono("girar")}Arrastra para girar</span>
          </div>`;
 
     return `<div class="visor" data-visor data-inmueble="${esc(p.id)}">
       <div class="visor__escena">
         <div class="visor__sup">
-          ${tour || p.ejemplo ? `<span class="pastilla">${icono("cubo")}3D</span>` : "<span></span>"}
+          ${tour || p.ejemplo ? `<span class="pastilla">${icono("cubo")}3D</span>` : ""}
+          <p class="visor__info"><strong>${esc(p.titulo)}</strong><span>${precioHTML(p)}</span></p>
+          <button class="visor__ampliar" type="button" data-completo aria-label="Ver en pantalla completa">${icono("expandir")}<span class="solo-ancho">Ampliar</span></button>
         </div>
         <div class="visor__panel" role="tabpanel" id="${id}-3d" aria-labelledby="${id}-t3d">${panel3d}</div>
         <div class="visor__panel visor__galeria" role="tabpanel" id="${id}-fotos" aria-labelledby="${id}-tfotos" hidden>
@@ -353,7 +383,6 @@ const MA = (() => {
         <span class="visor__indicador" aria-hidden="true"></span>
         <button class="visor__tab" role="tab" id="${id}-t3d" aria-controls="${id}-3d" aria-selected="true"><span class="visor__mini visor__mini--3d" aria-hidden="true">${icono("cubo")}</span><span><span class="solo-ancho">Recorrido&nbsp;</span>3D</span></button>
         <button class="visor__tab" role="tab" id="${id}-tfotos" aria-controls="${id}-fotos" aria-selected="false" tabindex="-1"><span class="visor__mini visor__mini--fotos" aria-hidden="true">${miniFotos}</span><span>Fotos <small class="solo-ancho">${totalFotos}</small></span></button>
-        <button class="visor__tab visor__tab--accion" type="button" data-completo aria-label="Ver en pantalla completa">${icono("expandir")}</button>
       </div>
     </div>`;
   }
@@ -377,6 +406,8 @@ const MA = (() => {
         panel.hidden = !si;
         if (si) { panel.classList.remove("is-entrando"); void panel.offsetWidth; panel.classList.add("is-entrando"); }
       });
+      // Con las fotos, el marco inclinado se endereza para que ninguna quede cortada
+      raiz.classList.toggle("is-fotos", tab.getAttribute("aria-controls").endsWith("-fotos"));
       moverIndicador();
     };
     if (indicador) {
@@ -418,17 +449,43 @@ const MA = (() => {
       });
     });
 
-    // Pantalla completa: clase propia (funciona también en iPhone)
+    // Pantalla completa: clase propia (funciona también en iPhone, que no deja poner elementos en pantalla completa).
+    // La ventana crece desde donde está hasta llenar la pantalla, y al cerrar vuelve a su lugar.
     const btn = raiz.querySelector("[data-completo]");
-    const alternar = (si) => {
+    const escena = raiz.querySelector(".visor__escena");
+    const cambiar = (si) => {
       raiz.classList.toggle("is-completo", si);
-      raiz.classList.toggle("is-abriendo", si);
       document.body.classList.toggle("sin-scroll", si);
-      btn.innerHTML = icono(si ? "contraer" : "expandir");
+      btn.innerHTML = icono(si ? "cerrar" : "expandir") + `<span class="solo-ancho">${si ? "Cerrar" : "Ampliar"}</span>`;
       btn.setAttribute("aria-label", si ? "Salir de pantalla completa" : "Ver en pantalla completa");
     };
-    btn.addEventListener("click", () => alternar(!raiz.classList.contains("is-completo")));
-    raiz.addEventListener("keydown", (e) => { if (e.key === "Escape" && raiz.classList.contains("is-completo")) { alternar(false); btn.focus(); } });
+    let vt = null, abierto = false;
+    const alternar = (si) => {
+      if (si === abierto) return;
+      abierto = si;
+      if (vt) vt.skipTransition(); // si la anterior no ha terminado, se completa al instante
+      if (!document.startViewTransition || reducido.matches) {
+        cambiar(si);
+        if (si && !reducido.matches) raiz.classList.add("is-abriendo");
+        return;
+      }
+      escena.style.viewTransitionName = "visor-ampliado";
+      document.documentElement.classList.add("vt-ampliar");
+      const esta = vt = document.startViewTransition(() => cambiar(si));
+      esta.finished.finally(() => {
+        if (vt !== esta) return;
+        vt = null;
+        escena.style.viewTransitionName = "";
+        document.documentElement.classList.remove("vt-ampliar");
+      });
+    };
+    btn.addEventListener("click", () => alternar(!abierto));
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || !abierto) return;
+      e.preventDefault(); // dentro de la vista rápida, Esc cierra primero la pantalla completa y no la hoja
+      alternar(false);
+      btn.focus();
+    });
     raiz.addEventListener("animationend", () => raiz.classList.remove("is-abriendo"));
 
     // Recorrido real: el iframe solo se crea cuando la persona lo pide
@@ -446,22 +503,25 @@ const MA = (() => {
       });
     });
 
-    // Girar la vista previa con el dedo, el mouse o las flechas
+    // Girar la maqueta con el dedo, el mouse o las flechas
     const caja = raiz.querySelector(".visor__modelo");
     const svg = caja && caja.querySelector("[data-modelo]");
     if (!svg) return;
+    let mq = null; // la maqueta 3D, cuando llega; mientras tanto gira el dibujo plano
     girarModelo(svg, 10);
     // En la portada el modelo gira cuando el vidrio del marco ya se corrió
     const espera = raiz.closest(".visor-marco") && !reducido.matches ? 1500 : 0;
-    setTimeout(() => animarGiro(svg, 10, 38, 1300), espera);
+    const t0 = performance.now();
+    const giroPlano = setTimeout(() => animarGiro(svg, 10, 38, 1300), espera);
     let x0 = null, a0 = 0;
     caja.addEventListener("pointerdown", (e) => {
+      if (mq) return;
       x0 = e.clientX; a0 = Number(svg.dataset.angulo) || 0;
       cancelAnimationFrame(svg._raf);
       caja.setPointerCapture(e.pointerId);
     });
     caja.addEventListener("pointermove", (e) => {
-      if (x0 === null) return;
+      if (x0 === null || mq) return;
       girarModelo(svg, a0 + (e.clientX - x0) * 0.45);
     });
     const soltar = () => { x0 = null; };
@@ -471,8 +531,30 @@ const MA = (() => {
       const d = e.key === "ArrowRight" ? 15 : e.key === "ArrowLeft" ? -15 : 0;
       if (!d) return;
       e.preventDefault();
+      if (mq) { mq.ir({ ang: mq.estado.ang + d }, 300); return; }
       const a = Number(svg.dataset.angulo) || 0;
       animarGiro(svg, a, a + d, 300);
+    });
+
+    const p = registro.get(raiz.dataset.inmueble);
+    if (!p) return;
+    // Si se llegó tocando una tarjeta, la maqueta entra con las luces encendidas y luego amanece
+    let encendida = false;
+    try {
+      encendida = sessionStorage.getItem("maqueta-encendida") === String(p.id);
+      if (encendida) sessionStorage.removeItem("maqueta-encendida");
+    } catch { /* sin almacenamiento: entra de día */ }
+    maquetaEn(caja, p, { angulo: 10, arrastrar: true, corrimiento: 0 }).then((m) => {
+      if (!m) return;
+      mq = m;
+      clearTimeout(giroPlano);
+      cancelAnimationFrame(svg._raf);
+      if (encendida) { m.ir({ luz: 1 }, 0); raiz.classList.add("is-encendida"); }
+      const resta = Math.max(0, espera - (performance.now() - t0));
+      setTimeout(() => {
+        m.ir({ ang: 38 }, 1700);
+        if (encendida) setTimeout(() => { m.ir({ luz: 0 }, 1500); raiz.classList.remove("is-encendida"); }, 900);
+      }, resta);
     });
   }
 
@@ -492,19 +574,19 @@ const MA = (() => {
 
   function tarjetaHTML(p, i = 0) {
     registro.set(String(p.id), p);
-    const foto = urlSegura((p.fotos || [])[0]);
     const con3d = p.tour || p.ejemplo;
     const url = `inmueble.html?id=${encodeURIComponent(p.id)}`;
+    // El 3D es la cara de la tarjeta aunque haya fotos (las fotos están dentro del inmueble).
     // --n escalona la entrada de las tarjetas cuando se pintan
-    return `<article class="tarjeta" style="--n:${(Number(i) || 0) % 3}">
+    return `<article class="tarjeta" data-id="${esc(p.id)}" style="--n:${(Number(i) || 0) % 3}">
       <div class="tarjeta__media" data-tono="${TONOS[anguloDe(p.id) % TONOS.length]}">
-        ${foto ? `<img class="tarjeta__foto" src="${foto}" alt="" loading="lazy" decoding="async">` : modeloSVG(p).replace("data-modelo", `data-modelo data-base="${anguloDe(p.id)}"`)}
+        ${modeloSVG(p).replace("data-modelo", `data-modelo data-base="${anguloDe(p.id)}"`)}
         <span class="tarjeta__vidrio" aria-hidden="true"></span>
         <span class="tarjeta__chips">
           ${con3d ? `<span class="pastilla">${icono("cubo")}3D</span>` : ""}
           <span class="pastilla pastilla--clara">${OPERACION[p.operacion]}</span>
         </span>
-        <button class="tarjeta__rapida" type="button" data-vista-rapida="${esc(p.id)}">${icono("ojo")}<span>Vista rápida</span></button>
+        <button class="tarjeta__rapida" type="button" data-vista-rapida="${esc(p.id)}" aria-label="Vista rápida" title="Vista rápida">${icono("ojo")}</button>
       </div>
       <div class="tarjeta__cuerpo">
         <p class="tarjeta__precio">${precioHTML(p)}</p>
@@ -515,9 +597,14 @@ const MA = (() => {
     </article>`;
   }
 
-  // Las tarjetas giran su modelo desde su propio ángulo: al pasar el mouse, o una vez al aparecer en celular
-  function activarTarjetas(raiz = document) {
-    const tarjetas = [...raiz.querySelectorAll(".tarjeta")];
+  /* Tarjetas con maqueta 3D:
+     - con el mouse encima se encienden las luces y la cámara se acerca un poco
+     - al tocarlas, la maqueta se ilumina y la página entra al apartamento
+     - giro: en la portada (pocas tarjetas, una fila) la maqueta gira una vez al llegar;
+       en el buscador se quedan quietas para no cansar */
+  function activarTarjetas(raiz = document, { giro = false } = {}) {
+    const tarjetas = [...raiz.querySelectorAll(".tarjeta")].filter((t) => !t._activa);
+    tarjetas.forEach((t) => { t._activa = true; });
     // Entran a la vista con un pequeño ascenso (ver .tarjeta.is-vista en el CSS)
     if ("IntersectionObserver" in window) {
       const ioVista = new IntersectionObserver((entradas) => {
@@ -525,6 +612,69 @@ const MA = (() => {
       }, { rootMargin: "0px 0px -8% 0px" });
       tarjetas.forEach((t) => ioVista.observe(t));
     } else tarjetas.forEach((t) => t.classList.add("is-vista"));
+    const base = (t) => Number(t.querySelector("[data-modelo]").dataset.base) || 35;
+    // El dibujo plano espera quieto en su ángulo mientras llega la maqueta
+    tarjetas.forEach((t) => girarModelo(t.querySelector("[data-modelo]"), base(t)));
+    motorMaqueta().then((m) => {
+      if (!m) { tarjetasPlanas(tarjetas); return; }
+      const llegada = giro && !reducido.matches && "IntersectionObserver" in window ? new IntersectionObserver((es) => {
+        for (const e of es) {
+          if (!e.isIntersecting || !e.target._maqueta) continue;
+          llegada.unobserve(e.target);
+          e.target._maqueta.ir({ ang: base(e.target) }, 1700);
+        }
+      }, { threshold: 0.6 }) : null;
+      tarjetas.forEach(async (t) => {
+        const p = registro.get(t.dataset.id);
+        if (!p) return;
+        const b = base(t);
+        const mq = await maquetaEn(t.querySelector(".tarjeta__media"), p, { base: b, angulo: llegada ? b - 26 : b });
+        if (!mq) return;
+        t._maqueta = mq;
+        if (llegada) llegada.observe(t);
+        t.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") encenderTarjeta(t, true); });
+        t.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse" && !t._abriendo) encenderTarjeta(t, false); });
+      });
+    });
+  }
+
+  function encenderTarjeta(t, si) {
+    if (!t._maqueta) return;
+    t.classList.toggle("is-encendida", si);
+    t._maqueta.ir({ luz: si ? 1 : 0, zoom: si ? 1 : 0 }, { luz: si ? 560 : 460, zoom: si ? 950 : 650 });
+  }
+
+  // Al tocar la tarjeta: se encienden las luces y, ya iluminada, se entra al apartamento
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest(".tarjeta__enlace");
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const t = a.closest(".tarjeta");
+    if (!t || !t._maqueta || reducido.matches) return;
+    e.preventDefault();
+    if (t._abriendo) return;
+    t._abriendo = true;
+    const yaEncendida = t._maqueta.estado.luz > 0.6;
+    encenderTarjeta(t, true);
+    try { sessionStorage.setItem("maqueta-encendida", t.dataset.id); } catch { /* entra de día */ }
+    setTimeout(() => {
+      // Solo esta maqueta participa de la transición: crece y se funde mientras llega la página
+      t.querySelector(".tarjeta__media").style.viewTransitionName = "maqueta-abre";
+      location.href = a.href;
+    }, yaEncendida ? 160 : 600);
+  });
+
+  // Al volver con "atrás" la página sale de la memoria tal como quedó: se apagan las luces
+  addEventListener("pageshow", (e) => {
+    if (!e.persisted) return;
+    document.querySelectorAll(".tarjeta").forEach((t) => {
+      t._abriendo = false;
+      t.querySelector(".tarjeta__media").style.viewTransitionName = "";
+      encenderTarjeta(t, false);
+    });
+  });
+
+  // Sin 3D: el dibujo plano gira desde su propio ángulo al pasar el mouse, o una vez al aparecer en celular
+  function tarjetasPlanas(tarjetas) {
     const base = (svg) => Number(svg.dataset.base) || 35;
     const io = "IntersectionObserver" in window ? new IntersectionObserver((entradas) => {
       for (const e of entradas) {
@@ -900,11 +1050,13 @@ const MA = (() => {
     els.forEach((el) => io.observe(el));
   }
 
-  /* ---------- Scroll suave (solo computador con mouse y sin "reducir movimiento") ----------
-     Lenis mueve el scroll nativo con inercia: los efectos que escuchan el scroll siguen funcionando.
-     Dentro de diálogos y listas desplegables el scroll queda normal. */
+  /* ---------- Scroll suave (apagado) ----------
+     Lenis movía el scroll con inercia desde JavaScript; eso lo ataba al mismo hilo que las escenas 3D
+     y se trababa. El scroll propio del navegador corre aparte y siempre va fluido.
+     Para volver a encenderlo: SCROLL_SUAVE = true. */
+  const SCROLL_SUAVE = false;
   function activarScrollSuave() {
-    if (reducido.matches || !punteroFino.matches || window.lenis) return;
+    if (!SCROLL_SUAVE || reducido.matches || !punteroFino.matches || window.lenis) return;
     const s = document.createElement("script");
     s.src = "https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js";
     s.onload = () => {
@@ -935,5 +1087,5 @@ const MA = (() => {
     marcarSesion();
   }
 
-  return { norm, buscarLugares, autocompletar, esc, urlSegura, enviarFormulario, filaDe, icono, precioHTML, specsHTML, OPERACION, lugar, modeloSVG, girarModelo, visorHTML, activarVisor, tarjetaHTML, activarTarjetas, activarApariciones, iniciar };
+  return { norm, buscarLugares, autocompletar, esc, urlSegura, enviarFormulario, filaDe, icono, precioHTML, specsHTML, OPERACION, lugar, modeloSVG, girarModelo, maquetaEn, visorHTML, activarVisor, tarjetaHTML, activarTarjetas, activarApariciones, iniciar };
 })();

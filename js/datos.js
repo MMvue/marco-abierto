@@ -123,7 +123,8 @@ window.DATOS = (() => {
     metro: f.metro || null, habitaciones: f.habitaciones, banos: f.banos, parqueadero: !!f.parqueadero || Number(f.parqueaderos) > 0,
     area: f.area ? Number(f.area) : null, precio: f.precio ? Number(f.precio) : null,
     admin: f.administracion ? Number(f.administracion) : null, estrato: f.estrato || null,
-    tour: f.tour_url || null, fotos: f.fotos || [], descripcion: f.descripcion || null
+    tour: f.tour_url || null, fotos: f.fotos || [], descripcion: f.descripcion || null,
+    medidas: f.medidas || null // medidas reales de cada cuarto (ver js/maqueta3d.js), cuando se tomen
   });
 
   // Lo que ve el público. Si todavía no hay nada publicado, se muestran los ejemplos de propiedades.js

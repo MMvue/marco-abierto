@@ -289,8 +289,11 @@ button, [role="button"], [role="tab"], .boton, .chip {
   scrollbar-width: none; touch-action: pan-x pan-y;
 }
 .visor__fotos::-webkit-scrollbar { display: none; }
-.visor__foto { margin: 0; scroll-snap-align: start; scroll-snap-stop: always; min-width: 0; }
-.visor__foto img { width: 100%; height: 100%; object-fit: cover; }
+.visor__foto { position: relative; margin: 0; scroll-snap-align: start; scroll-snap-stop: always; min-width: 0; overflow: hidden; }
+/* La foto entera, sin recortes (sirve igual para fotos horizontales y verticales) */
+.visor__foto img { position: relative; display: block; width: 100%; height: 100%; object-fit: contain; }
+/* Detrás, la misma foto difuminada llena el espacio que sobra: sin franjas negras */
+.visor__foto .visor__foto-fondo { position: absolute; inset: 0; object-fit: cover; filter: blur(22px) brightness(0.5) saturate(1.15); transform: scale(1.15); }
 .visor__contador { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); margin: 0; font-variant-numeric: tabular-nums; }
 .visor__flecha {
   position: absolute; top: 50%; z-index: 2; width: 48px; height: 48px; margin-top: -24px;
@@ -304,9 +307,6 @@ button, [role="button"], [role="tab"], .boton, .chip {
 .visor__flecha--ant .icono { transform: rotate(180deg); }
 .visor__flecha--sig { right: 14px; }
 @media (hover: hover) and (pointer: fine) { .visor__flecha { display: grid; } }
-.visor-marco .visor__flecha--ant { left: 12%; }
-.visor-marco .visor__flecha--sig { right: 12%; }
-.visor-marco .visor__contador { bottom: 9%; }
 .foto-vacia {
   display: grid; place-items: center; align-content: center; text-align: center; gap: 10px; padding: 16px;
   background: var(--grafito-2); color: rgba(255, 255, 255, 0.9);
@@ -314,20 +314,62 @@ button, [role="button"], [role="tab"], .boton, .chip {
 }
 .foto-vacia .icono { width: 40px; height: 40px; color: var(--luz); stroke-width: 1.4; }
 
-/* Pantalla completa (sirve también en iPhone, que no permite fullscreen de elementos) */
+/* Arriba de la ventana: la pastilla 3D a la izquierda y el botón de ampliar a la derecha */
+.visor__sup { pointer-events: none; }
+.visor__sup > * { pointer-events: auto; }
+.visor__info { display: none; }
+.visor__ampliar {
+  margin-left: auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-width: 40px; height: 40px; padding: 0 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(22, 24, 29, 0.58); color: var(--blanco); font: inherit; font-weight: 700; font-size: 0.85rem;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  transition: background-color var(--t-hover) ease, transform var(--t-press) var(--ease-out);
+}
+.visor__ampliar .icono { width: 18px; height: 18px; }
+.visor__ampliar:active { transform: scale(0.95); }
+@media (hover: hover) and (pointer: fine) { .visor__ampliar:hover { background: rgba(22, 24, 29, 0.85); } }
+@media (max-width: 479px) { .visor__ampliar { padding: 0; width: 40px; } }
+
+/* Pantalla completa (sirve también en iPhone, que no permite poner elementos en pantalla completa).
+   La misma ventana con filo de luz, ahora del tamaño de la pantalla, sobre grafito con un resplandor cálido;
+   las pestañas flotan abajo y arriba van el nombre y el precio */
 .visor.is-completo {
   position: fixed; inset: 0; z-index: 80; border-radius: 0;
-  height: 100dvh;
-  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
-  background: var(--grafito);
+  height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 12px;
+  padding: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+  background: radial-gradient(70% 55% at 72% 0%, rgba(255, 159, 122, 0.12), transparent 70%), var(--grafito);
 }
-.visor.is-completo .visor__escena { aspect-ratio: auto; }
+.visor-marco .visor.is-completo, .visor.is-completo { background: radial-gradient(70% 55% at 72% 0%, rgba(255, 159, 122, 0.12), transparent 70%), var(--grafito); }
+.visor.is-completo .visor__escena, .visor-marco .visor.is-completo .visor__escena { aspect-ratio: auto; max-height: none; height: 100%; border-radius: var(--radio); box-shadow: none; }
+.visor.is-completo .visor__tabs, .visor-marco .visor.is-completo .visor__tabs { width: min(520px, 100%); margin: 0 auto; border-radius: 16px; }
+.visor.is-completo .visor__sup { top: 16px; left: 16px; right: 28px; gap: 10px; align-items: center; }
+.visor.is-completo .visor__info {
+  display: grid; min-width: 0; margin: 0; padding: 6px 14px; border-radius: 14px; line-height: 1.25;
+  background: rgba(22, 24, 29, 0.58); color: var(--blanco); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.visor__info strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.95rem; }
+.visor__info span { font-size: 0.82rem; color: rgba(255, 255, 255, 0.78); }
+.visor__info .precio__extra { color: rgba(255, 255, 255, 0.6); }
+.visor.is-completo .visor__ampliar { height: 44px; min-width: 44px; }
 body.sin-scroll { overflow: hidden; }
+/* La portada aísla sus capas: mientras su visor está en pantalla completa, sube por encima del encabezado */
+.hero:has(.visor.is-completo) { z-index: 90; }
 
+/* Sin transición de vista: entra con una ampliación suave */
 @media (prefers-reduced-motion: no-preference) {
   .visor.is-abriendo { animation: visor-abre 380ms var(--ease-out); }
 }
 @keyframes visor-abre { from { opacity: 0.4; transform: scale(0.98); } }
+/* Con transición de vista: la ventana crece desde su lugar y la página se funde detrás */
+::view-transition-group(visor-ampliado) { animation-duration: 520ms; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); overflow: clip; border-radius: var(--radio); }
+::view-transition-old(visor-ampliado), ::view-transition-new(visor-ampliado) { height: 100%; object-fit: cover; animation-duration: 520ms; }
+html.vt-ampliar div[data-barra], html.vt-ampliar .barra { view-transition-name: none; }
+html.vt-ampliar::view-transition-old(root) { animation: vt-fundir-sale 320ms ease both; }
+html.vt-ampliar::view-transition-new(root) { animation: vt-fundir-entra 320ms ease both; }
+@keyframes vt-fundir-sale { to { opacity: 0; } }
+@keyframes vt-fundir-entra { from { opacity: 0; } }
 
 /* ---------- Tarjetas de inmueble ---------- */
 /* Toda la tarjeta lleva al detalle (enlace estirado); el botón de vista rápida queda encima */
@@ -372,19 +414,53 @@ body.sin-scroll { overflow: hidden; }
 }
 .tarjeta__chips { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
 .pastilla--clara { background: var(--blanco); color: var(--grafito); }
+/* Vista rápida: solo el ojo, en vidrio oscuro, para no tapar la maqueta */
 .tarjeta__rapida {
-  position: absolute; right: 14%; bottom: 10px; z-index: 2;
-  display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px;
-  border: 0; border-radius: 999px; cursor: pointer;
-  background: var(--blanco); color: var(--grafito); font-weight: 700; font-size: 0.85rem;
-  transition: transform var(--t-press) var(--ease-out), opacity var(--t-ui) var(--ease-out);
+  position: absolute; right: 11%; bottom: 10px; z-index: 2;
+  display: inline-grid; place-items: center; width: 40px; height: 40px; padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 999px; cursor: pointer;
+  /* Sin desenfoque de fondo: hay uno por tarjeta y recalcularlos al bajar trababa el scroll en celular */
+  background: rgba(22, 24, 29, 0.72); color: var(--blanco);
+  transition: transform var(--t-press) var(--ease-out), opacity var(--t-ui) var(--ease-out), background-color var(--t-hover) var(--ease-out);
 }
-.tarjeta__rapida:active { transform: scale(0.96); }
+.tarjeta__rapida:active { transform: scale(0.94); }
 .tarjeta__rapida .icono { width: 18px; height: 18px; }
+@media (hover: hover) and (pointer: fine) { .tarjeta__rapida:hover { background: rgba(22, 24, 29, 0.82); } }
+
+/* ---------- Maqueta 3D (js/maqueta3d.js) ----------
+   Se pinta encima del dibujo plano; cuando está lista, el plano se va */
+.maqueta { position: absolute; inset: 0; }
+.maqueta__lienzo { display: block; width: 100%; height: 100%; opacity: 0; transition: opacity 600ms var(--ease-out); }
+.maqueta.is-lista .maqueta__lienzo { opacity: 1; }
+.con-maqueta > [data-modelo] { opacity: 0; transition: opacity 400ms var(--ease-out) 150ms; }
+/* Al encender las luces, el fondo se va a la noche con un resplandor cálido */
+.tarjeta__media::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(75% 65% at 46% 56%, rgba(255, 159, 122, 0.2), transparent 72%), rgba(8, 9, 12, 0.62);
+  opacity: 0; transition: opacity 520ms var(--ease-out);
+}
+.tarjeta.is-encendida .tarjeta__media::before { opacity: 1; }
+/* Medidas de cada cuarto: siempre ahí, pero calladas; se aclaran al encender */
+.maqueta__medidas { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.maqueta__medidas span {
+  position: absolute; left: 0; top: 0; padding: 1px 6px; border-radius: 999px; white-space: nowrap;
+  background: rgba(22, 24, 29, 0.5); color: var(--blanco); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.02em;
+  opacity: 0; transition: opacity 320ms var(--ease-out);
+}
+.maqueta.is-lista .maqueta__medidas span { opacity: 0.5; }
+.is-encendida .maqueta.is-lista .maqueta__medidas span { opacity: 0.95; }
+.visor__modelo { position: relative; }
+.visor__modelo .maqueta__medidas span { font-size: 0.72rem; padding: 2px 8px; }
+.visor__modelo .maqueta.is-lista .maqueta__medidas span { opacity: 0.6; }
+/* Al entrar al apartamento, la maqueta tocada crece y se funde mientras llega la página */
+::view-transition-group(maqueta-abre) { animation-duration: 560ms; }
+::view-transition-old(maqueta-abre) { animation: maqueta-abre 560ms var(--ease-in-out) both; }
+@keyframes maqueta-abre { 40% { opacity: 1; } to { opacity: 0; transform: scale(1.16); } }
 /* En computador aparece al pasar el mouse o al llegar con el teclado; en celular siempre está */
 @media (hover: hover) and (pointer: fine) {
   .tarjeta__rapida { opacity: 0; transform: translateY(6px); }
   .tarjeta:hover .tarjeta__rapida, .tarjeta:focus-within .tarjeta__rapida { opacity: 1; transform: none; }
+  .tarjeta:hover .tarjeta__rapida:active { transform: scale(0.94); }
 }
 .precio__extra { font-size: 0.7em; font-weight: 600; color: var(--tinta-2); letter-spacing: 0; }
 .barra-accion .precio__extra { color: rgba(255, 255, 255, 0.75); }
@@ -549,24 +625,18 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
   .hero__visor .visor__escena { aspect-ratio: 7 / 6; }
 }
 
-/* ---------- El marco que se abre ----------
-   El visor de la portada va dentro de un marco inclinado como el del logo.
-   Los polígonos están en % de la escena: marco exterior, ventana y vidrio. */
+/* ---------- La ventana con filo de luz ----------
+   El visor de la portada y del detalle va en una ventana redondeada, como las tarjetas.
+   Al cargar, el vidrio de luz la cubre y se corre hasta quedar como una franja en el
+   borde derecho (la del logo). Es rectangular: no recorta la maqueta ni las fotos. */
 .visor-marco {
-  --marco: polygon(7% 3%, 100% 0%, 93% 100%, 0% 100%);
-  --ventana: polygon(11.5% 8.5%, 95.5% 5.5%, 89% 94.5%, 4.5% 94.5%);
-  --vidrio-abierto: polygon(80% 94.5%, 89% 94.5%, 95.5% 5.5%, 93.5% 10%);
-  --grosor: 12px;
+  --ventana: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  --vidrio-abierto: polygon(calc(100% - 22px) 100%, 100% 100%, 100% 0%, calc(100% - 6px) 0%);
 }
 .visor-marco .visor { background: transparent; overflow: visible; border-radius: 0; }
-.visor-marco .visor__escena { overflow: visible; isolation: isolate; }
-/* Grosor del marco (cara lateral, como el relieve del logo) y frente blanco */
-.visor-marco .visor__escena::before,
-.visor-marco .visor__escena::after { content: ""; position: absolute; inset: 0; pointer-events: none; clip-path: var(--marco); }
-.visor-marco .visor__escena::before { background: var(--grafito-3); transform: translate(var(--grosor), var(--grosor)); z-index: -2; }
-.visor-marco .visor__escena::after { background: var(--blanco); z-index: -1; }
-/* Lo que se ve por la ventana */
-.visor-marco .visor__panel { clip-path: var(--ventana); background: radial-gradient(120% 90% at 78% 8%, #3a3f48, var(--grafito-2) 55%, #111215); }
+.visor-marco .visor__escena { overflow: clip; isolation: isolate; border-radius: var(--radio); box-shadow: 0 28px 60px -30px rgba(22, 24, 29, 0.6); }
+.campo-grafito .visor-marco .visor__escena { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 28px 60px -24px rgba(0, 0, 0, 0.7); }
+.visor-marco .visor__panel { background: radial-gradient(120% 90% at 78% 8%, #3a3f48, var(--grafito-2) 55%, #111215); }
 .visor-marco .visor__modelo svg { transform: scale(0.84) translate(1%, -2%); }
 .visor-marco .visor.is-completo .visor__modelo svg { transform: none; }
 /* El vidrio de luz: cubre la ventana y se corre hasta quedar como la franja del logo */
@@ -575,45 +645,23 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
   background: var(--luz);
   clip-path: var(--vidrio-abierto);
   opacity: 0.92;
+  transition: opacity 320ms var(--ease-out);
 }
 @media (prefers-reduced-motion: no-preference) {
   .js .marco__vidrio { clip-path: var(--ventana); animation: vidrio-se-corre 1300ms var(--ease-in-out) 550ms forwards; }
   .js .visor-marco .visor__escena { animation: marco-llega 1300ms var(--ease-expo) 120ms both; }
+  .js .hero__visor .visor__tabs { animation: sube-suave 1000ms var(--ease-expo) 650ms both; }
 }
 @keyframes vidrio-se-corre { to { clip-path: var(--vidrio-abierto); } }
 @keyframes marco-llega { from { opacity: 0; transform: translateY(40px) scale(0.94) rotate(-1.5deg); } }
-@media (prefers-reduced-motion: no-preference) {
-  .js .hero__visor .visor__tabs { animation: sube-suave 1000ms var(--ease-expo) 650ms both; }
-}
-/* En el detalle la ventana es ancha: la franja de vidrio se pega al borde derecho */
-.detalle-visor.visor-marco { --vidrio-abierto: polygon(85.5% 94.5%, 89% 94.5%, 95.5% 5.5%, 93% 5.6%); }
-/* Sobre fondo claro el marco es grafito, como en el logo */
-.detalle-visor.visor-marco .visor__escena::after { background: var(--grafito); }
-.detalle-visor.visor-marco .visor__escena::before { background: var(--tinta-2); opacity: 0.7; }
-/* Pastillas y notas dentro de la ventana */
-.visor-marco .visor__sup { top: 11%; left: 14%; right: 9%; }
-.visor-marco .visor__nota { left: 9%; right: 16%; bottom: 8%; }
+/* Con las fotos la franja se aparta para no tapar ninguna */
+.visor.is-fotos .marco__vidrio { opacity: 0; }
+/* Pastillas, notas y flechas dentro de la ventana (la de la derecha deja libre la franja) */
+.visor-marco .visor__sup { right: 22px; }
+.visor-marco .visor__nota { right: 36px; }
+.visor-marco .visor__flecha--sig { right: 36px; }
 .visor-marco .visor__cargar { z-index: 4; }
-.visor-marco .visor__tabs { margin-top: calc(var(--grosor) + 14px); border-radius: 14px; }
-/* En pantalla completa el marco se quita para dar todo el espacio al recorrido */
-.visor-marco .visor.is-completo .visor__escena::before,
-.visor-marco .visor.is-completo .visor__escena::after,
-.visor-marco .visor.is-completo .marco__vidrio { display: none; }
-.visor-marco .visor.is-completo .visor__panel { clip-path: none; }
-.visor-marco .visor.is-completo .visor__sup { top: 12px; left: 12px; right: 12px; }
-.visor-marco .visor.is-completo .visor__nota { left: 12px; right: 12px; bottom: 12px; }
-.visor-marco .visor.is-completo .visor__tabs { margin-top: 0; border-radius: 0; }
-.visor-marco .visor.is-completo { background: var(--grafito); }
-@media (max-width: 759px) {
-  .visor-marco {
-    --marco: polygon(5% 2%, 100% 0%, 95% 100%, 0% 100%);
-    --ventana: polygon(9% 6.5%, 96% 5%, 91.5% 95.5%, 4% 95.5%);
-    --vidrio-abierto: polygon(82% 95.5%, 91.5% 95.5%, 96% 5%, 94% 9.5%);
-    --grosor: 8px;
-  }
-  .visor-marco .visor__sup { top: 9%; left: 11%; right: 7%; }
-  .visor-marco .visor__nota { left: 7%; right: 12%; bottom: 7%; }
-}
+.visor-marco .visor__tabs { margin-top: 12px; border-radius: 14px; }
 
 /* ---------- Escena: las ventanas de Medellín ----------
    Una ciudad de noche. Al bajar se encienden las luces; las de luz cálida son inmuebles publicados.
@@ -641,7 +689,7 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 }
 @media (hover: hover) { .ficha-hogar:hover { background: rgba(255, 255, 255, 0.1); } }
 @keyframes ficha-entra { from { opacity: 0; transform: translateY(8px); } }
-.ficha-hogar__media { aspect-ratio: 1; border-radius: 12px; overflow: clip; background: var(--grafito-3); display: grid; place-items: center; }
+.ficha-hogar__media { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: clip; background: var(--grafito-3); display: grid; place-items: center; }
 .ficha-hogar__media img { width: 100%; height: 100%; object-fit: cover; }
 .ficha-hogar__media svg { width: 100%; height: 100%; transform: scale(1.25); }
 .ficha-hogar__datos { display: grid; gap: 2px; min-width: 0; }
@@ -726,6 +774,9 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 
 .zonas-mapa__mapa.con-3d { position: relative; height: min(78svh, 720px); padding: 0; overflow: clip; }
 .zonas-mapa__mapa.con-3d > svg, .zonas-mapa__mapa.con-3d > figcaption { display: none; }
+/* El valle se arma por partes: aparece con un fundido cuando ya está listo */
+.zonas-mapa__mapa.con-3d .escena3d__lienzo { opacity: 0; transition: opacity 700ms var(--ease-out); }
+.zonas-mapa__mapa.con-3d.is-lista .escena3d__lienzo { opacity: 1; }
 .valle3d__etiquetas { position: absolute; inset: 0; pointer-events: none; }
 .valle3d__etiqueta {
   position: absolute; left: 0; top: 0; pointer-events: auto; will-change: transform;
@@ -1104,6 +1155,22 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 .detalle-visor { padding: 12px 0 0; }
 .detalle-visor .visor__escena { aspect-ratio: 4 / 4.4; }
 @media (min-width: 760px) { .detalle-visor .visor__escena { aspect-ratio: 16 / 9; max-height: 74svh; width: 100%; } }
+/* Arriba del detalle: la maqueta y lo esencial juntos, sin espacio perdido.
+   En celular van uno debajo del otro; en computador, lado a lado y dentro de la pantalla */
+.detalle-arriba { display: grid; gap: 28px; padding-bottom: 8px; }
+.detalle-arriba .detalle-cabecera { padding-top: 16px; }
+.detalle__agendar { display: none; }
+@media (min-width: 760px) and (max-width: 959px) {
+  .detalle-arriba .detalle-visor .visor__escena { aspect-ratio: 4 / 3; max-height: 66svh; }
+}
+@media (min-width: 960px) {
+  .detalle-arriba { grid-template-columns: minmax(0, 1.85fr) minmax(280px, 1fr); gap: clamp(32px, 4vw, 64px); align-items: center; }
+  .detalle-arriba .detalle-visor .visor__escena { aspect-ratio: 5 / 4; max-height: max(380px, calc(100svh - 250px)); }
+  .detalle-arriba .detalle-cabecera { padding-top: 0; }
+  .detalle-arriba .detalle__titulo { font-size: clamp(2rem, 3.4vw, 3.4rem); }
+  .detalle__agendar { display: inline-flex; margin-top: 28px; }
+  .detalle-arriba + .detalle { padding-top: 64px; }
+}
 .migas { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--t-nota); color: var(--tinta-2); padding: 18px 0 0; }
 .migas a { text-decoration: none; }
 .detalle { display: grid; gap: 48px; padding-block: 24px 140px; }

@@ -11,6 +11,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/estilos.css">
   <script>document.documentElement.classList.add("js")</script>
+  <!-- Three.js para la maqueta 3D de cada inmueble (js/maqueta3d.js) -->
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
 </head>
 <body data-pagina="inmueble">
   <div data-barra></div>
@@ -18,13 +25,15 @@
   <main id="contenido">
     <div class="contenedor">
       <nav class="migas" aria-label="Ruta" id="migas"></nav>
-      <!-- Galería 3D: recorrido y fotos -->
-      <section class="detalle-visor visor-marco" id="visor" aria-label="Recorrido 3D y fotos"></section>
+      <!-- Arriba: la maqueta 3D y lo esencial, juntos (en computador, lado a lado) -->
+      <div class="detalle-arriba">
+        <!-- Galería 3D: recorrido y fotos -->
+        <section class="detalle-visor visor-marco" id="visor" aria-label="Recorrido 3D y fotos"></section>
+        <header class="detalle-cabecera" id="cabecera"></header>
+      </div>
 
       <div class="detalle">
         <div style="display:grid;gap:56px">
-          <header id="cabecera"></header>
-
           <section class="bloque" aria-labelledby="t-desc">
             <h2 id="t-desc">Sobre este apartamento</h2>
             <div id="descripcion"></div>
@@ -117,7 +126,8 @@
         <h1 class="detalle__titulo">${esc(p.titulo)}</h1>
         <p class="tarjeta__lugar" style="margin-top:10px">${I("ubicacion")}${MA.OPERACION[p.operacion]} · ${esc(MA.lugar(p))}</p>
         <p class="detalle__precio">${MA.precioHTML(p)}</p>
-        ${MA.specsHTML(p)}`;
+        ${MA.specsHTML(p)}
+        <a class="boton boton--grafito detalle__agendar" href="#agendar">${I("calendario")}Agendar visita</a>`;
 
       document.getElementById("descripcion").innerHTML = p.descripcion
         ? esc(p.descripcion).split(/\n{2,}/).map((t) => `<p style="margin-bottom:12px">${t.replace(/\n/g, "<br>")}</p>`).join("")

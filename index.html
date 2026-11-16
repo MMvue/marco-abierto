@@ -72,7 +72,6 @@
       <div class="contenedor">
         <div class="cabeza">
           <h2 id="t-recientes" data-aparece>Recorridos recién publicados</h2>
-          <p data-aparece style="--i:1">Pasa el dedo por las tarjetas y abre el que te guste: recorrido 3D y fotos en un mismo lugar.</p>
         </div>
         <div class="fila" id="recientes"></div>
         <p style="margin-top:32px"><a class="boton boton--grafito" href="buscar.html">Ver todos los inmuebles <svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-flecha"/></svg></a></p>
@@ -112,7 +111,6 @@
           </ul>
           <div style="display:flex;flex-wrap:wrap;gap:12px;--i:3" data-aparece>
             <a class="boton boton--grafito" href="propietarios.html#publicar">Publicar mi inmueble</a>
-            <a class="boton boton--claro" href="panel.html">Ver cómo es el panel</a>
           </div>
         </div>
         <div class="mini-panel" data-ui data-aparece style="--i:2" aria-label="Fragmento del panel del propietario">
@@ -154,11 +152,9 @@
         <div>
           <h2 id="t-socios" data-aparece>Refiere un inmueble y gana</h2>
           <p data-aparece style="--i:1">¿Conoces a alguien que quiere arrendar o vender su apartamento? Preséntanoslo. Cuando el negocio se cierre, recibes tu comisión.</p>
-          <p style="margin-top:14px;--i:2" data-aparece><span class="marcador">Porcentaje de comisión y condiciones</span></p>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:12px;--i:2" data-aparece>
           <a class="boton" href="propietarios.html#socios"><svg class="icono" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-socio"/></svg>Quiero ser socio referidor</a>
-          <a class="boton boton--claro" href="socio.html">Ver cómo es el panel</a>
         </div>
       </div>
     </section>
@@ -244,11 +240,11 @@
           elegido = k;
           const c = casillas.find((x) => x.k === k), p = c.hogar;
           const apto = `Piso ${c.piso} · Apto ${c.piso}0${c.c + 1}`;
-          const foto = MA.urlSegura((p.fotos || [])[0]);
           botones.forEach((b) => b.classList.toggle("is-elegida", Number(b.dataset.k) === k));
+          // La ficha muestra la maqueta 3D del apartamento (el 3D va primero, aunque haya fotos)
           ficha.innerHTML = `
             <a class="ficha-hogar" href="inmueble.html?id=${encodeURIComponent(p.id)}">
-              <span class="ficha-hogar__media">${foto ? `<img src="${foto}" alt="" decoding="async">` : MA.modeloSVG(p)}</span>
+              <span class="ficha-hogar__media">${MA.modeloSVG(p)}</span>
               <span class="ficha-hogar__datos">
                 <span class="ficha-hogar__apto">${apto} · ${MA.OPERACION[p.operacion]}</span>
                 <span class="ficha-hogar__titulo">${MA.esc(p.titulo)}</span>
@@ -257,8 +253,8 @@
                 <span class="ficha-hogar__ir">Asomarse ${MA.icono("flecha")}</span>
               </span>
             </a>`;
-          const svg = ficha.querySelector("[data-modelo]");
-          if (svg) MA.girarModelo(svg, 35);
+          MA.girarModelo(ficha.querySelector("[data-modelo]"), 35);
+          MA.maquetaEn(ficha.querySelector(".ficha-hogar__media"), p, { medidas: false, corrimiento: 0 });
           const b = botones.find((x) => Number(x.dataset.k) === k);
           const rc = ciudad.getBoundingClientRect(), rb = b.getBoundingClientRect();
           etiqueta.textContent = `Apto ${c.piso}0${c.c + 1}`;
@@ -472,7 +468,7 @@
       })();
 
       MA.iniciar();
-      MA.activarTarjetas();
+      MA.activarTarjetas(document.getElementById("recientes"), { giro: true });
     })();
   </script>
 </body>
