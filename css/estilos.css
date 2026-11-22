@@ -243,7 +243,8 @@ button, [role="button"], [role="tab"], .boton, .chip {
 .visor__indicador {
   position: absolute; top: 6px; bottom: 6px; left: 0; width: 0;
   border-radius: 10px; background: var(--grafito-3);
-  transition: transform 380ms var(--ease-out), width 380ms var(--ease-out);
+  /* Mismo movimiento que la pastilla de los selectores (.segmento) */
+  transition: transform 460ms cubic-bezier(0.32, 0.72, 0, 1), width 460ms cubic-bezier(0.32, 0.72, 0, 1);
   pointer-events: none;
 }
 .visor__indicador.sin-transicion { transition: none; }
@@ -372,7 +373,7 @@ html.vt-ampliar::view-transition-new(root) { animation: vt-fundir-entra 320ms ea
 @keyframes vt-fundir-entra { from { opacity: 0; } }
 
 /* ---------- Tarjetas de inmueble ---------- */
-/* Toda la tarjeta lleva al detalle (enlace estirado); el botón de vista rápida queda encima */
+/* Toda la tarjeta lleva al detalle (enlace estirado) */
 /* align-content: start: si la fila es más alta, la tarjeta no estira la imagen (con aspect-ratio se ensanchaba y se montaba sobre la vecina) */
 .tarjeta { position: relative; display: grid; gap: 14px; align-content: start; min-width: 0; color: inherit; border-radius: var(--radio); }
 .tarjeta__enlace { color: inherit; text-decoration: none; }
@@ -414,18 +415,6 @@ html.vt-ampliar::view-transition-new(root) { animation: vt-fundir-entra 320ms ea
 }
 .tarjeta__chips { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
 .pastilla--clara { background: var(--blanco); color: var(--grafito); }
-/* Vista rápida: solo el ojo, en vidrio oscuro, para no tapar la maqueta */
-.tarjeta__rapida {
-  position: absolute; right: 11%; bottom: 10px; z-index: 2;
-  display: inline-grid; place-items: center; width: 40px; height: 40px; padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 999px; cursor: pointer;
-  /* Sin desenfoque de fondo: hay uno por tarjeta y recalcularlos al bajar trababa el scroll en celular */
-  background: rgba(22, 24, 29, 0.72); color: var(--blanco);
-  transition: transform var(--t-press) var(--ease-out), opacity var(--t-ui) var(--ease-out), background-color var(--t-hover) var(--ease-out);
-}
-.tarjeta__rapida:active { transform: scale(0.94); }
-.tarjeta__rapida .icono { width: 18px; height: 18px; }
-@media (hover: hover) and (pointer: fine) { .tarjeta__rapida:hover { background: rgba(22, 24, 29, 0.82); } }
 
 /* ---------- Maqueta 3D (js/maqueta3d.js) ----------
    Se pinta encima del dibujo plano; cuando está lista, el plano se va */
@@ -456,12 +445,6 @@ html.vt-ampliar::view-transition-new(root) { animation: vt-fundir-entra 320ms ea
 ::view-transition-group(maqueta-abre) { animation-duration: 560ms; }
 ::view-transition-old(maqueta-abre) { animation: maqueta-abre 560ms var(--ease-in-out) both; }
 @keyframes maqueta-abre { 40% { opacity: 1; } to { opacity: 0; transform: scale(1.16); } }
-/* En computador aparece al pasar el mouse o al llegar con el teclado; en celular siempre está */
-@media (hover: hover) and (pointer: fine) {
-  .tarjeta__rapida { opacity: 0; transform: translateY(6px); }
-  .tarjeta:hover .tarjeta__rapida, .tarjeta:focus-within .tarjeta__rapida { opacity: 1; transform: none; }
-  .tarjeta:hover .tarjeta__rapida:active { transform: scale(0.94); }
-}
 .precio__extra { font-size: 0.7em; font-weight: 600; color: var(--tinta-2); letter-spacing: 0; }
 .barra-accion .precio__extra { color: rgba(255, 255, 255, 0.75); }
 .tarjeta__precio { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.02em; }
@@ -500,6 +483,28 @@ textarea.entrada { min-height: 110px; resize: vertical; }
 .segmento label { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; font-weight: 600; cursor: pointer; transition: background-color var(--t-hover) ease, color var(--t-hover) ease; }
 .segmento input:checked + label { background: var(--grafito); color: var(--blanco); }
 .segmento input:focus-visible + label { outline: 3px solid var(--luz); outline-offset: 2px; }
+/* Pastilla que se desliza: una sola pieza oscura viaja hasta la opción elegida en vez de saltar.
+   Todas las opciones miden lo mismo, así que basta saber cuántas hay (--n) y cuál está activa (--i).
+   Es solo CSS: también se mueve cuando el código cambia la opción (Limpiar, enlaces con filtros). */
+@supports selector(:has(*)) {
+  .segmento { --n: 2; --i: 0; position: relative; isolation: isolate; }
+  .segmento:has(> input:nth-of-type(3)), .segmento:has(> button:nth-of-type(3)) { --n: 3; }
+  .segmento:has(> input:nth-of-type(2):checked), .segmento:has(> button:nth-of-type(2)[aria-selected="true"]) { --i: 1; }
+  .segmento:has(> input:nth-of-type(3):checked), .segmento:has(> button:nth-of-type(3)[aria-selected="true"]) { --i: 2; }
+  .segmento::before {
+    content: ""; position: absolute; z-index: -1; top: 4px; bottom: 4px; left: 4px;
+    width: calc((100% - 8px - (var(--n) - 1) * 4px) / var(--n));
+    border-radius: 999px; background: var(--grafito);
+    box-shadow: 0 6px 14px -6px rgba(22, 24, 29, 0.45);
+    transform: translateX(calc(var(--i) * (100% + 4px)));
+    transition: transform 460ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .segmento input:checked + label, .segmento.ingreso__modo button[aria-selected="true"] { background: transparent; }
+  /* El texto cambia de color mientras la pastilla llega, no antes */
+  .segmento label, .segmento.ingreso__modo button { transition: color 320ms ease, transform var(--t-press) var(--ease-out); }
+  .segmento label:active { transform: scale(0.97); }
+}
+@media (prefers-reduced-motion: reduce) { .segmento::before { transition: none; } }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { position: relative; }
@@ -538,7 +543,8 @@ textarea.entrada { min-height: 110px; resize: vertical; }
 }
 
 /* ---------- Titular con líneas que suben ---------- */
-.lineas .linea { display: block; overflow: clip; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+/* El relleno inferior deja ver las letras que bajan de la línea (g, p, y) sin cambiar el espacio del título */
+.lineas .linea { display: block; overflow: clip; padding-bottom: 0.22em; margin-bottom: -0.22em; }
 .lineas [data-linea] { display: block; }
 @media (prefers-reduced-motion: no-preference) {
   .js .lineas [data-linea] { transform: translateY(135%); animation: sube 850ms var(--ease-expo) forwards; animation-delay: calc(80ms + var(--i) * 100ms); }
@@ -601,7 +607,8 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 .hero__texto { display: contents; }
 .hero__visor { order: 2; }
 .hero .buscador { order: 3; }
-.hero__titulo { font-size: var(--t-display); letter-spacing: -0.045em; line-height: 0.92; }
+/* Interlineado 1.05: en Manrope 800 la "p" baja 0.24em y la "h" sube 0.72em; así quedan con aire entre renglones */
+.hero__titulo { font-size: var(--t-display); letter-spacing: -0.045em; line-height: 1.05; }
 .hero__titulo .menta { color: var(--luz); }
 .hero__bajada { font-size: var(--t-sub); max-width: 34ch; color: rgba(255, 255, 255, 0.92); margin-top: 20px; }
 .buscador {
@@ -944,8 +951,14 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
 .filtro-grupo, .filtro-grupo__cuerpo > * { min-width: 0; }
 .filtros fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
 .filtros legend { font-weight: 700; margin-bottom: 10px; padding: 0; }
-.filtros .segmento { display: flex; width: 100%; }
-.filtros .segmento label { flex: 1; justify-content: center; padding: 0 8px; }
+/* Tres opciones del mismo ancho para que la pastilla deslizante calce exacta */
+.filtros .segmento { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; }
+.filtros .segmento label { justify-content: center; gap: 6px; padding: 0 4px; white-space: nowrap; }
+.filtros .segmento .icono { width: 18px; height: 18px; }
+/* Con ícono, las tres opciones necesitan unos 310 px; si la columna de filtros es más angosta
+   (computador, celulares pequeños) van solo con texto para que nada se corte */
+.filtros fieldset:has(> .segmento) { container-type: inline-size; }
+@container (max-width: 309.98px) { .filtros .segmento .icono { display: none; } }
 .rango { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .filtros__nota { font-size: var(--t-nota); color: var(--tinta-2); }
 .abrir-filtros { min-height: 44px; padding: 0 16px; }
@@ -1034,7 +1047,9 @@ div[data-barra] { display: block; min-height: calc(64px + env(safe-area-inset-to
   .selector__lista:not([hidden]) { animation: selector-abre 160ms var(--ease-out); }
   @keyframes selector-abre { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
 }
-.vista-toggle label { min-height: 40px; padding: 0 14px; }
+/* Lista y Mapa del mismo ancho, para que la pastilla deslizante calce exacta en las dos */
+.vista-toggle { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+.vista-toggle label { min-height: 40px; padding: 0 14px; justify-content: center; }
 .vista-toggle .icono { width: 18px; height: 18px; }
 /* En celular: Filtros | Ordenar | Lista/Mapa en una sola fila */
 @media (max-width: 959px) {

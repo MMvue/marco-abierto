@@ -567,7 +567,7 @@ const MA = (() => {
     return 18 + (h % 50);
   };
 
-  // Inmuebles pintados en tarjetas, para abrir la vista rápida sin volver a buscarlos
+  // Inmuebles pintados en tarjetas, para abrir la vista rápida (desde el mapa) sin volver a buscarlos
   const registro = new Map();
 
   // Cada tarjeta sin foto tiene su propia luz de fondo (amanecer, día, tarde o noche), siempre la misma para el inmueble
@@ -587,7 +587,6 @@ const MA = (() => {
           ${con3d ? `<span class="pastilla">${icono("cubo")}3D</span>` : ""}
           <span class="pastilla pastilla--clara">${OPERACION[p.operacion]}</span>
         </span>
-        <button class="tarjeta__rapida" type="button" data-vista-rapida="${esc(p.id)}" aria-label="Vista rápida" title="Vista rápida">${icono("ojo")}</button>
       </div>
       <div class="tarjeta__cuerpo">
         <p class="tarjeta__precio">${precioHTML(p)}</p>
